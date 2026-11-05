@@ -1,0 +1,18 @@
+{
+  "materialName": "m_eye",
+  "col": {
+    "m_FileID": 0,
+    "m_PathID": 1598638726040395849
+  },
+  "sdw": {
+    "m_FileID": 0,
+    "m_PathID": -7057271600961741625
+  },
+  "def": {
+    "m_FileID": 0,
+    "m_PathID": 9066964339635861890
+  },
+  "tileX": 3,
+  "tileY": 3,
+  "tileFPS": 12
+}

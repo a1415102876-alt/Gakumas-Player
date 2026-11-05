@@ -1,0 +1,435 @@
+{
+  "schema": "gakumas-star-eyes/v1",
+  "sourceIndex": "G:\\SillyTavern\\SillyTavern\\tools\\gakumas-scene-export\\generated\\cab-index.json",
+  "variants": [
+    {
+      "id": "amao",
+      "materialBundle": "mef_mat_chr_amao_eye-kirakirasmall-001",
+      "materialKind": "small",
+      "animationBundles": [
+        "mot_all_chr_amao_facial-all-unique-kirakirasmall1_in"
+      ],
+      "materialName": "m_eye",
+      "tileX": 3,
+      "tileY": 3,
+      "tileFPS": 12,
+      "textures": [
+        {
+          "name": "t_chr_amao_eye-kirakirasmall-001_def",
+          "file": "assets/facial-effects/star-eyes/amao/textures/t_chr_amao_eye-kirakirasmall-001_def.png",
+          "width": 1024,
+          "height": 1024
+        },
+        {
+          "name": "t_chr_amao_eye-kirakirasmall-001_col_alp",
+          "file": "assets/facial-effects/star-eyes/amao/textures/t_chr_amao_eye-kirakirasmall-001_col_alp.png",
+          "width": 1024,
+          "height": 1024
+        },
+        {
+          "name": "t_chr_amao_eye-kirakirasmall-001_sdw",
+          "file": "assets/facial-effects/star-eyes/amao/textures/t_chr_amao_eye-kirakirasmall-001_sdw.png",
+          "width": 1024,
+          "height": 1024
+        }
+      ],
+      "directory": "star-eyes/amao"
+    },
+    {
+      "id": "atbm",
+      "materialBundle": "mef_mat_chr_atbm_eye-kirakira-001",
+      "materialKind": "regular",
+      "animationBundles": [],
+      "materialName": "m_eye",
+      "tileX": 3,
+      "tileY": 3,
+      "tileFPS": 10,
+      "textures": [
+        {
+          "name": "t_chr_atbm_eye-kirakira-001_def",
+          "file": "assets/facial-effects/star-eyes/atbm/textures/t_chr_atbm_eye-kirakira-001_def.png",
+          "width": 1024,
+          "height": 1024
+        },
+        {
+          "name": "t_chr_atbm_eye-kirakira-001_sdw",
+          "file": "assets/facial-effects/star-eyes/atbm/textures/t_chr_atbm_eye-kirakira-001_sdw.png",
+          "width": 1024,
+          "height": 1024
+        },
+        {
+          "name": "t_chr_atbm_eye-kirakira-001_col_alp",
+          "file": "assets/facial-effects/star-eyes/atbm/textures/t_chr_atbm_eye-kirakira-001_col_alp.png",
+          "width": 1024,
+          "height": 1024
+        }
+      ],
+      "directory": "star-eyes/atbm"
+    },
+    {
+      "id": "fktn",
+      "materialBundle": "mef_mat_chr_fktn_eye-kirakira-001",
+      "materialKind": "regular",
+      "animationBundles": [
+        "mot_all_chr_fktn_facial-all-unique-kirakira1_in"
+      ],
+      "materialName": "m_eye",
+      "tileX": 3,
+      "tileY": 3,
+      "tileFPS": 10,
+      "textures": [
+        {
+          "name": "t_chr_fktn_eye-kirakira-001_sdw",
+          "file": "assets/facial-effects/star-eyes/fktn/textures/t_chr_fktn_eye-kirakira-001_sdw.png",
+          "width": 1024,
+          "height": 1024
+        },
+        {
+          "name": "t_chr_fktn_eye-kirakira-001_col_alp",
+          "file": "assets/facial-effects/star-eyes/fktn/textures/t_chr_fktn_eye-kirakira-001_col_alp.png",
+          "width": 1024,
+          "height": 1024
+        },
+        {
+          "name": "t_chr_fktn_eye-kirakira-001_def",
+          "file": "assets/facial-effects/star-eyes/fktn/textures/t_chr_fktn_eye-kirakira-001_def.png",
+          "width": 1024,
+          "height": 1024
+        }
+      ],
+      "directory": "star-eyes/fktn"
+    },
+    {
+      "id": "hmsz",
+      "materialBundle": "mef_mat_chr_hmsz_eye-kirakirasmall-001",
+      "materialKind": "small",
+      "animationBundles": [
+        "mot_all_chr_hmsz_facial-all-unique-kirakirasmall1_in"
+      ],
+      "materialName": "m_eye",
+      "tileX": 3,
+      "tileY": 3,
+      "tileFPS": 12,
+      "textures": [
+        {
+          "name": "t_chr_hmsz_eye-kirakirasmall-001_sdw",
+          "file": "assets/facial-effects/star-eyes/hmsz/textures/t_chr_hmsz_eye-kirakirasmall-001_sdw.png",
+          "width": 1024,
+          "height": 1024
+        },
+        {
+          "name": "t_chr_hmsz_eye-kirakirasmall-001_col_alp",
+          "file": "assets/facial-effects/star-eyes/hmsz/textures/t_chr_hmsz_eye-kirakirasmall-001_col_alp.png",
+          "width": 1024,
+          "height": 1024
+        },
+        {
+          "name": "t_chr_hmsz_eye-kirakirasmall-001_def",
+          "file": "assets/facial-effects/star-eyes/hmsz/textures/t_chr_hmsz_eye-kirakirasmall-001_def.png",
+          "width": 1024,
+          "height": 1024
+        }
+      ],
+      "directory": "star-eyes/hmsz"
+    },
+    {
+      "id": "hrnm",
+      "materialBundle": "mef_mat_chr_hrnm_eye-kirakirasmall-001",
+      "materialKind": "small",
+      "animationBundles": [
+        "mot_all_chr_hrnm_facial-all-unique-kirakirasmall1_in"
+      ],
+      "materialName": "m_eye",
+      "tileX": 3,
+      "tileY": 3,
+      "tileFPS": 10,
+      "textures": [
+        {
+          "name": "t_chr_hrnm_eye-kirakirasmall-001_def",
+          "file": "assets/facial-effects/star-eyes/hrnm/textures/t_chr_hrnm_eye-kirakirasmall-001_def.png",
+          "width": 1024,
+          "height": 1024
+        },
+        {
+          "name": "t_chr_hrnm_eye-kirakirasmall-001_col_alp",
+          "file": "assets/facial-effects/star-eyes/hrnm/textures/t_chr_hrnm_eye-kirakirasmall-001_col_alp.png",
+          "width": 1024,
+          "height": 1024
+        },
+        {
+          "name": "t_chr_hrnm_eye-kirakirasmall-001_sdw",
+          "file": "assets/facial-effects/star-eyes/hrnm/textures/t_chr_hrnm_eye-kirakirasmall-001_sdw.png",
+          "width": 1024,
+          "height": 1024
+        }
+      ],
+      "directory": "star-eyes/hrnm"
+    },
+    {
+      "id": "hski",
+      "materialBundle": "mef_mat_chr_hski_eye-kirakira-001",
+      "materialKind": "regular",
+      "animationBundles": [
+        "mot_all_chr_hski_facial-all-unique-kirakira1_in"
+      ],
+      "materialName": "m_eye",
+      "tileX": 3,
+      "tileY": 3,
+      "tileFPS": 10,
+      "textures": [
+        {
+          "name": "t_chr_hski_eye-kirakira-001_col_alp",
+          "file": "assets/facial-effects/star-eyes/hski/textures/t_chr_hski_eye-kirakira-001_col_alp.png",
+          "width": 1024,
+          "height": 1024
+        },
+        {
+          "name": "t_chr_hski_eye-kirakira-001_sdw",
+          "file": "assets/facial-effects/star-eyes/hski/textures/t_chr_hski_eye-kirakira-001_sdw.png",
+          "width": 1024,
+          "height": 1024
+        },
+        {
+          "name": "t_chr_hski_eye-kirakira-001_def",
+          "file": "assets/facial-effects/star-eyes/hski/textures/t_chr_hski_eye-kirakira-001_def.png",
+          "width": 1024,
+          "height": 1024
+        }
+      ],
+      "directory": "star-eyes/hski"
+    },
+    {
+      "id": "hume",
+      "materialBundle": "mef_mat_chr_hume_eye-kirakira-001",
+      "materialKind": "regular",
+      "animationBundles": [
+        "mot_all_chr_hume_facial-all-unique-kirakira1_in"
+      ],
+      "materialName": "m_eye",
+      "tileX": 3,
+      "tileY": 3,
+      "tileFPS": 10,
+      "textures": [
+        {
+          "name": "t_chr_hume_eye-kirakira-001_sdw",
+          "file": "assets/facial-effects/star-eyes/hume/textures/t_chr_hume_eye-kirakira-001_sdw.png",
+          "width": 1024,
+          "height": 1024
+        },
+        {
+          "name": "t_chr_hume_eye-kirakira-001_def",
+          "file": "assets/facial-effects/star-eyes/hume/textures/t_chr_hume_eye-kirakira-001_def.png",
+          "width": 1024,
+          "height": 1024
+        },
+        {
+          "name": "t_chr_hume_eye-kirakira-001_col_alp",
+          "file": "assets/facial-effects/star-eyes/hume/textures/t_chr_hume_eye-kirakira-001_col_alp.png",
+          "width": 1024,
+          "height": 1024
+        }
+      ],
+      "directory": "star-eyes/hume"
+    },
+    {
+      "id": "jsna",
+      "materialBundle": "mef_mat_chr_jsna_eye-kirakira-001",
+      "materialKind": "regular",
+      "animationBundles": [
+        "mot_all_chr_jsna_facial-all-unique-kirakira1_in"
+      ],
+      "materialName": "m_eye",
+      "tileX": 3,
+      "tileY": 3,
+      "tileFPS": 10,
+      "textures": [
+        {
+          "name": "t_chr_jsna_eye-kirakira-001_def",
+          "file": "assets/facial-effects/star-eyes/jsna/textures/t_chr_jsna_eye-kirakira-001_def.png",
+          "width": 1024,
+          "height": 1024
+        },
+        {
+          "name": "t_chr_jsna_eye-kirakira-001_col_alp",
+          "file": "assets/facial-effects/star-eyes/jsna/textures/t_chr_jsna_eye-kirakira-001_col_alp.png",
+          "width": 1024,
+          "height": 1024
+        },
+        {
+          "name": "t_chr_jsna_eye-kirakira-001_sdw",
+          "file": "assets/facial-effects/star-eyes/jsna/textures/t_chr_jsna_eye-kirakira-001_sdw.png",
+          "width": 1024,
+          "height": 1024
+        }
+      ],
+      "directory": "star-eyes/jsna"
+    },
+    {
+      "id": "kcna",
+      "materialBundle": "mef_mat_chr_kcna_eye-kirakira-001",
+      "materialKind": "regular",
+      "animationBundles": [
+        "mot_all_chr_kcna_facial-all-unique-kirakira1_in",
+        "mot_all_chr_kcna_facial-all-unique-kirakira2_in"
+      ],
+      "materialName": "m_eye",
+      "tileX": 3,
+      "tileY": 3,
+      "tileFPS": 10,
+      "textures": [
+        {
+          "name": "t_chr_kcna_eye-kirakira-001_sdw",
+          "file": "assets/facial-effects/star-eyes/kcna/textures/t_chr_kcna_eye-kirakira-001_sdw.png",
+          "width": 1024,
+          "height": 1024
+        },
+        {
+          "name": "t_chr_kcna_eye-kirakira-001_def",
+          "file": "assets/facial-effects/star-eyes/kcna/textures/t_chr_kcna_eye-kirakira-001_def.png",
+          "width": 1024,
+          "height": 1024
+        },
+        {
+          "name": "t_chr_kcna_eye-kirakira-001_col_alp",
+          "file": "assets/facial-effects/star-eyes/kcna/textures/t_chr_kcna_eye-kirakira-001_col_alp.png",
+          "width": 1024,
+          "height": 1024
+        }
+      ],
+      "directory": "star-eyes/kcna"
+    },
+    {
+      "id": "kllj",
+      "materialBundle": "mef_mat_chr_kllj_eye-kirakirasmall-001",
+      "materialKind": "small",
+      "animationBundles": [
+        "mot_all_chr_kllj_facial-all-unique-kirakirasmall1_in"
+      ],
+      "materialName": "m_eye",
+      "tileX": 3,
+      "tileY": 3,
+      "tileFPS": 12,
+      "textures": [
+        {
+          "name": "t_chr_kllj_eye-kirakirasmall-001_col_alp",
+          "file": "assets/facial-effects/star-eyes/kllj/textures/t_chr_kllj_eye-kirakirasmall-001_col_alp.png",
+          "width": 1024,
+          "height": 1024
+        },
+        {
+          "name": "t_chr_kllj_eye-kirakirasmall-001_sdw",
+          "file": "assets/facial-effects/star-eyes/kllj/textures/t_chr_kllj_eye-kirakirasmall-001_sdw.png",
+          "width": 1024,
+          "height": 1024
+        },
+        {
+          "name": "t_chr_kllj_eye-kirakirasmall-001_def",
+          "file": "assets/facial-effects/star-eyes/kllj/textures/t_chr_kllj_eye-kirakirasmall-001_def.png",
+          "width": 1024,
+          "height": 1024
+        }
+      ],
+      "directory": "star-eyes/kllj"
+    },
+    {
+      "id": "shro",
+      "materialBundle": "mef_mat_chr_shro_eye-kirakirasmall-001",
+      "materialKind": "small",
+      "animationBundles": [
+        "mot_all_chr_shro_facial-all-unique-kirakirasmall1_in"
+      ],
+      "materialName": "m_eye",
+      "tileX": 3,
+      "tileY": 3,
+      "tileFPS": 12,
+      "textures": [
+        {
+          "name": "t_chr_shro_eye-kirakirasmall-001_col_alp",
+          "file": "assets/facial-effects/star-eyes/shro/textures/t_chr_shro_eye-kirakirasmall-001_col_alp.png",
+          "width": 1024,
+          "height": 1024
+        },
+        {
+          "name": "t_chr_shro_eye-kirakirasmall-001_sdw",
+          "file": "assets/facial-effects/star-eyes/shro/textures/t_chr_shro_eye-kirakirasmall-001_sdw.png",
+          "width": 1024,
+          "height": 1024
+        },
+        {
+          "name": "t_chr_shro_eye-kirakirasmall-001_def",
+          "file": "assets/facial-effects/star-eyes/shro/textures/t_chr_shro_eye-kirakirasmall-001_def.png",
+          "width": 1024,
+          "height": 1024
+        }
+      ],
+      "directory": "star-eyes/shro"
+    },
+    {
+      "id": "ssmk",
+      "materialBundle": "mef_mat_chr_ssmk_eye-kirakira-001",
+      "materialKind": "regular",
+      "animationBundles": [
+        "mot_all_chr_ssmk_facial-all-unique-kirakira1_in"
+      ],
+      "materialName": "m_eye",
+      "tileX": 3,
+      "tileY": 3,
+      "tileFPS": 10,
+      "textures": [
+        {
+          "name": "t_chr_ssmk_eye-kirakira-001_def",
+          "file": "assets/facial-effects/star-eyes/ssmk/textures/t_chr_ssmk_eye-kirakira-001_def.png",
+          "width": 1024,
+          "height": 1024
+        },
+        {
+          "name": "t_chr_ssmk_eye-kirakira-001_sdw",
+          "file": "assets/facial-effects/star-eyes/ssmk/textures/t_chr_ssmk_eye-kirakira-001_sdw.png",
+          "width": 1024,
+          "height": 1024
+        },
+        {
+          "name": "t_chr_ssmk_eye-kirakira-001_col_alp",
+          "file": "assets/facial-effects/star-eyes/ssmk/textures/t_chr_ssmk_eye-kirakira-001_col_alp.png",
+          "width": 1024,
+          "height": 1024
+        }
+      ],
+      "directory": "star-eyes/ssmk"
+    },
+    {
+      "id": "ttmr",
+      "materialBundle": "mef_mat_chr_ttmr_eye-kirakira-001",
+      "materialKind": "regular",
+      "animationBundles": [
+        "mot_all_chr_ttmr_facial-all-unique-kirakira1_in"
+      ],
+      "materialName": "m_eye",
+      "tileX": 3,
+      "tileY": 3,
+      "tileFPS": 10,
+      "textures": [
+        {
+          "name": "t_chr_ttmr_eye-kirakira-001_sdw",
+          "file": "assets/facial-effects/star-eyes/ttmr/textures/t_chr_ttmr_eye-kirakira-001_sdw.png",
+          "width": 1024,
+          "height": 1024
+        },
+        {
+          "name": "t_chr_ttmr_eye-kirakira-001_col_alp",
+          "file": "assets/facial-effects/star-eyes/ttmr/textures/t_chr_ttmr_eye-kirakira-001_col_alp.png",
+          "width": 1024,
+          "height": 1024
+        },
+        {
+          "name": "t_chr_ttmr_eye-kirakira-001_def",
+          "file": "assets/facial-effects/star-eyes/ttmr/textures/t_chr_ttmr_eye-kirakira-001_def.png",
+          "width": 1024,
+          "height": 1024
+        }
+      ],
+      "directory": "star-eyes/ttmr"
+    }
+  ],
+  "missingExpected": []
+}

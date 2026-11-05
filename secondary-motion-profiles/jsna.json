@@ -1,0 +1,6172 @@
+{
+  "version": 2,
+  "drivers": [
+    {
+      "className": "ActorAnimationQuartzDriverSkirtBone",
+      "bone": "RightBackSkirt_A",
+      "enabled": true,
+      "setting": {
+        "rotationOrder": 0,
+        "innerCoefficient": [
+          0.0,
+          0.10000000149011612,
+          0.0
+        ],
+        "outerCoefficient": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "limitMin": [
+          -180.0,
+          -360.0,
+          -25.0
+        ],
+        "limitMax": [
+          180.0,
+          45.0,
+          360.0
+        ],
+        "connectionAxis": 0,
+        "referenceBone": {
+          "pathId": -593523509999733537,
+          "name": "RightUpLeg"
+        }
+      },
+      "part": "body"
+    },
+    {
+      "className": "ActorAnimationQuartzDriverSkirtBone",
+      "bone": "RightFrontSideSkirt_A",
+      "enabled": true,
+      "setting": {
+        "rotationOrder": 0,
+        "innerCoefficient": [
+          0.0,
+          0.10000000149011612,
+          0.10000000149011612
+        ],
+        "outerCoefficient": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "limitMin": [
+          -180.0,
+          -360.0,
+          -360.0
+        ],
+        "limitMax": [
+          180.0,
+          20.0,
+          20.0
+        ],
+        "connectionAxis": 0,
+        "referenceBone": {
+          "pathId": -593523509999733537,
+          "name": "RightUpLeg"
+        }
+      },
+      "part": "body"
+    },
+    {
+      "className": "ActorAnimationQuartzDriverSkirtBone",
+      "bone": "LeftBackSideSkirt_A",
+      "enabled": true,
+      "setting": {
+        "rotationOrder": 0,
+        "innerCoefficient": [
+          0.0,
+          0.10000000149011612,
+          0.10000000149011612
+        ],
+        "outerCoefficient": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "limitMin": [
+          -180.0,
+          -360.0,
+          -20.0
+        ],
+        "limitMax": [
+          180.0,
+          25.0,
+          360.0
+        ],
+        "connectionAxis": 0,
+        "referenceBone": {
+          "pathId": -996556765384313633,
+          "name": "LeftUpLeg"
+        }
+      },
+      "part": "body"
+    },
+    {
+      "className": "ActorAnimationQuartzDriverSkirtBone",
+      "bone": "RightBackSideSkirt_A",
+      "enabled": true,
+      "setting": {
+        "rotationOrder": 0,
+        "innerCoefficient": [
+          0.0,
+          0.10000000149011612,
+          0.10000000149011612
+        ],
+        "outerCoefficient": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "limitMin": [
+          -180.0,
+          -360.0,
+          -30.0
+        ],
+        "limitMax": [
+          180.0,
+          25.0,
+          360.0
+        ],
+        "connectionAxis": 0,
+        "referenceBone": {
+          "pathId": -593523509999733537,
+          "name": "RightUpLeg"
+        }
+      },
+      "part": "body"
+    },
+    {
+      "className": "ActorAnimationQuartzDriverSkirtBone",
+      "bone": "RightFrontSkirt_A",
+      "enabled": true,
+      "setting": {
+        "rotationOrder": 0,
+        "innerCoefficient": [
+          0.0,
+          0.10000000149011612,
+          0.10000000149011612
+        ],
+        "outerCoefficient": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "limitMin": [
+          -180.0,
+          -360.0,
+          -360.0
+        ],
+        "limitMax": [
+          180.0,
+          35.0,
+          20.0
+        ],
+        "connectionAxis": 0,
+        "referenceBone": {
+          "pathId": -593523509999733537,
+          "name": "RightUpLeg"
+        }
+      },
+      "part": "body"
+    },
+    {
+      "className": "ActorAnimationQuartzDriverSkirtBone",
+      "bone": "LeftFrontSkirt_A",
+      "enabled": true,
+      "setting": {
+        "rotationOrder": 0,
+        "innerCoefficient": [
+          0.0,
+          0.10000000149011612,
+          0.10000000149011612
+        ],
+        "outerCoefficient": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "limitMin": [
+          -180.0,
+          -360.0,
+          -360.0
+        ],
+        "limitMax": [
+          180.0,
+          35.0,
+          20.0
+        ],
+        "connectionAxis": 0,
+        "referenceBone": {
+          "pathId": -996556765384313633,
+          "name": "LeftUpLeg"
+        }
+      },
+      "part": "body"
+    },
+    {
+      "className": "ActorAnimationQuartzDriverSkirtBone",
+      "bone": "LeftFrontSideSkirt_A",
+      "enabled": true,
+      "setting": {
+        "rotationOrder": 0,
+        "innerCoefficient": [
+          0.0,
+          0.10000000149011612,
+          0.10000000149011612
+        ],
+        "outerCoefficient": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "limitMin": [
+          -180.0,
+          -360.0,
+          -360.0
+        ],
+        "limitMax": [
+          180.0,
+          20.0,
+          20.0
+        ],
+        "connectionAxis": 0,
+        "referenceBone": {
+          "pathId": -996556765384313633,
+          "name": "LeftUpLeg"
+        }
+      },
+      "part": "body"
+    },
+    {
+      "className": "ActorAnimationQuartzDriverSkirtBone",
+      "bone": "LeftBackSkirt_A",
+      "enabled": true,
+      "setting": {
+        "rotationOrder": 0,
+        "innerCoefficient": [
+          0.0,
+          0.10000000149011612,
+          0.0
+        ],
+        "outerCoefficient": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "limitMin": [
+          -180.0,
+          -360.0,
+          -25.0
+        ],
+        "limitMax": [
+          180.0,
+          45.0,
+          360.0
+        ],
+        "connectionAxis": 0,
+        "referenceBone": {
+          "pathId": -996556765384313633,
+          "name": "LeftUpLeg"
+        }
+      },
+      "part": "body"
+    },
+    {
+      "className": "ActorAnimationQuartzDriverHairBone",
+      "bone": "RightBackSideHair_A",
+      "enabled": true,
+      "setting": {
+        "translateConnectionAxis": 3,
+        "headTranslateCoefficient": [
+          0.05000000074505806,
+          0.05000000074505806,
+          0.05000000074505806
+        ],
+        "headTranslateLimitMin": [
+          -180.0,
+          -180.0,
+          -180.0
+        ],
+        "headTranslateLimitMax": [
+          0.0,
+          180.0,
+          180.0
+        ],
+        "rotationOrder": 0,
+        "headRotateCoefficient": [
+          -0.6000000238418579,
+          -0.6000000238418579,
+          -0.6000000238418579
+        ],
+        "headRotateLimitMin": [
+          -33.0,
+          -17.0,
+          -180.0
+        ],
+        "headRotateLimitMax": [
+          15.0,
+          180.0,
+          180.0
+        ],
+        "rotateConnectionAxis": 0,
+        "neckRotateCoefficient": [
+          -0.6000000238418579,
+          -0.30000001192092896,
+          -0.6000000238418579
+        ],
+        "neckRotateLimitMin": [
+          -15.0,
+          -10.0,
+          -20.0
+        ],
+        "neckRotateLimitMax": [
+          15.0,
+          10.0,
+          20.0
+        ],
+        "referenceHeadBone": null,
+        "referenceNeckBone": null,
+        "composeType": 0
+      },
+      "part": "hair"
+    },
+    {
+      "className": "ActorAnimationQuartzDriverHairBone",
+      "bone": "LeftHair_A",
+      "enabled": true,
+      "setting": {
+        "translateConnectionAxis": 3,
+        "headTranslateCoefficient": [
+          0.05000000074505806,
+          0.05000000074505806,
+          0.0
+        ],
+        "headTranslateLimitMin": [
+          -180.0,
+          -180.0,
+          -180.0
+        ],
+        "headTranslateLimitMax": [
+          0.0,
+          180.0,
+          180.0
+        ],
+        "rotationOrder": 0,
+        "headRotateCoefficient": [
+          -0.6000000238418579,
+          -0.6000000238418579,
+          -0.6000000238418579
+        ],
+        "headRotateLimitMin": [
+          -33.0,
+          -17.0,
+          -180.0
+        ],
+        "headRotateLimitMax": [
+          15.0,
+          180.0,
+          180.0
+        ],
+        "rotateConnectionAxis": 0,
+        "neckRotateCoefficient": [
+          -0.6000000238418579,
+          -0.30000001192092896,
+          -0.6000000238418579
+        ],
+        "neckRotateLimitMin": [
+          -15.0,
+          -10.0,
+          -20.0
+        ],
+        "neckRotateLimitMax": [
+          15.0,
+          10.0,
+          20.0
+        ],
+        "referenceHeadBone": null,
+        "referenceNeckBone": null,
+        "composeType": 0
+      },
+      "part": "hair"
+    },
+    {
+      "className": "ActorAnimationQuartzDriverHairBone",
+      "bone": "RightBackTopHair_A",
+      "enabled": true,
+      "setting": {
+        "translateConnectionAxis": 3,
+        "headTranslateCoefficient": [
+          0.05000000074505806,
+          0.05000000074505806,
+          0.0
+        ],
+        "headTranslateLimitMin": [
+          -180.0,
+          -180.0,
+          -180.0
+        ],
+        "headTranslateLimitMax": [
+          0.0,
+          180.0,
+          180.0
+        ],
+        "rotationOrder": 0,
+        "headRotateCoefficient": [
+          -0.6000000238418579,
+          -0.6000000238418579,
+          -0.6000000238418579
+        ],
+        "headRotateLimitMin": [
+          -33.0,
+          -17.0,
+          -180.0
+        ],
+        "headRotateLimitMax": [
+          15.0,
+          180.0,
+          180.0
+        ],
+        "rotateConnectionAxis": 0,
+        "neckRotateCoefficient": [
+          -0.6000000238418579,
+          -0.30000001192092896,
+          -0.6000000238418579
+        ],
+        "neckRotateLimitMin": [
+          -15.0,
+          -10.0,
+          -20.0
+        ],
+        "neckRotateLimitMax": [
+          15.0,
+          10.0,
+          20.0
+        ],
+        "referenceHeadBone": null,
+        "referenceNeckBone": null,
+        "composeType": 0
+      },
+      "part": "hair"
+    },
+    {
+      "className": "ActorAnimationQuartzDriverHairBone",
+      "bone": "CenterBackTopHair_A",
+      "enabled": true,
+      "setting": {
+        "translateConnectionAxis": 3,
+        "headTranslateCoefficient": [
+          0.05000000074505806,
+          0.05000000074505806,
+          0.0
+        ],
+        "headTranslateLimitMin": [
+          -180.0,
+          -180.0,
+          -180.0
+        ],
+        "headTranslateLimitMax": [
+          0.0,
+          180.0,
+          180.0
+        ],
+        "rotationOrder": 0,
+        "headRotateCoefficient": [
+          -0.6000000238418579,
+          -0.6000000238418579,
+          -0.6000000238418579
+        ],
+        "headRotateLimitMin": [
+          -33.0,
+          -17.0,
+          -180.0
+        ],
+        "headRotateLimitMax": [
+          15.0,
+          180.0,
+          180.0
+        ],
+        "rotateConnectionAxis": 0,
+        "neckRotateCoefficient": [
+          -0.6000000238418579,
+          -0.30000001192092896,
+          -0.6000000238418579
+        ],
+        "neckRotateLimitMin": [
+          -15.0,
+          -10.0,
+          -20.0
+        ],
+        "neckRotateLimitMax": [
+          15.0,
+          10.0,
+          20.0
+        ],
+        "referenceHeadBone": null,
+        "referenceNeckBone": null,
+        "composeType": 0
+      },
+      "part": "hair"
+    },
+    {
+      "className": "ActorAnimationQuartzDriverHairBone",
+      "bone": "CenterBackHair_A",
+      "enabled": true,
+      "setting": {
+        "translateConnectionAxis": 3,
+        "headTranslateCoefficient": [
+          0.05000000074505806,
+          0.05000000074505806,
+          0.05000000074505806
+        ],
+        "headTranslateLimitMin": [
+          -180.0,
+          -180.0,
+          -180.0
+        ],
+        "headTranslateLimitMax": [
+          0.0,
+          180.0,
+          180.0
+        ],
+        "rotationOrder": 0,
+        "headRotateCoefficient": [
+          -0.6000000238418579,
+          -0.6000000238418579,
+          -0.6000000238418579
+        ],
+        "headRotateLimitMin": [
+          -33.0,
+          -17.0,
+          -180.0
+        ],
+        "headRotateLimitMax": [
+          15.0,
+          180.0,
+          180.0
+        ],
+        "rotateConnectionAxis": 0,
+        "neckRotateCoefficient": [
+          -0.6000000238418579,
+          -0.30000001192092896,
+          -0.6000000238418579
+        ],
+        "neckRotateLimitMin": [
+          -15.0,
+          -10.0,
+          -20.0
+        ],
+        "neckRotateLimitMax": [
+          15.0,
+          10.0,
+          20.0
+        ],
+        "referenceHeadBone": null,
+        "referenceNeckBone": null,
+        "composeType": 0
+      },
+      "part": "hair"
+    },
+    {
+      "className": "ActorAnimationQuartzDriverHairBone",
+      "bone": "LeftBackTopHair_A",
+      "enabled": true,
+      "setting": {
+        "translateConnectionAxis": 3,
+        "headTranslateCoefficient": [
+          0.05000000074505806,
+          0.05000000074505806,
+          0.0
+        ],
+        "headTranslateLimitMin": [
+          -180.0,
+          -180.0,
+          -180.0
+        ],
+        "headTranslateLimitMax": [
+          0.0,
+          180.0,
+          180.0
+        ],
+        "rotationOrder": 0,
+        "headRotateCoefficient": [
+          -0.6000000238418579,
+          -0.6000000238418579,
+          -0.6000000238418579
+        ],
+        "headRotateLimitMin": [
+          -33.0,
+          -17.0,
+          -180.0
+        ],
+        "headRotateLimitMax": [
+          15.0,
+          180.0,
+          180.0
+        ],
+        "rotateConnectionAxis": 0,
+        "neckRotateCoefficient": [
+          -0.6000000238418579,
+          -0.30000001192092896,
+          -0.6000000238418579
+        ],
+        "neckRotateLimitMin": [
+          -15.0,
+          -10.0,
+          -20.0
+        ],
+        "neckRotateLimitMax": [
+          15.0,
+          10.0,
+          20.0
+        ],
+        "referenceHeadBone": null,
+        "referenceNeckBone": null,
+        "composeType": 0
+      },
+      "part": "hair"
+    },
+    {
+      "className": "ActorAnimationQuartzDriverHairBone",
+      "bone": "RightHair_A",
+      "enabled": true,
+      "setting": {
+        "translateConnectionAxis": 3,
+        "headTranslateCoefficient": [
+          0.05000000074505806,
+          0.05000000074505806,
+          0.0
+        ],
+        "headTranslateLimitMin": [
+          -180.0,
+          -180.0,
+          -180.0
+        ],
+        "headTranslateLimitMax": [
+          0.0,
+          180.0,
+          180.0
+        ],
+        "rotationOrder": 0,
+        "headRotateCoefficient": [
+          -0.6000000238418579,
+          -0.6000000238418579,
+          -0.6000000238418579
+        ],
+        "headRotateLimitMin": [
+          -33.0,
+          -17.0,
+          -180.0
+        ],
+        "headRotateLimitMax": [
+          15.0,
+          180.0,
+          180.0
+        ],
+        "rotateConnectionAxis": 0,
+        "neckRotateCoefficient": [
+          -0.6000000238418579,
+          -0.30000001192092896,
+          -0.6000000238418579
+        ],
+        "neckRotateLimitMin": [
+          -15.0,
+          -10.0,
+          -20.0
+        ],
+        "neckRotateLimitMax": [
+          15.0,
+          10.0,
+          20.0
+        ],
+        "referenceHeadBone": null,
+        "referenceNeckBone": null,
+        "composeType": 0
+      },
+      "part": "hair"
+    },
+    {
+      "className": "ActorAnimationQuartzDriverHairBone",
+      "bone": "RightBackHair_A",
+      "enabled": true,
+      "setting": {
+        "translateConnectionAxis": 3,
+        "headTranslateCoefficient": [
+          0.05000000074505806,
+          0.05000000074505806,
+          0.0
+        ],
+        "headTranslateLimitMin": [
+          -180.0,
+          -180.0,
+          -180.0
+        ],
+        "headTranslateLimitMax": [
+          0.0,
+          180.0,
+          180.0
+        ],
+        "rotationOrder": 0,
+        "headRotateCoefficient": [
+          -0.6000000238418579,
+          -0.6000000238418579,
+          -0.6000000238418579
+        ],
+        "headRotateLimitMin": [
+          -33.0,
+          -17.0,
+          -180.0
+        ],
+        "headRotateLimitMax": [
+          15.0,
+          180.0,
+          180.0
+        ],
+        "rotateConnectionAxis": 0,
+        "neckRotateCoefficient": [
+          -0.6000000238418579,
+          -0.30000001192092896,
+          -0.6000000238418579
+        ],
+        "neckRotateLimitMin": [
+          -15.0,
+          -10.0,
+          -20.0
+        ],
+        "neckRotateLimitMax": [
+          15.0,
+          10.0,
+          20.0
+        ],
+        "referenceHeadBone": null,
+        "referenceNeckBone": null,
+        "composeType": 0
+      },
+      "part": "hair"
+    },
+    {
+      "className": "ActorAnimationQuartzDriverHairBone",
+      "bone": "LeftBackSideHair_A",
+      "enabled": true,
+      "setting": {
+        "translateConnectionAxis": 3,
+        "headTranslateCoefficient": [
+          0.05000000074505806,
+          0.05000000074505806,
+          0.0
+        ],
+        "headTranslateLimitMin": [
+          -180.0,
+          -180.0,
+          -180.0
+        ],
+        "headTranslateLimitMax": [
+          0.0,
+          180.0,
+          180.0
+        ],
+        "rotationOrder": 0,
+        "headRotateCoefficient": [
+          -0.6000000238418579,
+          -0.6000000238418579,
+          -0.6000000238418579
+        ],
+        "headRotateLimitMin": [
+          -33.0,
+          -17.0,
+          -180.0
+        ],
+        "headRotateLimitMax": [
+          15.0,
+          180.0,
+          180.0
+        ],
+        "rotateConnectionAxis": 0,
+        "neckRotateCoefficient": [
+          -0.6000000238418579,
+          -0.30000001192092896,
+          -0.6000000238418579
+        ],
+        "neckRotateLimitMin": [
+          -15.0,
+          -10.0,
+          -20.0
+        ],
+        "neckRotateLimitMax": [
+          15.0,
+          10.0,
+          20.0
+        ],
+        "referenceHeadBone": null,
+        "referenceNeckBone": null,
+        "composeType": 0
+      },
+      "part": "hair"
+    },
+    {
+      "className": "ActorAnimationQuartzDriverHairBone",
+      "bone": "LeftBackHair_A",
+      "enabled": true,
+      "setting": {
+        "translateConnectionAxis": 3,
+        "headTranslateCoefficient": [
+          0.05000000074505806,
+          0.05000000074505806,
+          0.0
+        ],
+        "headTranslateLimitMin": [
+          -180.0,
+          -180.0,
+          -180.0
+        ],
+        "headTranslateLimitMax": [
+          0.0,
+          180.0,
+          180.0
+        ],
+        "rotationOrder": 0,
+        "headRotateCoefficient": [
+          -0.6000000238418579,
+          -0.6000000238418579,
+          -0.6000000238418579
+        ],
+        "headRotateLimitMin": [
+          -33.0,
+          -17.0,
+          -180.0
+        ],
+        "headRotateLimitMax": [
+          15.0,
+          180.0,
+          180.0
+        ],
+        "rotateConnectionAxis": 0,
+        "neckRotateCoefficient": [
+          -0.6000000238418579,
+          -0.30000001192092896,
+          -0.6000000238418579
+        ],
+        "neckRotateLimitMin": [
+          -15.0,
+          -10.0,
+          -20.0
+        ],
+        "neckRotateLimitMax": [
+          15.0,
+          10.0,
+          20.0
+        ],
+        "referenceHeadBone": null,
+        "referenceNeckBone": null,
+        "composeType": 0
+      },
+      "part": "hair"
+    }
+  ],
+  "springs": [
+    {
+      "bone": "LeftFrontSideSkirt4_S_End",
+      "part": "body",
+      "damping": 0.5,
+      "stiffness": 0.0020000000949949026,
+      "spring": 1.0,
+      "pendulum": 0.0010000000474974513,
+      "pendulumRange": 1.0,
+      "mass": 0.8999999761581421,
+      "rootWeight": 0.30000001192092896,
+      "collisionMask": 1,
+      "colliderType": 0,
+      "particleRadius": 0.030000001192092896,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          0,
+          0
+        ],
+        "axisY": [
+          -40,
+          40
+        ],
+        "axisZ": [
+          -180,
+          15
+        ]
+      },
+      "unityLocalPosition": [
+        -0.09812000393867493,
+        6.323830246620938e-15,
+        -1.554312241092664e-17
+      ]
+    },
+    {
+      "bone": "LeftUpLegSkin3_S_End",
+      "part": "body",
+      "damping": 0.07000000029802322,
+      "stiffness": 9.999999747378752e-05,
+      "spring": 0.800000011920929,
+      "pendulum": 0.0,
+      "pendulumRange": 1.0,
+      "mass": 0.0,
+      "rootWeight": 0.30000001192092896,
+      "collisionMask": 0,
+      "colliderType": 4,
+      "particleRadius": 0.05000000074505806,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          -10,
+          10
+        ],
+        "axisY": [
+          -10,
+          10
+        ],
+        "axisZ": [
+          -10,
+          10
+        ]
+      },
+      "unityLocalPosition": [
+        -0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "bone": "RightLegSkin2_S",
+      "part": "body",
+      "damping": 0.4000000059604645,
+      "stiffness": 0.5,
+      "spring": 1.0,
+      "pendulum": 0.30000001192092896,
+      "pendulumRange": 0.20000000298023224,
+      "mass": 0.0,
+      "rootWeight": 0.30000001192092896,
+      "collisionMask": 0,
+      "colliderType": 4,
+      "particleRadius": 0.05000000074505806,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          -3,
+          6
+        ],
+        "axisY": [
+          -2,
+          6
+        ],
+        "axisZ": [
+          -2,
+          5
+        ]
+      },
+      "unityLocalPosition": [
+        1.4210854397564648e-16,
+        2.220445916901415e-17,
+        8.881783998477905e-18
+      ]
+    },
+    {
+      "bone": "RightFrontSideSkirt4_S_End",
+      "part": "body",
+      "damping": 0.5,
+      "stiffness": 0.0020000000949949026,
+      "spring": 1.0,
+      "pendulum": 0.0010000000474974513,
+      "pendulumRange": 1.0,
+      "mass": 0.8999999761581421,
+      "rootWeight": 0.30000001192092896,
+      "collisionMask": 1,
+      "colliderType": 0,
+      "particleRadius": 0.030000001192092896,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          0,
+          0
+        ],
+        "axisY": [
+          -40,
+          40
+        ],
+        "axisZ": [
+          -180,
+          15
+        ]
+      },
+      "unityLocalPosition": [
+        -0.09811951220035553,
+        5.5362090023436394e-08,
+        0.0
+      ]
+    },
+    {
+      "bone": "LeftBackSideSkirt4_S_End",
+      "part": "body",
+      "damping": 0.5,
+      "stiffness": 0.0020000000949949026,
+      "spring": 1.0,
+      "pendulum": 0.0010000000474974513,
+      "pendulumRange": 1.0,
+      "mass": 0.8999999761581421,
+      "rootWeight": 0.30000001192092896,
+      "collisionMask": 1,
+      "colliderType": 0,
+      "particleRadius": 0.030000001192092896,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          0,
+          0
+        ],
+        "axisY": [
+          -40,
+          40
+        ],
+        "axisZ": [
+          -180,
+          15
+        ]
+      },
+      "unityLocalPosition": [
+        -0.10034999251365662,
+        7.105427198782324e-17,
+        5.329070399086743e-17
+      ]
+    },
+    {
+      "bone": "LeftFrontSkirt4_S_End",
+      "part": "body",
+      "damping": 0.5,
+      "stiffness": 0.0020000000949949026,
+      "spring": 1.0,
+      "pendulum": 0.0010000000474974513,
+      "pendulumRange": 1.0,
+      "mass": 0.8999999761581421,
+      "rootWeight": 0.30000001192092896,
+      "collisionMask": 1,
+      "colliderType": 0,
+      "particleRadius": 0.030000001192092896,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          0,
+          0
+        ],
+        "axisY": [
+          -40,
+          40
+        ],
+        "axisZ": [
+          -180,
+          15
+        ]
+      },
+      "unityLocalPosition": [
+        -0.09700499475002289,
+        6.394884346555194e-16,
+        -1.776356799695581e-17
+      ]
+    },
+    {
+      "bone": "LeftUpLegSkin2_S",
+      "part": "body",
+      "damping": 0.4000000059604645,
+      "stiffness": 0.4000000059604645,
+      "spring": 1.0,
+      "pendulum": 0.25,
+      "pendulumRange": 0.07500000298023224,
+      "mass": 0.0,
+      "rootWeight": 0.30000001192092896,
+      "collisionMask": 0,
+      "colliderType": 4,
+      "particleRadius": 0.05000000074505806,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          -17,
+          10
+        ],
+        "axisY": [
+          -12,
+          3
+        ],
+        "axisZ": [
+          -8,
+          8
+        ]
+      },
+      "unityLocalPosition": [
+        -0.0,
+        0.0,
+        1.776356799695581e-17
+      ]
+    },
+    {
+      "bone": "RightFrontSideSkirt2_S",
+      "part": "body",
+      "damping": 0.5,
+      "stiffness": 0.0020000000949949026,
+      "spring": 0.5,
+      "pendulum": 0.0010000000474974513,
+      "pendulumRange": 1.0,
+      "mass": 0.75,
+      "rootWeight": 0.30000001192092896,
+      "collisionMask": 1,
+      "colliderType": 0,
+      "particleRadius": 0.020000001415610313,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          0,
+          0
+        ],
+        "axisY": [
+          -30,
+          30
+        ],
+        "axisZ": [
+          -170,
+          5
+        ]
+      },
+      "unityLocalPosition": [
+        -0.09811577945947647,
+        1.4747133718628902e-06,
+        1.179934869810495e-07
+      ]
+    },
+    {
+      "bone": "RightBackSkirt3_S",
+      "part": "body",
+      "damping": 0.5,
+      "stiffness": 0.0020000000949949026,
+      "spring": 0.75,
+      "pendulum": 0.0010000000474974513,
+      "pendulumRange": 1.0,
+      "mass": 0.800000011920929,
+      "rootWeight": 0.30000001192092896,
+      "collisionMask": 1,
+      "colliderType": 0,
+      "particleRadius": 0.02500000037252903,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          0,
+          0
+        ],
+        "axisY": [
+          -35,
+          35
+        ],
+        "axisZ": [
+          -180,
+          10
+        ]
+      },
+      "unityLocalPosition": [
+        -0.09979268908500671,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "bone": "RightFrontSideSkirt1_S",
+      "part": "body",
+      "damping": 0.5,
+      "stiffness": 0.0020000000949949026,
+      "spring": 0.5,
+      "pendulum": 0.0010000000474974513,
+      "pendulumRange": 1.0,
+      "mass": 0.800000011920929,
+      "rootWeight": 0.30000001192092896,
+      "collisionMask": 1,
+      "colliderType": 0,
+      "particleRadius": 0.030000001192092896,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          0,
+          0
+        ],
+        "axisY": [
+          -25,
+          25
+        ],
+        "axisZ": [
+          -165,
+          0
+        ]
+      },
+      "unityLocalPosition": [
+        -0.0,
+        0.0,
+        4.792318577528931e-07
+      ]
+    },
+    {
+      "bone": "LeftBackSkirt2_S",
+      "part": "body",
+      "damping": 0.5,
+      "stiffness": 0.0020000000949949026,
+      "spring": 0.5,
+      "pendulum": 0.0010000000474974513,
+      "pendulumRange": 1.0,
+      "mass": 0.75,
+      "rootWeight": 0.30000001192092896,
+      "collisionMask": 1,
+      "colliderType": 0,
+      "particleRadius": 0.020000001415610313,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          0,
+          0
+        ],
+        "axisY": [
+          -30,
+          30
+        ],
+        "axisZ": [
+          -170,
+          5
+        ]
+      },
+      "unityLocalPosition": [
+        -0.0997924953699112,
+        -7.105427198782324e-17,
+        -1.554312241092664e-17
+      ]
+    },
+    {
+      "bone": "LeftBackSideSkirt3_S",
+      "part": "body",
+      "damping": 0.5,
+      "stiffness": 0.0020000000949949026,
+      "spring": 0.75,
+      "pendulum": 0.0010000000474974513,
+      "pendulumRange": 1.0,
+      "mass": 0.800000011920929,
+      "rootWeight": 0.30000001192092896,
+      "collisionMask": 1,
+      "colliderType": 0,
+      "particleRadius": 0.02500000037252903,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          0,
+          0
+        ],
+        "axisY": [
+          -35,
+          35
+        ],
+        "axisZ": [
+          -180,
+          10
+        ]
+      },
+      "unityLocalPosition": [
+        -0.10034999251365662,
+        -7.105427198782324e-17,
+        -5.329070399086743e-17
+      ]
+    },
+    {
+      "bone": "LeftLegSkin2_S",
+      "part": "body",
+      "damping": 0.4000000059604645,
+      "stiffness": 0.5,
+      "spring": 1.0,
+      "pendulum": 0.30000001192092896,
+      "pendulumRange": 0.20000000298023224,
+      "mass": 0.0,
+      "rootWeight": 0.30000001192092896,
+      "collisionMask": 0,
+      "colliderType": 4,
+      "particleRadius": 0.05000000074505806,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          -6,
+          3
+        ],
+        "axisY": [
+          -6,
+          2
+        ],
+        "axisZ": [
+          -5,
+          2
+        ]
+      },
+      "unityLocalPosition": [
+        -7.105427198782324e-17,
+        0.0,
+        -1.776356799695581e-17
+      ]
+    },
+    {
+      "bone": "RightBackSkirt1_S",
+      "part": "body",
+      "damping": 0.5,
+      "stiffness": 0.0020000000949949026,
+      "spring": 0.5,
+      "pendulum": 0.0010000000474974513,
+      "pendulumRange": 1.0,
+      "mass": 0.800000011920929,
+      "rootWeight": 0.30000001192092896,
+      "collisionMask": 1,
+      "colliderType": 0,
+      "particleRadius": 0.030000001192092896,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          0,
+          0
+        ],
+        "axisY": [
+          -25,
+          25
+        ],
+        "axisZ": [
+          -165,
+          0
+        ]
+      },
+      "unityLocalPosition": [
+        -2.5448632641200675e-06,
+        1.2037740804160535e-09,
+        0.0
+      ]
+    },
+    {
+      "bone": "RightUpLegSkin1_S",
+      "part": "body",
+      "damping": 0.009999999776482582,
+      "stiffness": 0.0010000000474974513,
+      "spring": 0.8999999761581421,
+      "pendulum": 0.0,
+      "pendulumRange": 1.0,
+      "mass": 0.0,
+      "rootWeight": 0.30000001192092896,
+      "collisionMask": 1,
+      "colliderType": 4,
+      "particleRadius": 0.05000000074505806,
+      "limitInfo": {
+        "useLimit": 0,
+        "axisX": [
+          -180,
+          180
+        ],
+        "axisY": [
+          -180,
+          180
+        ],
+        "axisZ": [
+          -180,
+          180
+        ]
+      },
+      "unityLocalPosition": [
+        -2.6166718569697878e-08,
+        3.491452127413197e-10,
+        -8.881783998477905e-18
+      ]
+    },
+    {
+      "bone": "LeftBackSkirt4_S_End",
+      "part": "body",
+      "damping": 0.5,
+      "stiffness": 0.0020000000949949026,
+      "spring": 1.0,
+      "pendulum": 0.0010000000474974513,
+      "pendulumRange": 1.0,
+      "mass": 0.8999999761581421,
+      "rootWeight": 0.30000001192092896,
+      "collisionMask": 1,
+      "colliderType": 0,
+      "particleRadius": 0.030000001192092896,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          0,
+          0
+        ],
+        "axisY": [
+          -40,
+          40
+        ],
+        "axisZ": [
+          -180,
+          15
+        ]
+      },
+      "unityLocalPosition": [
+        -0.0997924953699112,
+        0.0,
+        1.1102229584507075e-17
+      ]
+    },
+    {
+      "bone": "RightBackSideSkirt2_S",
+      "part": "body",
+      "damping": 0.5,
+      "stiffness": 0.0020000000949949026,
+      "spring": 0.5,
+      "pendulum": 0.0010000000474974513,
+      "pendulumRange": 1.0,
+      "mass": 0.75,
+      "rootWeight": 0.30000001192092896,
+      "collisionMask": 1,
+      "colliderType": 0,
+      "particleRadius": 0.020000001415610313,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          0,
+          0
+        ],
+        "axisY": [
+          -30,
+          30
+        ],
+        "axisZ": [
+          -170,
+          5
+        ]
+      },
+      "unityLocalPosition": [
+        -0.1003497764468193,
+        0.0,
+        3.1011677492642775e-07
+      ]
+    },
+    {
+      "bone": "RightLegSkin3_S_End",
+      "part": "body",
+      "damping": 0.3499999940395355,
+      "stiffness": 0.30000001192092896,
+      "spring": 1.0,
+      "pendulum": 0.30000001192092896,
+      "pendulumRange": 0.20000000298023224,
+      "mass": 0.0,
+      "rootWeight": 0.30000001192092896,
+      "collisionMask": 0,
+      "colliderType": 4,
+      "particleRadius": 0.05000000074505806,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          -15,
+          10
+        ],
+        "axisY": [
+          -10,
+          5
+        ],
+        "axisZ": [
+          -30,
+          30
+        ]
+      },
+      "unityLocalPosition": [
+        -0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "bone": "RightFrontSideSkirt3_S",
+      "part": "body",
+      "damping": 0.5,
+      "stiffness": 0.0020000000949949026,
+      "spring": 0.75,
+      "pendulum": 0.0010000000474974513,
+      "pendulumRange": 1.0,
+      "mass": 0.800000011920929,
+      "rootWeight": 0.30000001192092896,
+      "collisionMask": 1,
+      "colliderType": 0,
+      "particleRadius": 0.02500000037252903,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          0,
+          0
+        ],
+        "axisY": [
+          -35,
+          35
+        ],
+        "axisZ": [
+          -180,
+          10
+        ]
+      },
+      "unityLocalPosition": [
+        -0.09812045097351074,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "bone": "LeftFrontSkirt3_S",
+      "part": "body",
+      "damping": 0.5,
+      "stiffness": 0.0020000000949949026,
+      "spring": 0.75,
+      "pendulum": 0.0010000000474974513,
+      "pendulumRange": 1.0,
+      "mass": 0.800000011920929,
+      "rootWeight": 0.30000001192092896,
+      "collisionMask": 1,
+      "colliderType": 0,
+      "particleRadius": 0.02500000037252903,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          0,
+          0
+        ],
+        "axisY": [
+          -35,
+          35
+        ],
+        "axisZ": [
+          -180,
+          10
+        ]
+      },
+      "unityLocalPosition": [
+        -0.09700499475002289,
+        -7.105427198782324e-17,
+        3.552713599391162e-17
+      ]
+    },
+    {
+      "bone": "RightBackSideSkirt1_S",
+      "part": "body",
+      "damping": 0.5,
+      "stiffness": 0.0020000000949949026,
+      "spring": 0.5,
+      "pendulum": 0.0010000000474974513,
+      "pendulumRange": 1.0,
+      "mass": 0.800000011920929,
+      "rootWeight": 0.30000001192092896,
+      "collisionMask": 1,
+      "colliderType": 0,
+      "particleRadius": 0.030000001192092896,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          0,
+          0
+        ],
+        "axisY": [
+          -25,
+          25
+        ],
+        "axisZ": [
+          -165,
+          0
+        ]
+      },
+      "unityLocalPosition": [
+        -0.0,
+        0.0,
+        4.209580879432906e-07
+      ]
+    },
+    {
+      "bone": "RightLegSkin1_S",
+      "part": "body",
+      "damping": 0.3499999940395355,
+      "stiffness": 0.30000001192092896,
+      "spring": 1.0,
+      "pendulum": 0.30000001192092896,
+      "pendulumRange": 0.20000000298023224,
+      "mass": 0.0,
+      "rootWeight": 0.30000001192092896,
+      "collisionMask": 1,
+      "colliderType": 4,
+      "particleRadius": 0.05000000074505806,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          -15,
+          10
+        ],
+        "axisY": [
+          -10,
+          5
+        ],
+        "axisZ": [
+          -30,
+          30
+        ]
+      },
+      "unityLocalPosition": [
+        0.13719956576824188,
+        8.881783998477905e-18,
+        8.881783998477905e-18
+      ]
+    },
+    {
+      "bone": "LeftBackSkirt1_S",
+      "part": "body",
+      "damping": 0.5,
+      "stiffness": 0.0020000000949949026,
+      "spring": 0.5,
+      "pendulum": 0.0010000000474974513,
+      "pendulumRange": 1.0,
+      "mass": 0.800000011920929,
+      "rootWeight": 0.30000001192092896,
+      "collisionMask": 1,
+      "colliderType": 0,
+      "particleRadius": 0.030000001192092896,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          0,
+          0
+        ],
+        "axisY": [
+          -25,
+          25
+        ],
+        "axisZ": [
+          -165,
+          0
+        ]
+      },
+      "unityLocalPosition": [
+        -0.0,
+        0.0,
+        1.776356799695581e-17
+      ]
+    },
+    {
+      "bone": "RightFrontSkirt2_S",
+      "part": "body",
+      "damping": 0.5,
+      "stiffness": 0.0020000000949949026,
+      "spring": 0.5,
+      "pendulum": 0.0010000000474974513,
+      "pendulumRange": 1.0,
+      "mass": 0.75,
+      "rootWeight": 0.30000001192092896,
+      "collisionMask": 1,
+      "colliderType": 0,
+      "particleRadius": 0.020000001415610313,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          0,
+          0
+        ],
+        "axisY": [
+          -30,
+          30
+        ],
+        "axisZ": [
+          -170,
+          5
+        ]
+      },
+      "unityLocalPosition": [
+        -0.0970059484243393,
+        0.0,
+        6.984100053841757e-08
+      ]
+    },
+    {
+      "bone": "LeftFrontSkirt2_S",
+      "part": "body",
+      "damping": 0.5,
+      "stiffness": 0.0020000000949949026,
+      "spring": 0.5,
+      "pendulum": 0.0010000000474974513,
+      "pendulumRange": 1.0,
+      "mass": 0.75,
+      "rootWeight": 0.30000001192092896,
+      "collisionMask": 1,
+      "colliderType": 0,
+      "particleRadius": 0.020000001415610313,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          0,
+          0
+        ],
+        "axisY": [
+          -30,
+          30
+        ],
+        "axisZ": [
+          -170,
+          5
+        ]
+      },
+      "unityLocalPosition": [
+        -0.09700499475002289,
+        0.0,
+        -1.776356799695581e-17
+      ]
+    },
+    {
+      "bone": "RightBackSkirt2_S",
+      "part": "body",
+      "damping": 0.5,
+      "stiffness": 0.0020000000949949026,
+      "spring": 0.5,
+      "pendulum": 0.0010000000474974513,
+      "pendulumRange": 1.0,
+      "mass": 0.75,
+      "rootWeight": 0.30000001192092896,
+      "collisionMask": 1,
+      "colliderType": 0,
+      "particleRadius": 0.020000001415610313,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          0,
+          0
+        ],
+        "axisY": [
+          -30,
+          30
+        ],
+        "axisZ": [
+          -170,
+          5
+        ]
+      },
+      "unityLocalPosition": [
+        -0.0997946709394455,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "bone": "LeftFrontSideSkirt2_S",
+      "part": "body",
+      "damping": 0.5,
+      "stiffness": 0.0020000000949949026,
+      "spring": 0.5,
+      "pendulum": 0.0010000000474974513,
+      "pendulumRange": 1.0,
+      "mass": 0.75,
+      "rootWeight": 0.30000001192092896,
+      "collisionMask": 1,
+      "colliderType": 0,
+      "particleRadius": 0.020000001415610313,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          0,
+          0
+        ],
+        "axisY": [
+          -30,
+          30
+        ],
+        "axisZ": [
+          -170,
+          5
+        ]
+      },
+      "unityLocalPosition": [
+        -0.09812000393867493,
+        -7.105427198782324e-17,
+        1.1102229584507075e-17
+      ]
+    },
+    {
+      "bone": "LeftLegSkin3_S_End",
+      "part": "body",
+      "damping": 0.3499999940395355,
+      "stiffness": 0.30000001192092896,
+      "spring": 1.0,
+      "pendulum": 0.30000001192092896,
+      "pendulumRange": 0.20000000298023224,
+      "mass": 0.0,
+      "rootWeight": 0.30000001192092896,
+      "collisionMask": 0,
+      "colliderType": 4,
+      "particleRadius": 0.05000000074505806,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          -15,
+          10
+        ],
+        "axisY": [
+          -10,
+          5
+        ],
+        "axisZ": [
+          -30,
+          30
+        ]
+      },
+      "unityLocalPosition": [
+        -0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "bone": "RightFrontSkirt3_S",
+      "part": "body",
+      "damping": 0.5,
+      "stiffness": 0.0020000000949949026,
+      "spring": 0.75,
+      "pendulum": 0.0010000000474974513,
+      "pendulumRange": 1.0,
+      "mass": 0.800000011920929,
+      "rootWeight": 0.30000001192092896,
+      "collisionMask": 1,
+      "colliderType": 0,
+      "particleRadius": 0.02500000037252903,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          0,
+          0
+        ],
+        "axisY": [
+          -35,
+          35
+        ],
+        "axisZ": [
+          -180,
+          10
+        ]
+      },
+      "unityLocalPosition": [
+        -0.0970049723982811,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "bone": "LeftUpLegSkin1_S",
+      "part": "body",
+      "damping": 0.07000000029802322,
+      "stiffness": 9.999999747378752e-05,
+      "spring": 0.800000011920929,
+      "pendulum": 0.0,
+      "pendulumRange": 1.0,
+      "mass": 0.0,
+      "rootWeight": 0.30000001192092896,
+      "collisionMask": 1,
+      "colliderType": 4,
+      "particleRadius": 0.05000000074505806,
+      "limitInfo": {
+        "useLimit": 0,
+        "axisX": [
+          -10,
+          10
+        ],
+        "axisY": [
+          -10,
+          10
+        ],
+        "axisZ": [
+          -10,
+          10
+        ]
+      },
+      "unityLocalPosition": [
+        -3.64551731024676e-08,
+        4.876005155196594e-10,
+        7.213540320627487e-10
+      ]
+    },
+    {
+      "bone": "RightFrontSkirt1_S",
+      "part": "body",
+      "damping": 0.5,
+      "stiffness": 0.0020000000949949026,
+      "spring": 0.5,
+      "pendulum": 0.0010000000474974513,
+      "pendulumRange": 1.0,
+      "mass": 0.800000011920929,
+      "rootWeight": 0.30000001192092896,
+      "collisionMask": 1,
+      "colliderType": 0,
+      "particleRadius": 0.030000001192092896,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          0,
+          0
+        ],
+        "axisY": [
+          -25,
+          25
+        ],
+        "axisZ": [
+          -165,
+          0
+        ]
+      },
+      "unityLocalPosition": [
+        -1.627529400138883e-06,
+        4.6112739937598235e-07,
+        1.776356799695581e-17
+      ]
+    },
+    {
+      "bone": "LeftFrontSkirt1_S",
+      "part": "body",
+      "damping": 0.5,
+      "stiffness": 0.0020000000949949026,
+      "spring": 0.5,
+      "pendulum": 0.0010000000474974513,
+      "pendulumRange": 1.0,
+      "mass": 0.800000011920929,
+      "rootWeight": 0.30000001192092896,
+      "collisionMask": 1,
+      "colliderType": 0,
+      "particleRadius": 0.030000001192092896,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          0,
+          0
+        ],
+        "axisY": [
+          -25,
+          25
+        ],
+        "axisZ": [
+          -165,
+          0
+        ]
+      },
+      "unityLocalPosition": [
+        -1.4210854397564648e-16,
+        0.0,
+        2.6645351995433716e-17
+      ]
+    },
+    {
+      "bone": "LeftFrontSideSkirt3_S",
+      "part": "body",
+      "damping": 0.5,
+      "stiffness": 0.0020000000949949026,
+      "spring": 0.75,
+      "pendulum": 0.0010000000474974513,
+      "pendulumRange": 1.0,
+      "mass": 0.800000011920929,
+      "rootWeight": 0.30000001192092896,
+      "collisionMask": 1,
+      "colliderType": 0,
+      "particleRadius": 0.02500000037252903,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          0,
+          0
+        ],
+        "axisY": [
+          -35,
+          35
+        ],
+        "axisZ": [
+          -180,
+          10
+        ]
+      },
+      "unityLocalPosition": [
+        -0.09812000393867493,
+        0.0,
+        2.2493118733015556e-15
+      ]
+    },
+    {
+      "bone": "LeftLegSkin1_S",
+      "part": "body",
+      "damping": 0.3499999940395355,
+      "stiffness": 0.30000001192092896,
+      "spring": 1.0,
+      "pendulum": 0.30000001192092896,
+      "pendulumRange": 0.20000000298023224,
+      "mass": 0.0,
+      "rootWeight": 0.30000001192092896,
+      "collisionMask": 1,
+      "colliderType": 4,
+      "particleRadius": 0.05000000074505806,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          -15,
+          10
+        ],
+        "axisY": [
+          -10,
+          5
+        ],
+        "axisZ": [
+          -30,
+          30
+        ]
+      },
+      "unityLocalPosition": [
+        -0.13719962537288666,
+        0.0,
+        8.881783998477905e-18
+      ]
+    },
+    {
+      "bone": "LeftBackSkirt3_S",
+      "part": "body",
+      "damping": 0.5,
+      "stiffness": 0.0020000000949949026,
+      "spring": 0.75,
+      "pendulum": 0.0010000000474974513,
+      "pendulumRange": 1.0,
+      "mass": 0.800000011920929,
+      "rootWeight": 0.30000001192092896,
+      "collisionMask": 1,
+      "colliderType": 0,
+      "particleRadius": 0.02500000037252903,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          0,
+          0
+        ],
+        "axisY": [
+          -35,
+          35
+        ],
+        "axisZ": [
+          -180,
+          10
+        ]
+      },
+      "unityLocalPosition": [
+        -0.0997924953699112,
+        0.0,
+        3.7747583234302016e-17
+      ]
+    },
+    {
+      "bone": "RightUpLegSkin3_S_End",
+      "part": "body",
+      "damping": 0.07000000029802322,
+      "stiffness": 9.999999747378752e-05,
+      "spring": 0.800000011920929,
+      "pendulum": 0.0,
+      "pendulumRange": 1.0,
+      "mass": 0.0,
+      "rootWeight": 0.30000001192092896,
+      "collisionMask": 0,
+      "colliderType": 4,
+      "particleRadius": 0.05000000074505806,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          -10,
+          10
+        ],
+        "axisY": [
+          -10,
+          10
+        ],
+        "axisZ": [
+          -10,
+          10
+        ]
+      },
+      "unityLocalPosition": [
+        -0.0,
+        -2.220445916901415e-17,
+        -8.881783998477905e-18
+      ]
+    },
+    {
+      "bone": "LeftFrontSideSkirt1_S",
+      "part": "body",
+      "damping": 0.5,
+      "stiffness": 0.0020000000949949026,
+      "spring": 0.5,
+      "pendulum": 0.0010000000474974513,
+      "pendulumRange": 1.0,
+      "mass": 0.800000011920929,
+      "rootWeight": 0.30000001192092896,
+      "collisionMask": 1,
+      "colliderType": 0,
+      "particleRadius": 0.030000001192092896,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          0,
+          0
+        ],
+        "axisY": [
+          -25,
+          25
+        ],
+        "axisZ": [
+          -165,
+          0
+        ]
+      },
+      "unityLocalPosition": [
+        -0.0,
+        -2.2204459996194763e-18,
+        -1.776356799695581e-17
+      ]
+    },
+    {
+      "bone": "LeftBackSideSkirt2_S",
+      "part": "body",
+      "damping": 0.5,
+      "stiffness": 0.0020000000949949026,
+      "spring": 0.5,
+      "pendulum": 0.0010000000474974513,
+      "pendulumRange": 1.0,
+      "mass": 0.75,
+      "rootWeight": 0.30000001192092896,
+      "collisionMask": 1,
+      "colliderType": 0,
+      "particleRadius": 0.020000001415610313,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          0,
+          0
+        ],
+        "axisY": [
+          -30,
+          30
+        ],
+        "axisZ": [
+          -170,
+          5
+        ]
+      },
+      "unityLocalPosition": [
+        -0.10034999251365662,
+        7.105427198782324e-17,
+        8.881783998477905e-18
+      ]
+    },
+    {
+      "bone": "RightUpLegSkin2_S",
+      "part": "body",
+      "damping": 0.4000000059604645,
+      "stiffness": 0.4000000059604645,
+      "spring": 1.0,
+      "pendulum": 0.25,
+      "pendulumRange": 0.07500000298023224,
+      "mass": 0.0,
+      "rootWeight": 0.30000001192092896,
+      "collisionMask": 0,
+      "colliderType": 4,
+      "particleRadius": 0.05000000074505806,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          -10,
+          17
+        ],
+        "axisY": [
+          -3,
+          12
+        ],
+        "axisZ": [
+          -8,
+          8
+        ]
+      },
+      "unityLocalPosition": [
+        2.8421708795129297e-16,
+        1.998401358298498e-17,
+        8.881783998477905e-18
+      ]
+    },
+    {
+      "bone": "RightBackSkirt4_S_End",
+      "part": "body",
+      "damping": 0.5,
+      "stiffness": 0.0020000000949949026,
+      "spring": 1.0,
+      "pendulum": 0.0010000000474974513,
+      "pendulumRange": 1.0,
+      "mass": 0.8999999761581421,
+      "rootWeight": 0.30000001192092896,
+      "collisionMask": 1,
+      "colliderType": 0,
+      "particleRadius": 0.030000001192092896,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          0,
+          0
+        ],
+        "axisY": [
+          -40,
+          40
+        ],
+        "axisZ": [
+          -180,
+          15
+        ]
+      },
+      "unityLocalPosition": [
+        -0.09979205578565598,
+        8.680727887622197e-07,
+        2.509081866719498e-07
+      ]
+    },
+    {
+      "bone": "RightBackSideSkirt4_S_End",
+      "part": "body",
+      "damping": 0.5,
+      "stiffness": 0.0020000000949949026,
+      "spring": 1.0,
+      "pendulum": 0.0010000000474974513,
+      "pendulumRange": 1.0,
+      "mass": 0.8999999761581421,
+      "rootWeight": 0.30000001192092896,
+      "collisionMask": 1,
+      "colliderType": 0,
+      "particleRadius": 0.030000001192092896,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          0,
+          0
+        ],
+        "axisY": [
+          -40,
+          40
+        ],
+        "axisZ": [
+          -180,
+          15
+        ]
+      },
+      "unityLocalPosition": [
+        -0.1003497764468193,
+        0.0,
+        3.1011677492642775e-07
+      ]
+    },
+    {
+      "bone": "RightFrontSkirt4_S_End",
+      "part": "body",
+      "damping": 0.5,
+      "stiffness": 0.0020000000949949026,
+      "spring": 1.0,
+      "pendulum": 0.0010000000474974513,
+      "pendulumRange": 1.0,
+      "mass": 0.8999999761581421,
+      "rootWeight": 0.30000001192092896,
+      "collisionMask": 1,
+      "colliderType": 0,
+      "particleRadius": 0.030000001192092896,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          0,
+          0
+        ],
+        "axisY": [
+          -40,
+          40
+        ],
+        "axisZ": [
+          -180,
+          15
+        ]
+      },
+      "unityLocalPosition": [
+        -0.0970049723982811,
+        9.671751399764617e-08,
+        0.0
+      ]
+    },
+    {
+      "bone": "RightBackSideSkirt3_S",
+      "part": "body",
+      "damping": 0.5,
+      "stiffness": 0.0020000000949949026,
+      "spring": 0.75,
+      "pendulum": 0.0010000000474974513,
+      "pendulumRange": 1.0,
+      "mass": 0.800000011920929,
+      "rootWeight": 0.30000001192092896,
+      "collisionMask": 1,
+      "colliderType": 0,
+      "particleRadius": 0.02500000037252903,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          0,
+          0
+        ],
+        "axisY": [
+          -35,
+          35
+        ],
+        "axisZ": [
+          -180,
+          10
+        ]
+      },
+      "unityLocalPosition": [
+        -0.10035011172294617,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "bone": "LeftBackSideSkirt1_S",
+      "part": "body",
+      "damping": 0.5,
+      "stiffness": 0.0020000000949949026,
+      "spring": 0.5,
+      "pendulum": 0.0010000000474974513,
+      "pendulumRange": 1.0,
+      "mass": 0.800000011920929,
+      "rootWeight": 0.30000001192092896,
+      "collisionMask": 1,
+      "colliderType": 0,
+      "particleRadius": 0.030000001192092896,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          0,
+          0
+        ],
+        "axisY": [
+          -25,
+          25
+        ],
+        "axisZ": [
+          -165,
+          0
+        ]
+      },
+      "unityLocalPosition": [
+        -2.8421708795129297e-16,
+        8.881783998477905e-18,
+        0.0
+      ]
+    },
+    {
+      "bone": "LeftAddHair4_S",
+      "part": "hair",
+      "damping": 0.5,
+      "stiffness": 0.00800000037997961,
+      "spring": 0.4000000059604645,
+      "pendulum": 0.0020000000949949026,
+      "pendulumRange": 1.0,
+      "mass": 0.800000011920929,
+      "rootWeight": 0.5,
+      "collisionMask": 8,
+      "colliderType": 0,
+      "particleRadius": 0.03500000014901161,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          0,
+          0
+        ],
+        "axisY": [
+          -50,
+          50
+        ],
+        "axisZ": [
+          -100,
+          100
+        ]
+      },
+      "unityLocalPosition": [
+        -0.08990032225847244,
+        0.008493329398334026,
+        -0.0059373145923018456
+      ]
+    },
+    {
+      "bone": "LeftSideHair2_S",
+      "part": "hair",
+      "damping": 0.4000000059604645,
+      "stiffness": 0.004999999888241291,
+      "spring": 0.10000000149011612,
+      "pendulum": 0.0020000000949949026,
+      "pendulumRange": 1.0,
+      "mass": 0.6000000238418579,
+      "rootWeight": 0.30000001192092896,
+      "collisionMask": 16,
+      "colliderType": 0,
+      "particleRadius": 0.020000001415610313,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          0,
+          0
+        ],
+        "axisY": [
+          -20,
+          5
+        ],
+        "axisZ": [
+          -25,
+          5
+        ]
+      },
+      "unityLocalPosition": [
+        -0.07874999940395355,
+        -7.105427198782324e-17,
+        0.0
+      ]
+    },
+    {
+      "bone": "RightSideHairSub3_S_End",
+      "part": "hair",
+      "damping": 1.0,
+      "stiffness": 0.004999999888241291,
+      "spring": 0.4000000059604645,
+      "pendulum": 0.0020000000949949026,
+      "pendulumRange": 1.0,
+      "mass": 0.800000011920929,
+      "rootWeight": 0.30000001192092896,
+      "collisionMask": 8,
+      "colliderType": 0,
+      "particleRadius": 0.03500000014901161,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          0,
+          0
+        ],
+        "axisY": [
+          -50,
+          50
+        ],
+        "axisZ": [
+          -100,
+          100
+        ]
+      },
+      "unityLocalPosition": [
+        -0.07899999618530273,
+        -2.8421708795129297e-16,
+        -2.4868995857482625e-16
+      ]
+    },
+    {
+      "bone": "RightBackTopHair4_S",
+      "part": "hair",
+      "damping": 0.4000000059604645,
+      "stiffness": 0.004999999888241291,
+      "spring": 0.4000000059604645,
+      "pendulum": 0.0020000000949949026,
+      "pendulumRange": 1.0,
+      "mass": 0.800000011920929,
+      "rootWeight": 0.75,
+      "collisionMask": 8,
+      "colliderType": 0,
+      "particleRadius": 0.05000000074505806,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          0,
+          0
+        ],
+        "axisY": [
+          -50,
+          30
+        ],
+        "axisZ": [
+          -100,
+          40
+        ]
+      },
+      "unityLocalPosition": [
+        -0.09764999896287918,
+        -2.288726790311557e-07,
+        9.289501612386175e-09
+      ]
+    },
+    {
+      "bone": "RightTopAddHair3_S",
+      "part": "hair",
+      "damping": 0.4000000059604645,
+      "stiffness": 0.009999999776482582,
+      "spring": 0.20000000298023224,
+      "pendulum": 0.0020000000949949026,
+      "pendulumRange": 1.0,
+      "mass": 0.5,
+      "rootWeight": 0.5,
+      "collisionMask": 8,
+      "colliderType": 0,
+      "particleRadius": 0.02500000037252903,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          0,
+          0
+        ],
+        "axisY": [
+          -35,
+          25
+        ],
+        "axisZ": [
+          -35,
+          35
+        ]
+      },
+      "unityLocalPosition": [
+        -0.054999999701976776,
+        0.0,
+        3.552713599391162e-17
+      ]
+    },
+    {
+      "bone": "CenterBackTopHair1_S",
+      "part": "hair",
+      "damping": 0.5,
+      "stiffness": 0.05000000074505806,
+      "spring": 0.0,
+      "pendulum": 0.0020000000949949026,
+      "pendulumRange": 1.0,
+      "mass": 0.0,
+      "rootWeight": 0.75,
+      "collisionMask": 1,
+      "colliderType": 0,
+      "particleRadius": 0.05000000074505806,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          0,
+          0
+        ],
+        "axisY": [
+          -15,
+          15
+        ],
+        "axisZ": [
+          -20,
+          15
+        ]
+      },
+      "unityLocalPosition": [
+        -0.0,
+        -5.422973359259231e-08,
+        3.459978303865796e-09
+      ]
+    },
+    {
+      "bone": "RightBackSideHair2_S",
+      "part": "hair",
+      "damping": 0.20000000298023224,
+      "stiffness": 0.007000000216066837,
+      "spring": 0.10000000149011612,
+      "pendulum": 0.0020000000949949026,
+      "pendulumRange": 1.0,
+      "mass": 0.6000000238418579,
+      "rootWeight": 0.75,
+      "collisionMask": 8,
+      "colliderType": 0,
+      "particleRadius": 0.030000001192092896,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          0,
+          0
+        ],
+        "axisY": [
+          -25,
+          20
+        ],
+        "axisZ": [
+          -30,
+          30
+        ]
+      },
+      "unityLocalPosition": [
+        -0.09764999896287918,
+        0.0,
+        5.329070399086743e-17
+      ]
+    },
+    {
+      "bone": "LeftHair4_S",
+      "part": "hair",
+      "damping": 0.4000000059604645,
+      "stiffness": 0.004999999888241291,
+      "spring": 0.5,
+      "pendulum": 0.0020000000949949026,
+      "pendulumRange": 1.0,
+      "mass": 0.800000011920929,
+      "rootWeight": 0.75,
+      "collisionMask": 8,
+      "colliderType": 0,
+      "particleRadius": 0.05000000074505806,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          0,
+          0
+        ],
+        "axisY": [
+          -40,
+          50
+        ],
+        "axisZ": [
+          -100,
+          100
+        ]
+      },
+      "unityLocalPosition": [
+        -0.09764999896287918,
+        0.0,
+        1.0658140798173486e-16
+      ]
+    },
+    {
+      "bone": "LeftBackHair3_S",
+      "part": "hair",
+      "damping": 0.30000001192092896,
+      "stiffness": 0.006000000052154064,
+      "spring": 0.20000000298023224,
+      "pendulum": 0.0020000000949949026,
+      "pendulumRange": 1.0,
+      "mass": 0.699999988079071,
+      "rootWeight": 0.75,
+      "collisionMask": 8,
+      "colliderType": 0,
+      "particleRadius": 0.03500000014901161,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          0,
+          0
+        ],
+        "axisY": [
+          -25,
+          35
+        ],
+        "axisZ": [
+          -20,
+          50
+        ]
+      },
+      "unityLocalPosition": [
+        -0.09764999896287918,
+        -7.105427198782324e-17,
+        1.776356799695581e-17
+      ]
+    },
+    {
+      "bone": "LeftSideHairBackSub3_S_End",
+      "part": "hair",
+      "damping": 0.699999988079071,
+      "stiffness": 0.004999999888241291,
+      "spring": 0.4000000059604645,
+      "pendulum": 0.0020000000949949026,
+      "pendulumRange": 1.0,
+      "mass": 0.800000011920929,
+      "rootWeight": 0.30000001192092896,
+      "collisionMask": 8,
+      "colliderType": 0,
+      "particleRadius": 0.03500000014901161,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          0,
+          0
+        ],
+        "axisY": [
+          -50,
+          50
+        ],
+        "axisZ": [
+          -100,
+          100
+        ]
+      },
+      "unityLocalPosition": [
+        -0.0819999948143959,
+        -1.4210854397564648e-16,
+        1.776356733521132e-16
+      ]
+    },
+    {
+      "bone": "CenterBackTopHair5_S",
+      "part": "hair",
+      "damping": 0.699999988079071,
+      "stiffness": 0.004000000189989805,
+      "spring": 0.5,
+      "pendulum": 0.0020000000949949026,
+      "pendulumRange": 1.0,
+      "mass": 0.8999999761581421,
+      "rootWeight": 0.75,
+      "collisionMask": 8,
+      "colliderType": 0,
+      "particleRadius": 0.055000003427267075,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          0,
+          0
+        ],
+        "axisY": [
+          -50,
+          50
+        ],
+        "axisZ": [
+          -60,
+          120
+        ]
+      },
+      "unityLocalPosition": [
+        -0.09764999896287918,
+        0.0,
+        2.524354840283509e-31
+      ]
+    },
+    {
+      "bone": "RightSideHair1_S",
+      "part": "hair",
+      "damping": 0.5,
+      "stiffness": 0.05000000074505806,
+      "spring": 0.0,
+      "pendulum": 0.0020000000949949026,
+      "pendulumRange": 1.0,
+      "mass": 0.0,
+      "rootWeight": 0.30000001192092896,
+      "collisionMask": -1,
+      "colliderType": 0,
+      "particleRadius": 0.05000000074505806,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          0,
+          0
+        ],
+        "axisY": [
+          0,
+          10
+        ],
+        "axisZ": [
+          -20,
+          0
+        ]
+      },
+      "unityLocalPosition": [
+        0.07391878217458725,
+        0.1574999988079071,
+        0.0701608955860138
+      ]
+    },
+    {
+      "bone": "LeftHair2_S",
+      "part": "hair",
+      "damping": 0.20000000298023224,
+      "stiffness": 0.007000000216066837,
+      "spring": 0.10000000149011612,
+      "pendulum": 0.0020000000949949026,
+      "pendulumRange": 1.0,
+      "mass": 0.6000000238418579,
+      "rootWeight": 0.75,
+      "collisionMask": 8,
+      "colliderType": 0,
+      "particleRadius": 0.030000001192092896,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          0,
+          0
+        ],
+        "axisY": [
+          -20,
+          25
+        ],
+        "axisZ": [
+          -30,
+          30
+        ]
+      },
+      "unityLocalPosition": [
+        -0.09764999896287918,
+        7.105427198782324e-17,
+        1.1546319032585154e-16
+      ]
+    },
+    {
+      "bone": "LeftSideHair6_S_End",
+      "part": "hair",
+      "damping": 0.800000011920929,
+      "stiffness": 0.003000000026077032,
+      "spring": 0.4000000059604645,
+      "pendulum": 0.006000000052154064,
+      "pendulumRange": 1.0,
+      "mass": 1.0,
+      "rootWeight": 0.30000001192092896,
+      "collisionMask": 16,
+      "colliderType": 0,
+      "particleRadius": 0.030000001192092896,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          0,
+          0
+        ],
+        "axisY": [
+          -40,
+          40
+        ],
+        "axisZ": [
+          -60,
+          30
+        ]
+      },
+      "unityLocalPosition": [
+        -0.06824999302625656,
+        2.1316281596346973e-16,
+        -1.2434497928741312e-16
+      ]
+    },
+    {
+      "bone": "LeftHair3_S",
+      "part": "hair",
+      "damping": 0.30000001192092896,
+      "stiffness": 0.006000000052154064,
+      "spring": 0.20000000298023224,
+      "pendulum": 0.0020000000949949026,
+      "pendulumRange": 1.0,
+      "mass": 0.699999988079071,
+      "rootWeight": 0.75,
+      "collisionMask": 8,
+      "colliderType": 0,
+      "particleRadius": 0.03500000014901161,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          0,
+          0
+        ],
+        "axisY": [
+          -25,
+          35
+        ],
+        "axisZ": [
+          -35,
+          35
+        ]
+      },
+      "unityLocalPosition": [
+        -0.09764999896287918,
+        0.0,
+        -6.217248964370656e-17
+      ]
+    },
+    {
+      "bone": "RightBackSideHair1_S",
+      "part": "hair",
+      "damping": 0.5,
+      "stiffness": 0.05000000074505806,
+      "spring": 0.0,
+      "pendulum": 0.0020000000949949026,
+      "pendulumRange": 1.0,
+      "mass": 0.0,
+      "rootWeight": 0.75,
+      "collisionMask": -1,
+      "colliderType": 0,
+      "particleRadius": 0.05000000074505806,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          0,
+          0
+        ],
+        "axisY": [
+          -20,
+          15
+        ],
+        "axisZ": [
+          -20,
+          15
+        ]
+      },
+      "unityLocalPosition": [
+        -0.0,
+        0.0,
+        3.552713599391162e-17
+      ]
+    },
+    {
+      "bone": "RightTopAddHair5_S_End",
+      "part": "hair",
+      "damping": 0.6000000238418579,
+      "stiffness": 0.004999999888241291,
+      "spring": 0.6000000238418579,
+      "pendulum": 0.0020000000949949026,
+      "pendulumRange": 1.0,
+      "mass": 0.5,
+      "rootWeight": 0.5,
+      "collisionMask": 8,
+      "colliderType": 0,
+      "particleRadius": 0.04000000283122063,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          0,
+          0
+        ],
+        "axisY": [
+          -60,
+          60
+        ],
+        "axisZ": [
+          -120,
+          120
+        ]
+      },
+      "unityLocalPosition": [
+        -0.061690934002399445,
+        1.3301359525538098e-13,
+        -0.0028991634026169777
+      ]
+    },
+    {
+      "bone": "LeftSideHair1_S",
+      "part": "hair",
+      "damping": 0.5,
+      "stiffness": 0.05000000074505806,
+      "spring": 0.0,
+      "pendulum": 0.0020000000949949026,
+      "pendulumRange": 1.0,
+      "mass": 0.0,
+      "rootWeight": 0.30000001192092896,
+      "collisionMask": -1,
+      "colliderType": 0,
+      "particleRadius": 0.05000000074505806,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          0,
+          0
+        ],
+        "axisY": [
+          -10,
+          0
+        ],
+        "axisZ": [
+          -20,
+          0
+        ]
+      },
+      "unityLocalPosition": [
+        -0.07744677364826202,
+        0.1574999988079071,
+        0.0701608806848526
+      ]
+    },
+    {
+      "bone": "LeftSideHair4_S",
+      "part": "hair",
+      "damping": 0.4000000059604645,
+      "stiffness": 0.004999999888241291,
+      "spring": 0.4000000059604645,
+      "pendulum": 0.0020000000949949026,
+      "pendulumRange": 1.0,
+      "mass": 0.800000011920929,
+      "rootWeight": 0.30000001192092896,
+      "collisionMask": 16,
+      "colliderType": 0,
+      "particleRadius": 0.03500000014901161,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          0,
+          0
+        ],
+        "axisY": [
+          -30,
+          20
+        ],
+        "axisZ": [
+          -35,
+          15
+        ]
+      },
+      "unityLocalPosition": [
+        -0.06300000101327896,
+        3.552713599391162e-17,
+        -5.329070399086743e-17
+      ]
+    },
+    {
+      "bone": "RightHair3_S",
+      "part": "hair",
+      "damping": 0.30000001192092896,
+      "stiffness": 0.006000000052154064,
+      "spring": 0.20000000298023224,
+      "pendulum": 0.0020000000949949026,
+      "pendulumRange": 1.0,
+      "mass": 0.699999988079071,
+      "rootWeight": 0.75,
+      "collisionMask": 8,
+      "colliderType": 0,
+      "particleRadius": 0.03500000014901161,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          0,
+          0
+        ],
+        "axisY": [
+          -35,
+          25
+        ],
+        "axisZ": [
+          -35,
+          35
+        ]
+      },
+      "unityLocalPosition": [
+        -0.09764999896287918,
+        -1.6889599799025518e-13,
+        4.44089183380283e-17
+      ]
+    },
+    {
+      "bone": "LeftHair6_S_End",
+      "part": "hair",
+      "damping": 0.8999999761581421,
+      "stiffness": 0.003000000026077032,
+      "spring": 0.800000011920929,
+      "pendulum": 0.0020000000949949026,
+      "pendulumRange": 1.0,
+      "mass": 1.0,
+      "rootWeight": 0.75,
+      "collisionMask": 8,
+      "colliderType": 0,
+      "particleRadius": 0.04000000283122063,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          0,
+          0
+        ],
+        "axisY": [
+          -70,
+          70
+        ],
+        "axisZ": [
+          -160,
+          160
+        ]
+      },
+      "unityLocalPosition": [
+        -0.08505000174045563,
+        3.552713599391162e-17,
+        8.881783998477905e-18
+      ]
+    },
+    {
+      "bone": "LeftSideHair5_S",
+      "part": "hair",
+      "damping": 0.6000000238418579,
+      "stiffness": 0.003000000026077032,
+      "spring": 0.4000000059604645,
+      "pendulum": 0.0020000000949949026,
+      "pendulumRange": 1.0,
+      "mass": 0.8999999761581421,
+      "rootWeight": 0.30000001192092896,
+      "collisionMask": 16,
+      "colliderType": 0,
+      "particleRadius": 0.02500000037252903,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          0,
+          0
+        ],
+        "axisY": [
+          -35,
+          30
+        ],
+        "axisZ": [
+          -50,
+          20
+        ]
+      },
+      "unityLocalPosition": [
+        -0.057749997824430466,
+        -1.4210854397564648e-16,
+        5.329070399086743e-17
+      ]
+    },
+    {
+      "bone": "CenterBackHair6_S_End",
+      "part": "hair",
+      "damping": 0.8999999761581421,
+      "stiffness": 0.003000000026077032,
+      "spring": 0.6000000238418579,
+      "pendulum": 0.0020000000949949026,
+      "pendulumRange": 1.0,
+      "mass": 1.0,
+      "rootWeight": 0.75,
+      "collisionMask": 8,
+      "colliderType": 0,
+      "particleRadius": 0.04000000283122063,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          0,
+          0
+        ],
+        "axisY": [
+          -70,
+          70
+        ],
+        "axisZ": [
+          -160,
+          160
+        ]
+      },
+      "unityLocalPosition": [
+        -0.09449999779462814,
+        -1.776356799695581e-17,
+        0.0
+      ]
+    },
+    {
+      "bone": "CenterBackAddHair1_S",
+      "part": "hair",
+      "damping": 0.5,
+      "stiffness": 0.05000000074505806,
+      "spring": 0.0,
+      "pendulum": 0.0020000000949949026,
+      "pendulumRange": 1.0,
+      "mass": 0.0,
+      "rootWeight": 0.75,
+      "collisionMask": -1,
+      "colliderType": 0,
+      "particleRadius": 0.05000000074505806,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          0,
+          0
+        ],
+        "axisY": [
+          -5,
+          5
+        ],
+        "axisZ": [
+          -20,
+          20
+        ]
+      },
+      "unityLocalPosition": [
+        0.031775735318660736,
+        0.1534128040075302,
+        -0.12487231940031052
+      ]
+    },
+    {
+      "bone": "LeftBackHair5_S",
+      "part": "hair",
+      "damping": 0.699999988079071,
+      "stiffness": 0.004000000189989805,
+      "spring": 0.5,
+      "pendulum": 0.0020000000949949026,
+      "pendulumRange": 1.0,
+      "mass": 0.8999999761581421,
+      "rootWeight": 0.75,
+      "collisionMask": 8,
+      "colliderType": 0,
+      "particleRadius": 0.055000003427267075,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          0,
+          0
+        ],
+        "axisY": [
+          -50,
+          60
+        ],
+        "axisZ": [
+          -120,
+          120
+        ]
+      },
+      "unityLocalPosition": [
+        -0.09764999896287918,
+        7.105427198782324e-17,
+        -6.661337750704245e-17
+      ]
+    },
+    {
+      "bone": "LeftBackSideHair5_S",
+      "part": "hair",
+      "damping": 0.699999988079071,
+      "stiffness": 0.004000000189989805,
+      "spring": 0.5,
+      "pendulum": 0.0020000000949949026,
+      "pendulumRange": 1.0,
+      "mass": 0.8999999761581421,
+      "rootWeight": 0.75,
+      "collisionMask": 8,
+      "colliderType": 0,
+      "particleRadius": 0.055000003427267075,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          0,
+          0
+        ],
+        "axisY": [
+          -50,
+          60
+        ],
+        "axisZ": [
+          -120,
+          120
+        ]
+      },
+      "unityLocalPosition": [
+        -0.09764999896287918,
+        0.0,
+        -1.3322675997716858e-17
+      ]
+    },
+    {
+      "bone": "CenterBackTopHair3_S",
+      "part": "hair",
+      "damping": 0.30000001192092896,
+      "stiffness": 0.006000000052154064,
+      "spring": 0.20000000298023224,
+      "pendulum": 0.0020000000949949026,
+      "pendulumRange": 1.0,
+      "mass": 0.699999988079071,
+      "rootWeight": 0.75,
+      "collisionMask": 8,
+      "colliderType": 0,
+      "particleRadius": 0.03500000014901161,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          0,
+          0
+        ],
+        "axisY": [
+          -27,
+          27
+        ],
+        "axisZ": [
+          -20,
+          35
+        ]
+      },
+      "unityLocalPosition": [
+        -0.09764999896287918,
+        0.0,
+        7.573064520850527e-31
+      ]
+    },
+    {
+      "bone": "LeftBackTopHair2_S",
+      "part": "hair",
+      "damping": 0.20000000298023224,
+      "stiffness": 0.007000000216066837,
+      "spring": 0.10000000149011612,
+      "pendulum": 0.0020000000949949026,
+      "pendulumRange": 1.0,
+      "mass": 0.6000000238418579,
+      "rootWeight": 0.75,
+      "collisionMask": 8,
+      "colliderType": 0,
+      "particleRadius": 0.030000001192092896,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          0,
+          0
+        ],
+        "axisY": [
+          -15,
+          25
+        ],
+        "axisZ": [
+          -30,
+          15
+        ]
+      },
+      "unityLocalPosition": [
+        -0.09764999896287918,
+        7.105427198782324e-17,
+        8.88178366760566e-17
+      ]
+    },
+    {
+      "bone": "RightTopAddHair4_S",
+      "part": "hair",
+      "damping": 0.5,
+      "stiffness": 0.00800000037997961,
+      "spring": 0.4000000059604645,
+      "pendulum": 0.0020000000949949026,
+      "pendulumRange": 1.0,
+      "mass": 0.5,
+      "rootWeight": 0.5,
+      "collisionMask": 8,
+      "colliderType": 0,
+      "particleRadius": 0.03500000014901161,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          0,
+          0
+        ],
+        "axisY": [
+          -50,
+          50
+        ],
+        "axisZ": [
+          -100,
+          100
+        ]
+      },
+      "unityLocalPosition": [
+        -0.05555136501789093,
+        -1.6939338928941006e-13,
+        -1.776356799695581e-17
+      ]
+    },
+    {
+      "bone": "LeftBackSideHair1_S",
+      "part": "hair",
+      "damping": 0.5,
+      "stiffness": 0.05000000074505806,
+      "spring": 0.0,
+      "pendulum": 0.0020000000949949026,
+      "pendulumRange": 1.0,
+      "mass": 0.0,
+      "rootWeight": 0.75,
+      "collisionMask": -1,
+      "colliderType": 0,
+      "particleRadius": 0.05000000074505806,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          0,
+          0
+        ],
+        "axisY": [
+          -15,
+          20
+        ],
+        "axisZ": [
+          -10,
+          15
+        ]
+      },
+      "unityLocalPosition": [
+        5.684341759025859e-16,
+        0.0,
+        -3.552713599391162e-17
+      ]
+    },
+    {
+      "bone": "RightBackHair1_S",
+      "part": "hair",
+      "damping": 0.5,
+      "stiffness": 0.05000000074505806,
+      "spring": 0.0,
+      "pendulum": 0.0020000000949949026,
+      "pendulumRange": 1.0,
+      "mass": 0.0,
+      "rootWeight": 0.75,
+      "collisionMask": -1,
+      "colliderType": 0,
+      "particleRadius": 0.05000000074505806,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          0,
+          0
+        ],
+        "axisY": [
+          -20,
+          15
+        ],
+        "axisZ": [
+          -10,
+          15
+        ]
+      },
+      "unityLocalPosition": [
+        -0.0,
+        0.0,
+        3.552713599391162e-17
+      ]
+    },
+    {
+      "bone": "RightHair1_S",
+      "part": "hair",
+      "damping": 0.5,
+      "stiffness": 0.05000000074505806,
+      "spring": 0.0,
+      "pendulum": 0.0020000000949949026,
+      "pendulumRange": 1.0,
+      "mass": 0.0,
+      "rootWeight": 0.75,
+      "collisionMask": -1,
+      "colliderType": 0,
+      "particleRadius": 0.05000000074505806,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          0,
+          0
+        ],
+        "axisY": [
+          -20,
+          15
+        ],
+        "axisZ": [
+          -20,
+          15
+        ]
+      },
+      "unityLocalPosition": [
+        -0.0,
+        0.0,
+        4.44089183380283e-17
+      ]
+    },
+    {
+      "bone": "RightBackHair3_S",
+      "part": "hair",
+      "damping": 0.30000001192092896,
+      "stiffness": 0.006000000052154064,
+      "spring": 0.20000000298023224,
+      "pendulum": 0.0020000000949949026,
+      "pendulumRange": 1.0,
+      "mass": 0.699999988079071,
+      "rootWeight": 0.75,
+      "collisionMask": 8,
+      "colliderType": 0,
+      "particleRadius": 0.03500000014901161,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          0,
+          0
+        ],
+        "axisY": [
+          -35,
+          25
+        ],
+        "axisZ": [
+          -20,
+          50
+        ]
+      },
+      "unityLocalPosition": [
+        -0.09764999896287918,
+        7.105427198782324e-17,
+        4.440891999238953e-18
+      ]
+    },
+    {
+      "bone": "CenterBackHair5_S",
+      "part": "hair",
+      "damping": 0.699999988079071,
+      "stiffness": 0.004000000189989805,
+      "spring": 0.5,
+      "pendulum": 0.0020000000949949026,
+      "pendulumRange": 1.0,
+      "mass": 0.8999999761581421,
+      "rootWeight": 0.75,
+      "collisionMask": 8,
+      "colliderType": 0,
+      "particleRadius": 0.055000003427267075,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          0,
+          0
+        ],
+        "axisY": [
+          -50,
+          50
+        ],
+        "axisZ": [
+          -60,
+          120
+        ]
+      },
+      "unityLocalPosition": [
+        -0.09764999896287918,
+        0.0,
+        2.524354840283509e-31
+      ]
+    },
+    {
+      "bone": "RightBackSideHair5_S",
+      "part": "hair",
+      "damping": 0.699999988079071,
+      "stiffness": 0.004000000189989805,
+      "spring": 0.5,
+      "pendulum": 0.0020000000949949026,
+      "pendulumRange": 1.0,
+      "mass": 0.8999999761581421,
+      "rootWeight": 0.75,
+      "collisionMask": 8,
+      "colliderType": 0,
+      "particleRadius": 0.055000003427267075,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          0,
+          0
+        ],
+        "axisY": [
+          -60,
+          50
+        ],
+        "axisZ": [
+          -120,
+          120
+        ]
+      },
+      "unityLocalPosition": [
+        -0.09764999896287918,
+        -2.989963691132219e-13,
+        -2.93720600684326e-14
+      ]
+    },
+    {
+      "bone": "LeftHair1_S",
+      "part": "hair",
+      "damping": 0.5,
+      "stiffness": 0.05000000074505806,
+      "spring": 0.0,
+      "pendulum": 0.0020000000949949026,
+      "pendulumRange": 1.0,
+      "mass": 0.0,
+      "rootWeight": 0.75,
+      "collisionMask": -1,
+      "colliderType": 0,
+      "particleRadius": 0.05000000074505806,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          0,
+          0
+        ],
+        "axisY": [
+          -15,
+          20
+        ],
+        "axisZ": [
+          -20,
+          15
+        ]
+      },
+      "unityLocalPosition": [
+        -2.8421708795129297e-16,
+        0.0,
+        1.776356799695581e-17
+      ]
+    },
+    {
+      "bone": "RightSideHair4_S",
+      "part": "hair",
+      "damping": 0.4000000059604645,
+      "stiffness": 0.004999999888241291,
+      "spring": 0.4000000059604645,
+      "pendulum": 0.0020000000949949026,
+      "pendulumRange": 1.0,
+      "mass": 0.800000011920929,
+      "rootWeight": 0.30000001192092896,
+      "collisionMask": 16,
+      "colliderType": 0,
+      "particleRadius": 0.03500000014901161,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          0,
+          0
+        ],
+        "axisY": [
+          -20,
+          30
+        ],
+        "axisZ": [
+          -35,
+          15
+        ]
+      },
+      "unityLocalPosition": [
+        -0.06300000101327896,
+        -1.0658140798173486e-16,
+        8.735651091384966e-10
+      ]
+    },
+    {
+      "bone": "RightBackTopHair2_S",
+      "part": "hair",
+      "damping": 0.20000000298023224,
+      "stiffness": 0.007000000216066837,
+      "spring": 0.10000000149011612,
+      "pendulum": 0.0020000000949949026,
+      "pendulumRange": 1.0,
+      "mass": 0.6000000238418579,
+      "rootWeight": 0.75,
+      "collisionMask": 8,
+      "colliderType": 0,
+      "particleRadius": 0.030000001192092896,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          0,
+          0
+        ],
+        "axisY": [
+          -25,
+          15
+        ],
+        "axisZ": [
+          -30,
+          15
+        ]
+      },
+      "unityLocalPosition": [
+        -0.09764999896287918,
+        0.0,
+        5.329070399086743e-17
+      ]
+    },
+    {
+      "bone": "LeftBackSideHair3_S",
+      "part": "hair",
+      "damping": 0.30000001192092896,
+      "stiffness": 0.006000000052154064,
+      "spring": 0.20000000298023224,
+      "pendulum": 0.0020000000949949026,
+      "pendulumRange": 1.0,
+      "mass": 0.699999988079071,
+      "rootWeight": 0.75,
+      "collisionMask": 8,
+      "colliderType": 0,
+      "particleRadius": 0.03500000014901161,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          0,
+          0
+        ],
+        "axisY": [
+          -25,
+          35
+        ],
+        "axisZ": [
+          -20,
+          50
+        ]
+      },
+      "unityLocalPosition": [
+        -0.09764999896287918,
+        -2.1316281596346973e-16,
+        -5.329070399086743e-17
+      ]
+    },
+    {
+      "bone": "LeftAddHair5_S_End",
+      "part": "hair",
+      "damping": 0.6000000238418579,
+      "stiffness": 0.004999999888241291,
+      "spring": 0.6000000238418579,
+      "pendulum": 0.0020000000949949026,
+      "pendulumRange": 1.0,
+      "mass": 0.8999999761581421,
+      "rootWeight": 0.5,
+      "collisionMask": 8,
+      "colliderType": 0,
+      "particleRadius": 0.04000000283122063,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          0,
+          0
+        ],
+        "axisY": [
+          -60,
+          60
+        ],
+        "axisZ": [
+          -120,
+          120
+        ]
+      },
+      "unityLocalPosition": [
+        -0.10593673586845398,
+        0.0011039151577278972,
+        -0.0020026317797601223
+      ]
+    },
+    {
+      "bone": "RightBackHair6_S_End",
+      "part": "hair",
+      "damping": 0.8999999761581421,
+      "stiffness": 0.003000000026077032,
+      "spring": 0.6000000238418579,
+      "pendulum": 0.0020000000949949026,
+      "pendulumRange": 1.0,
+      "mass": 1.0,
+      "rootWeight": 0.75,
+      "collisionMask": 8,
+      "colliderType": 0,
+      "particleRadius": 0.04000000283122063,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          0,
+          0
+        ],
+        "axisY": [
+          -70,
+          70
+        ],
+        "axisZ": [
+          -160,
+          160
+        ]
+      },
+      "unityLocalPosition": [
+        -0.09449823200702667,
+        7.105427198782324e-17,
+        5.329070399086743e-17
+      ]
+    },
+    {
+      "bone": "LeftBackSideHair6_S_End",
+      "part": "hair",
+      "damping": 0.8999999761581421,
+      "stiffness": 0.003000000026077032,
+      "spring": 0.6000000238418579,
+      "pendulum": 0.0020000000949949026,
+      "pendulumRange": 1.0,
+      "mass": 1.0,
+      "rootWeight": 0.75,
+      "collisionMask": 8,
+      "colliderType": 0,
+      "particleRadius": 0.04000000283122063,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          0,
+          0
+        ],
+        "axisY": [
+          -70,
+          70
+        ],
+        "axisZ": [
+          -160,
+          160
+        ]
+      },
+      "unityLocalPosition": [
+        -0.09449999779462814,
+        -1.0658140798173486e-16,
+        -7.105427198782324e-17
+      ]
+    },
+    {
+      "bone": "CenterBackHair3_S",
+      "part": "hair",
+      "damping": 0.30000001192092896,
+      "stiffness": 0.006000000052154064,
+      "spring": 0.20000000298023224,
+      "pendulum": 0.0020000000949949026,
+      "pendulumRange": 1.0,
+      "mass": 0.699999988079071,
+      "rootWeight": 0.75,
+      "collisionMask": 8,
+      "colliderType": 0,
+      "particleRadius": 0.03500000014901161,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          0,
+          0
+        ],
+        "axisY": [
+          -27,
+          27
+        ],
+        "axisZ": [
+          -20,
+          50
+        ]
+      },
+      "unityLocalPosition": [
+        -0.09764999896287918,
+        0.0,
+        7.573064520850527e-31
+      ]
+    },
+    {
+      "bone": "CenterBackHair2_S",
+      "part": "hair",
+      "damping": 0.20000000298023224,
+      "stiffness": 0.007000000216066837,
+      "spring": 0.10000000149011612,
+      "pendulum": 0.0020000000949949026,
+      "pendulumRange": 1.0,
+      "mass": 0.6000000238418579,
+      "rootWeight": 0.75,
+      "collisionMask": 8,
+      "colliderType": 0,
+      "particleRadius": 0.030000001192092896,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          0,
+          0
+        ],
+        "axisY": [
+          -20,
+          20
+        ],
+        "axisZ": [
+          -10,
+          30
+        ]
+      },
+      "unityLocalPosition": [
+        -0.09764999896287918,
+        -7.105427198782324e-17,
+        -5.048709680567018e-31
+      ]
+    },
+    {
+      "bone": "LeftHairSub3_S_End",
+      "part": "hair",
+      "damping": 1.0,
+      "stiffness": 0.004999999888241291,
+      "spring": 0.4000000059604645,
+      "pendulum": 0.0020000000949949026,
+      "pendulumRange": 1.0,
+      "mass": 0.800000011920929,
+      "rootWeight": 0.75,
+      "collisionMask": 8,
+      "colliderType": 0,
+      "particleRadius": 0.03500000014901161,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          0,
+          0
+        ],
+        "axisY": [
+          -50,
+          50
+        ],
+        "axisZ": [
+          -100,
+          100
+        ]
+      },
+      "unityLocalPosition": [
+        -0.08799999952316284,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "bone": "LeftHairSub1_S",
+      "part": "hair",
+      "damping": 0.5,
+      "stiffness": 0.05000000074505806,
+      "spring": 0.0,
+      "pendulum": 0.0020000000949949026,
+      "pendulumRange": 1.0,
+      "mass": 0.0,
+      "rootWeight": 0.75,
+      "collisionMask": -1,
+      "colliderType": 0,
+      "particleRadius": 0.05000000074505806,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          0,
+          0
+        ],
+        "axisY": [
+          -10,
+          10
+        ],
+        "axisZ": [
+          -20,
+          20
+        ]
+      },
+      "unityLocalPosition": [
+        -0.10700305551290512,
+        0.08178573101758957,
+        -0.0077021680772304535
+      ]
+    },
+    {
+      "bone": "RightHair4_S",
+      "part": "hair",
+      "damping": 0.4000000059604645,
+      "stiffness": 0.004999999888241291,
+      "spring": 0.5,
+      "pendulum": 0.0020000000949949026,
+      "pendulumRange": 1.0,
+      "mass": 0.800000011920929,
+      "rootWeight": 0.75,
+      "collisionMask": 8,
+      "colliderType": 0,
+      "particleRadius": 0.05000000074505806,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          0,
+          0
+        ],
+        "axisY": [
+          -50,
+          40
+        ],
+        "axisZ": [
+          -100,
+          100
+        ]
+      },
+      "unityLocalPosition": [
+        -0.09764999896287918,
+        1.3258727340863252e-13,
+        -2.7178259134604064e-15
+      ]
+    },
+    {
+      "bone": "RightBackSideHair6_S_End",
+      "part": "hair",
+      "damping": 0.8999999761581421,
+      "stiffness": 0.003000000026077032,
+      "spring": 0.6000000238418579,
+      "pendulum": 0.0020000000949949026,
+      "pendulumRange": 1.0,
+      "mass": 1.0,
+      "rootWeight": 0.75,
+      "collisionMask": 8,
+      "colliderType": 0,
+      "particleRadius": 0.04000000283122063,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          0,
+          0
+        ],
+        "axisY": [
+          -70,
+          70
+        ],
+        "axisZ": [
+          -160,
+          160
+        ]
+      },
+      "unityLocalPosition": [
+        -0.0944962128996849,
+        5.282530055744639e-13,
+        2.845723738034364e-14
+      ]
+    },
+    {
+      "bone": "CenterBackAddHair4_S",
+      "part": "hair",
+      "damping": 0.6000000238418579,
+      "stiffness": 0.004999999888241291,
+      "spring": 0.4000000059604645,
+      "pendulum": 0.0020000000949949026,
+      "pendulumRange": 1.0,
+      "mass": 0.800000011920929,
+      "rootWeight": 0.75,
+      "collisionMask": 8,
+      "colliderType": 0,
+      "particleRadius": 0.03500000014901161,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          0,
+          0
+        ],
+        "axisY": [
+          -50,
+          50
+        ],
+        "axisZ": [
+          -100,
+          100
+        ]
+      },
+      "unityLocalPosition": [
+        -0.05770385265350342,
+        1.4210854397564648e-16,
+        7.105427198782324e-17
+      ]
+    },
+    {
+      "bone": "LeftBackHair2_S",
+      "part": "hair",
+      "damping": 0.20000000298023224,
+      "stiffness": 0.007000000216066837,
+      "spring": 0.10000000149011612,
+      "pendulum": 0.0020000000949949026,
+      "pendulumRange": 1.0,
+      "mass": 0.6000000238418579,
+      "rootWeight": 0.75,
+      "collisionMask": 8,
+      "colliderType": 0,
+      "particleRadius": 0.030000001192092896,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          0,
+          0
+        ],
+        "axisY": [
+          -20,
+          25
+        ],
+        "axisZ": [
+          -10,
+          30
+        ]
+      },
+      "unityLocalPosition": [
+        -0.09764999896287918,
+        7.105427198782324e-17,
+        -3.108624482185328e-17
+      ]
+    },
+    {
+      "bone": "LeftBackHair6_S_End",
+      "part": "hair",
+      "damping": 0.8999999761581421,
+      "stiffness": 0.003000000026077032,
+      "spring": 0.6000000238418579,
+      "pendulum": 0.0020000000949949026,
+      "pendulumRange": 1.0,
+      "mass": 1.0,
+      "rootWeight": 0.75,
+      "collisionMask": 8,
+      "colliderType": 0,
+      "particleRadius": 0.04000000283122063,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          0,
+          0
+        ],
+        "axisY": [
+          -70,
+          70
+        ],
+        "axisZ": [
+          -160,
+          160
+        ]
+      },
+      "unityLocalPosition": [
+        -0.09449999779462814,
+        -3.552713599391162e-17,
+        8.881783998477905e-18
+      ]
+    },
+    {
+      "bone": "LeftBackTopHair4_S",
+      "part": "hair",
+      "damping": 0.4000000059604645,
+      "stiffness": 0.004999999888241291,
+      "spring": 0.4000000059604645,
+      "pendulum": 0.0020000000949949026,
+      "pendulumRange": 1.0,
+      "mass": 0.800000011920929,
+      "rootWeight": 0.75,
+      "collisionMask": 8,
+      "colliderType": 0,
+      "particleRadius": 0.05000000074505806,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          0,
+          0
+        ],
+        "axisY": [
+          -40,
+          50
+        ],
+        "axisZ": [
+          -100,
+          30
+        ]
+      },
+      "unityLocalPosition": [
+        -0.09764999896287918,
+        1.4210854397564648e-16,
+        -5.329070399086743e-17
+      ]
+    },
+    {
+      "bone": "LeftSideHairSub2_S",
+      "part": "hair",
+      "damping": 0.6000000238418579,
+      "stiffness": 0.004999999888241291,
+      "spring": 0.20000000298023224,
+      "pendulum": 0.0020000000949949026,
+      "pendulumRange": 1.0,
+      "mass": 0.6499999761581421,
+      "rootWeight": 0.30000001192092896,
+      "collisionMask": 8,
+      "colliderType": 0,
+      "particleRadius": 0.020000001415610313,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          0,
+          0
+        ],
+        "axisY": [
+          -15,
+          10
+        ],
+        "axisZ": [
+          -15,
+          5
+        ]
+      },
+      "unityLocalPosition": [
+        -0.07599999755620956,
+        -2.8421708795129297e-16,
+        1.4210854397564648e-16
+      ]
+    },
+    {
+      "bone": "LeftBackTopHair5_S",
+      "part": "hair",
+      "damping": 0.699999988079071,
+      "stiffness": 0.004000000189989805,
+      "spring": 0.5,
+      "pendulum": 0.0020000000949949026,
+      "pendulumRange": 1.0,
+      "mass": 0.8999999761581421,
+      "rootWeight": 0.75,
+      "collisionMask": 8,
+      "colliderType": 0,
+      "particleRadius": 0.055000003427267075,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          0,
+          0
+        ],
+        "axisY": [
+          -50,
+          60
+        ],
+        "axisZ": [
+          -120,
+          50
+        ]
+      },
+      "unityLocalPosition": [
+        -0.09764999896287918,
+        0.0,
+        -1.3322675997716858e-17
+      ]
+    },
+    {
+      "bone": "RightHair6_S_End",
+      "part": "hair",
+      "damping": 0.8999999761581421,
+      "stiffness": 0.003000000026077032,
+      "spring": 0.800000011920929,
+      "pendulum": 0.0020000000949949026,
+      "pendulumRange": 1.0,
+      "mass": 1.0,
+      "rootWeight": 0.75,
+      "collisionMask": 8,
+      "colliderType": 0,
+      "particleRadius": 0.04000000283122063,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          0,
+          0
+        ],
+        "axisY": [
+          -70,
+          70
+        ],
+        "axisZ": [
+          -160,
+          160
+        ]
+      },
+      "unityLocalPosition": [
+        -0.0850483700633049,
+        1.6235900427916117e-14,
+        -1.2270184495462733e-14
+      ]
+    },
+    {
+      "bone": "CenterBackTopHair4_S",
+      "part": "hair",
+      "damping": 0.4000000059604645,
+      "stiffness": 0.004999999888241291,
+      "spring": 0.4000000059604645,
+      "pendulum": 0.0020000000949949026,
+      "pendulumRange": 1.0,
+      "mass": 0.800000011920929,
+      "rootWeight": 0.75,
+      "collisionMask": 8,
+      "colliderType": 0,
+      "particleRadius": 0.05000000074505806,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          0,
+          0
+        ],
+        "axisY": [
+          -38,
+          38
+        ],
+        "axisZ": [
+          -50,
+          100
+        ]
+      },
+      "unityLocalPosition": [
+        -0.09764999896287918,
+        0.0,
+        -2.524354840283509e-31
+      ]
+    },
+    {
+      "bone": "RightBackSideHair4_S",
+      "part": "hair",
+      "damping": 0.4000000059604645,
+      "stiffness": 0.004999999888241291,
+      "spring": 0.4000000059604645,
+      "pendulum": 0.0020000000949949026,
+      "pendulumRange": 1.0,
+      "mass": 0.800000011920929,
+      "rootWeight": 0.75,
+      "collisionMask": 8,
+      "colliderType": 0,
+      "particleRadius": 0.05000000074505806,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          0,
+          0
+        ],
+        "axisY": [
+          -50,
+          40
+        ],
+        "axisZ": [
+          -100,
+          100
+        ]
+      },
+      "unityLocalPosition": [
+        -0.09764999896287918,
+        -2.288726790311557e-07,
+        9.289501612386175e-09
+      ]
+    },
+    {
+      "bone": "RightSideHairSub2_S",
+      "part": "hair",
+      "damping": 0.8999999761581421,
+      "stiffness": 0.004999999888241291,
+      "spring": 0.20000000298023224,
+      "pendulum": 0.0020000000949949026,
+      "pendulumRange": 1.0,
+      "mass": 0.699999988079071,
+      "rootWeight": 0.30000001192092896,
+      "collisionMask": 8,
+      "colliderType": 0,
+      "particleRadius": 0.020000001415610313,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          0,
+          0
+        ],
+        "axisY": [
+          -15,
+          15
+        ],
+        "axisZ": [
+          -30,
+          30
+        ]
+      },
+      "unityLocalPosition": [
+        -0.07899999618530273,
+        3.552713599391162e-17,
+        1.4210854397564648e-16
+      ]
+    },
+    {
+      "bone": "LeftSideHairBackSub2_S",
+      "part": "hair",
+      "damping": 0.800000011920929,
+      "stiffness": 0.004999999888241291,
+      "spring": 0.20000000298023224,
+      "pendulum": 0.0020000000949949026,
+      "pendulumRange": 1.0,
+      "mass": 0.699999988079071,
+      "rootWeight": 0.30000001192092896,
+      "collisionMask": 8,
+      "colliderType": 0,
+      "particleRadius": 0.020000001415610313,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          0,
+          0
+        ],
+        "axisY": [
+          -15,
+          15
+        ],
+        "axisZ": [
+          -30,
+          30
+        ]
+      },
+      "unityLocalPosition": [
+        -0.0819999948143959,
+        0.0,
+        -2.8421708795129297e-16
+      ]
+    },
+    {
+      "bone": "RightBackHair5_S",
+      "part": "hair",
+      "damping": 0.699999988079071,
+      "stiffness": 0.004000000189989805,
+      "spring": 0.5,
+      "pendulum": 0.0020000000949949026,
+      "pendulumRange": 1.0,
+      "mass": 0.8999999761581421,
+      "rootWeight": 0.75,
+      "collisionMask": 8,
+      "colliderType": 0,
+      "particleRadius": 0.055000003427267075,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          0,
+          0
+        ],
+        "axisY": [
+          -60,
+          50
+        ],
+        "axisZ": [
+          -120,
+          120
+        ]
+      },
+      "unityLocalPosition": [
+        -0.09764999896287918,
+        7.105427198782324e-17,
+        2.220445916901415e-17
+      ]
+    },
+    {
+      "bone": "LeftSideHairSub1_S",
+      "part": "hair",
+      "damping": 0.5,
+      "stiffness": 0.05000000074505806,
+      "spring": 0.0,
+      "pendulum": 0.0020000000949949026,
+      "pendulumRange": 1.0,
+      "mass": 0.0,
+      "rootWeight": 0.30000001192092896,
+      "collisionMask": -1,
+      "colliderType": 0,
+      "particleRadius": 0.05000000074505806,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          0,
+          0
+        ],
+        "axisY": [
+          -15,
+          8
+        ],
+        "axisZ": [
+          -3,
+          8
+        ]
+      },
+      "unityLocalPosition": [
+        -0.0055198571644723415,
+        0.1655527651309967,
+        0.10109217464923859
+      ]
+    },
+    {
+      "bone": "RightSideHair6_S_End",
+      "part": "hair",
+      "damping": 0.800000011920929,
+      "stiffness": 0.003000000026077032,
+      "spring": 0.4000000059604645,
+      "pendulum": 0.006000000052154064,
+      "pendulumRange": 1.0,
+      "mass": 1.0,
+      "rootWeight": 0.30000001192092896,
+      "collisionMask": 16,
+      "colliderType": 0,
+      "particleRadius": 0.030000001192092896,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          0,
+          0
+        ],
+        "axisY": [
+          -40,
+          40
+        ],
+        "axisZ": [
+          -60,
+          30
+        ]
+      },
+      "unityLocalPosition": [
+        -0.06824999302625656,
+        -4.2632563192693945e-16,
+        8.845469356977276e-10
+      ]
+    },
+    {
+      "bone": "RightTopAddHair2_S",
+      "part": "hair",
+      "damping": 0.30000001192092896,
+      "stiffness": 0.009999999776482582,
+      "spring": 0.10000000149011612,
+      "pendulum": 0.0020000000949949026,
+      "pendulumRange": 1.0,
+      "mass": 0.5,
+      "rootWeight": 0.5,
+      "collisionMask": 8,
+      "colliderType": 0,
+      "particleRadius": 0.020000001415610313,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          0,
+          0
+        ],
+        "axisY": [
+          -25,
+          15
+        ],
+        "axisZ": [
+          -30,
+          30
+        ]
+      },
+      "unityLocalPosition": [
+        -0.06499999761581421,
+        1.4210854397564648e-16,
+        -7.105427198782324e-17
+      ]
+    },
+    {
+      "bone": "LeftSideHairBackSub1_S",
+      "part": "hair",
+      "damping": 0.5,
+      "stiffness": 0.05000000074505806,
+      "spring": 0.0,
+      "pendulum": 0.0020000000949949026,
+      "pendulumRange": 1.0,
+      "mass": 0.0,
+      "rootWeight": 0.30000001192092896,
+      "collisionMask": -1,
+      "colliderType": 0,
+      "particleRadius": 0.05000000074505806,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          0,
+          0
+        ],
+        "axisY": [
+          -10,
+          10
+        ],
+        "axisZ": [
+          -20,
+          20
+        ]
+      },
+      "unityLocalPosition": [
+        -0.05719396471977234,
+        0.18207019567489624,
+        0.08246531337499619
+      ]
+    },
+    {
+      "bone": "LeftBackHair1_S",
+      "part": "hair",
+      "damping": 0.5,
+      "stiffness": 0.05000000074505806,
+      "spring": 0.0,
+      "pendulum": 0.0020000000949949026,
+      "pendulumRange": 1.0,
+      "mass": 0.0,
+      "rootWeight": 0.75,
+      "collisionMask": -1,
+      "colliderType": 0,
+      "particleRadius": 0.05000000074505806,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          0,
+          0
+        ],
+        "axisY": [
+          -15,
+          20
+        ],
+        "axisZ": [
+          -10,
+          15
+        ]
+      },
+      "unityLocalPosition": [
+        2.8865797581462886e-16,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "bone": "CenterBackAddHair3_S",
+      "part": "hair",
+      "damping": 0.6000000238418579,
+      "stiffness": 0.004999999888241291,
+      "spring": 0.20000000298023224,
+      "pendulum": 0.0020000000949949026,
+      "pendulumRange": 1.0,
+      "mass": 0.699999988079071,
+      "rootWeight": 0.75,
+      "collisionMask": 8,
+      "colliderType": 0,
+      "particleRadius": 0.02500000037252903,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          0,
+          0
+        ],
+        "axisY": [
+          -20,
+          20
+        ],
+        "axisZ": [
+          -35,
+          35
+        ]
+      },
+      "unityLocalPosition": [
+        -0.05608392506837845,
+        0.002092385198920965,
+        -0.0021003778092563152
+      ]
+    },
+    {
+      "bone": "CenterBackHair1_S",
+      "part": "hair",
+      "damping": 0.5,
+      "stiffness": 0.05000000074505806,
+      "spring": 0.0,
+      "pendulum": 0.0020000000949949026,
+      "pendulumRange": 1.0,
+      "mass": 0.0,
+      "rootWeight": 0.75,
+      "collisionMask": -1,
+      "colliderType": 0,
+      "particleRadius": 0.05000000074505806,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          0,
+          0
+        ],
+        "axisY": [
+          -15,
+          15
+        ],
+        "axisZ": [
+          -10,
+          15
+        ]
+      },
+      "unityLocalPosition": [
+        -0.0,
+        -2.8421708795129297e-16,
+        -2.9063507156479318e-09
+      ]
+    },
+    {
+      "bone": "LeftAddHair2_S",
+      "part": "hair",
+      "damping": 0.30000001192092896,
+      "stiffness": 0.009999999776482582,
+      "spring": 0.10000000149011612,
+      "pendulum": 0.0020000000949949026,
+      "pendulumRange": 1.0,
+      "mass": 0.6000000238418579,
+      "rootWeight": 0.5,
+      "collisionMask": 8,
+      "colliderType": 0,
+      "particleRadius": 0.020000001415610313,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          0,
+          0
+        ],
+        "axisY": [
+          -15,
+          15
+        ],
+        "axisZ": [
+          -30,
+          30
+        ]
+      },
+      "unityLocalPosition": [
+        -0.07551980763673782,
+        0.0,
+        2.1316281596346973e-16
+      ]
+    },
+    {
+      "bone": "LeftAddHair1_S",
+      "part": "hair",
+      "damping": 0.5,
+      "stiffness": 0.05000000074505806,
+      "spring": 0.0,
+      "pendulum": 0.0020000000949949026,
+      "pendulumRange": 1.0,
+      "mass": 0.0,
+      "rootWeight": 0.5,
+      "collisionMask": -1,
+      "colliderType": 0,
+      "particleRadius": 0.05000000074505806,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          0,
+          0
+        ],
+        "axisY": [
+          -10,
+          10
+        ],
+        "axisZ": [
+          -20,
+          20
+        ]
+      },
+      "unityLocalPosition": [
+        -0.10574307292699814,
+        0.14276322722434998,
+        0.011501633562147617
+      ]
+    },
+    {
+      "bone": "RightBackTopHair6_S_End",
+      "part": "hair",
+      "damping": 0.8999999761581421,
+      "stiffness": 0.003000000026077032,
+      "spring": 0.6000000238418579,
+      "pendulum": 0.0020000000949949026,
+      "pendulumRange": 1.0,
+      "mass": 1.0,
+      "rootWeight": 0.75,
+      "collisionMask": 8,
+      "colliderType": 0,
+      "particleRadius": 0.04000000283122063,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          0,
+          0
+        ],
+        "axisY": [
+          -70,
+          70
+        ],
+        "axisZ": [
+          -160,
+          160
+        ]
+      },
+      "unityLocalPosition": [
+        -0.0944962128996849,
+        5.282530055744639e-13,
+        2.845723738034364e-14
+      ]
+    },
+    {
+      "bone": "LeftHairSub2_S",
+      "part": "hair",
+      "damping": 0.8999999761581421,
+      "stiffness": 0.004999999888241291,
+      "spring": 0.20000000298023224,
+      "pendulum": 0.0020000000949949026,
+      "pendulumRange": 1.0,
+      "mass": 0.699999988079071,
+      "rootWeight": 0.75,
+      "collisionMask": 8,
+      "colliderType": 0,
+      "particleRadius": 0.020000001415610313,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          0,
+          0
+        ],
+        "axisY": [
+          -15,
+          15
+        ],
+        "axisZ": [
+          -30,
+          30
+        ]
+      },
+      "unityLocalPosition": [
+        -0.08799999952316284,
+        0.0,
+        7.105427198782324e-17
+      ]
+    },
+    {
+      "bone": "CenterBackAddHair5_S_End",
+      "part": "hair",
+      "damping": 0.6000000238418579,
+      "stiffness": 0.004999999888241291,
+      "spring": 0.6000000238418579,
+      "pendulum": 0.0020000000949949026,
+      "pendulumRange": 1.0,
+      "mass": 0.8999999761581421,
+      "rootWeight": 0.75,
+      "collisionMask": 8,
+      "colliderType": 0,
+      "particleRadius": 0.04000000283122063,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          0,
+          0
+        ],
+        "axisY": [
+          -60,
+          60
+        ],
+        "axisZ": [
+          -120,
+          120
+        ]
+      },
+      "unityLocalPosition": [
+        -0.06874407827854156,
+        -0.0035959917586296797,
+        0.0007737053674645722
+      ]
+    },
+    {
+      "bone": "RightSideHair5_S",
+      "part": "hair",
+      "damping": 0.6000000238418579,
+      "stiffness": 0.003000000026077032,
+      "spring": 0.4000000059604645,
+      "pendulum": 0.0020000000949949026,
+      "pendulumRange": 1.0,
+      "mass": 0.8999999761581421,
+      "rootWeight": 0.30000001192092896,
+      "collisionMask": 16,
+      "colliderType": 0,
+      "particleRadius": 0.02500000037252903,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          0,
+          0
+        ],
+        "axisY": [
+          -30,
+          35
+        ],
+        "axisZ": [
+          -50,
+          20
+        ]
+      },
+      "unityLocalPosition": [
+        -0.057749997824430466,
+        1.4210854397564648e-16,
+        1.1377501163423176e-09
+      ]
+    },
+    {
+      "bone": "RightBackHair2_S",
+      "part": "hair",
+      "damping": 0.20000000298023224,
+      "stiffness": 0.007000000216066837,
+      "spring": 0.10000000149011612,
+      "pendulum": 0.0020000000949949026,
+      "pendulumRange": 1.0,
+      "mass": 0.6000000238418579,
+      "rootWeight": 0.75,
+      "collisionMask": 8,
+      "colliderType": 0,
+      "particleRadius": 0.030000001192092896,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          0,
+          0
+        ],
+        "axisY": [
+          -25,
+          20
+        ],
+        "axisZ": [
+          -10,
+          30
+        ]
+      },
+      "unityLocalPosition": [
+        -0.09764999896287918,
+        -7.105427198782324e-17,
+        3.552713599391162e-17
+      ]
+    },
+    {
+      "bone": "CenterBackHair4_S",
+      "part": "hair",
+      "damping": 0.4000000059604645,
+      "stiffness": 0.004999999888241291,
+      "spring": 0.4000000059604645,
+      "pendulum": 0.0020000000949949026,
+      "pendulumRange": 1.0,
+      "mass": 0.800000011920929,
+      "rootWeight": 0.75,
+      "collisionMask": 8,
+      "colliderType": 0,
+      "particleRadius": 0.05000000074505806,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          0,
+          0
+        ],
+        "axisY": [
+          -38,
+          38
+        ],
+        "axisZ": [
+          -50,
+          100
+        ]
+      },
+      "unityLocalPosition": [
+        -0.09764999896287918,
+        0.0,
+        -2.524354840283509e-31
+      ]
+    },
+    {
+      "bone": "RightBackTopHair5_S",
+      "part": "hair",
+      "damping": 0.699999988079071,
+      "stiffness": 0.004000000189989805,
+      "spring": 0.5,
+      "pendulum": 0.0020000000949949026,
+      "pendulumRange": 1.0,
+      "mass": 0.8999999761581421,
+      "rootWeight": 0.75,
+      "collisionMask": 8,
+      "colliderType": 0,
+      "particleRadius": 0.055000003427267075,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          0,
+          0
+        ],
+        "axisY": [
+          -60,
+          50
+        ],
+        "axisZ": [
+          -120,
+          50
+        ]
+      },
+      "unityLocalPosition": [
+        -0.09764999896287918,
+        -2.989963691132219e-13,
+        -2.93720600684326e-14
+      ]
+    },
+    {
+      "bone": "LeftBackHair4_S",
+      "part": "hair",
+      "damping": 0.4000000059604645,
+      "stiffness": 0.004999999888241291,
+      "spring": 0.4000000059604645,
+      "pendulum": 0.0020000000949949026,
+      "pendulumRange": 1.0,
+      "mass": 0.800000011920929,
+      "rootWeight": 0.75,
+      "collisionMask": 8,
+      "colliderType": 0,
+      "particleRadius": 0.05000000074505806,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          0,
+          0
+        ],
+        "axisY": [
+          -40,
+          50
+        ],
+        "axisZ": [
+          -100,
+          100
+        ]
+      },
+      "unityLocalPosition": [
+        -0.09764999896287918,
+        -1.4210854397564648e-16,
+        0.0
+      ]
+    },
+    {
+      "bone": "RightSideHair2_S",
+      "part": "hair",
+      "damping": 0.4000000059604645,
+      "stiffness": 0.004999999888241291,
+      "spring": 0.10000000149011612,
+      "pendulum": 0.0020000000949949026,
+      "pendulumRange": 1.0,
+      "mass": 0.6000000238418579,
+      "rootWeight": 0.30000001192092896,
+      "collisionMask": 16,
+      "colliderType": 0,
+      "particleRadius": 0.020000001415610313,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          0,
+          0
+        ],
+        "axisY": [
+          -5,
+          20
+        ],
+        "axisZ": [
+          -25,
+          5
+        ]
+      },
+      "unityLocalPosition": [
+        -0.07874999940395355,
+        -1.4210854397564648e-16,
+        0.0
+      ]
+    },
+    {
+      "bone": "LeftSideHairSub3_S_End",
+      "part": "hair",
+      "damping": 0.699999988079071,
+      "stiffness": 0.004999999888241291,
+      "spring": 0.4000000059604645,
+      "pendulum": 0.0020000000949949026,
+      "pendulumRange": 1.0,
+      "mass": 0.20000000298023224,
+      "rootWeight": 0.30000001192092896,
+      "collisionMask": 8,
+      "colliderType": 0,
+      "particleRadius": 0.020000001415610313,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          0,
+          0
+        ],
+        "axisY": [
+          -50,
+          50
+        ],
+        "axisZ": [
+          -100,
+          100
+        ]
+      },
+      "unityLocalPosition": [
+        -0.07599999755620956,
+        0.0,
+        -1.4210854397564648e-16
+      ]
+    },
+    {
+      "bone": "RightHair5_S",
+      "part": "hair",
+      "damping": 0.699999988079071,
+      "stiffness": 0.004000000189989805,
+      "spring": 0.75,
+      "pendulum": 0.0020000000949949026,
+      "pendulumRange": 1.0,
+      "mass": 0.8999999761581421,
+      "rootWeight": 0.75,
+      "collisionMask": 8,
+      "colliderType": 0,
+      "particleRadius": 0.055000003427267075,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          0,
+          0
+        ],
+        "axisY": [
+          -60,
+          50
+        ],
+        "axisZ": [
+          -120,
+          120
+        ]
+      },
+      "unityLocalPosition": [
+        -0.09764999896287918,
+        -8.562040101434479e-14,
+        1.594280161717771e-14
+      ]
+    },
+    {
+      "bone": "LeftHair5_S",
+      "part": "hair",
+      "damping": 0.699999988079071,
+      "stiffness": 0.004000000189989805,
+      "spring": 0.75,
+      "pendulum": 0.0020000000949949026,
+      "pendulumRange": 1.0,
+      "mass": 0.8999999761581421,
+      "rootWeight": 0.75,
+      "collisionMask": 8,
+      "colliderType": 0,
+      "particleRadius": 0.055000003427267075,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          0,
+          0
+        ],
+        "axisY": [
+          -50,
+          60
+        ],
+        "axisZ": [
+          -120,
+          120
+        ]
+      },
+      "unityLocalPosition": [
+        -0.09764999896287918,
+        0.0,
+        9.769962563761818e-17
+      ]
+    },
+    {
+      "bone": "LeftBackTopHair3_S",
+      "part": "hair",
+      "damping": 0.30000001192092896,
+      "stiffness": 0.006000000052154064,
+      "spring": 0.20000000298023224,
+      "pendulum": 0.0020000000949949026,
+      "pendulumRange": 1.0,
+      "mass": 0.699999988079071,
+      "rootWeight": 0.75,
+      "collisionMask": 8,
+      "colliderType": 0,
+      "particleRadius": 0.03500000014901161,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          0,
+          0
+        ],
+        "axisY": [
+          -25,
+          35
+        ],
+        "axisZ": [
+          -35,
+          20
+        ]
+      },
+      "unityLocalPosition": [
+        -0.09764999896287918,
+        -2.1316281596346973e-16,
+        -5.329070399086743e-17
+      ]
+    },
+    {
+      "bone": "RightTopAddHair1_S",
+      "part": "hair",
+      "damping": 0.5,
+      "stiffness": 0.05000000074505806,
+      "spring": 0.0,
+      "pendulum": 0.0020000000949949026,
+      "pendulumRange": 1.0,
+      "mass": 0.0,
+      "rootWeight": 0.5,
+      "collisionMask": -1,
+      "colliderType": 0,
+      "particleRadius": 0.05000000074505806,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          0,
+          0
+        ],
+        "axisY": [
+          -20,
+          10
+        ],
+        "axisZ": [
+          -20,
+          20
+        ]
+      },
+      "unityLocalPosition": [
+        0.11143835633993149,
+        0.1493699997663498,
+        -0.039766501635313034
+      ]
+    },
+    {
+      "bone": "LeftSideHair3_S",
+      "part": "hair",
+      "damping": 0.4000000059604645,
+      "stiffness": 0.004999999888241291,
+      "spring": 0.20000000298023224,
+      "pendulum": 0.0020000000949949026,
+      "pendulumRange": 1.0,
+      "mass": 0.699999988079071,
+      "rootWeight": 0.30000001192092896,
+      "collisionMask": 16,
+      "colliderType": 0,
+      "particleRadius": 0.030000001192092896,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          0,
+          0
+        ],
+        "axisY": [
+          -25,
+          10
+        ],
+        "axisZ": [
+          -30,
+          10
+        ]
+      },
+      "unityLocalPosition": [
+        -0.07874999940395355,
+        0.0,
+        2.6645351995433716e-17
+      ]
+    },
+    {
+      "bone": "CenterBackAddHair2_S",
+      "part": "hair",
+      "damping": 0.6000000238418579,
+      "stiffness": 0.004999999888241291,
+      "spring": 0.10000000149011612,
+      "pendulum": 0.0020000000949949026,
+      "pendulumRange": 1.0,
+      "mass": 0.6000000238418579,
+      "rootWeight": 0.75,
+      "collisionMask": 8,
+      "colliderType": 0,
+      "particleRadius": 0.020000001415610313,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          0,
+          0
+        ],
+        "axisY": [
+          -15,
+          15
+        ],
+        "axisZ": [
+          -30,
+          30
+        ]
+      },
+      "unityLocalPosition": [
+        -0.055712856352329254,
+        2.8421708795129297e-16,
+        4.44089183380283e-17
+      ]
+    },
+    {
+      "bone": "CenterBackTopHair6_S_End",
+      "part": "hair",
+      "damping": 0.8999999761581421,
+      "stiffness": 0.003000000026077032,
+      "spring": 0.6000000238418579,
+      "pendulum": 0.0020000000949949026,
+      "pendulumRange": 1.0,
+      "mass": 1.0,
+      "rootWeight": 0.75,
+      "collisionMask": 8,
+      "colliderType": 0,
+      "particleRadius": 0.04000000283122063,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          0,
+          0
+        ],
+        "axisY": [
+          -70,
+          70
+        ],
+        "axisZ": [
+          -160,
+          160
+        ]
+      },
+      "unityLocalPosition": [
+        -0.09449999779462814,
+        -1.776356799695581e-17,
+        0.0
+      ]
+    },
+    {
+      "bone": "LeftBackSideHair4_S",
+      "part": "hair",
+      "damping": 0.4000000059604645,
+      "stiffness": 0.004999999888241291,
+      "spring": 0.4000000059604645,
+      "pendulum": 0.0020000000949949026,
+      "pendulumRange": 1.0,
+      "mass": 0.800000011920929,
+      "rootWeight": 0.75,
+      "collisionMask": 8,
+      "colliderType": 0,
+      "particleRadius": 0.05000000074505806,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          0,
+          0
+        ],
+        "axisY": [
+          -40,
+          50
+        ],
+        "axisZ": [
+          -100,
+          100
+        ]
+      },
+      "unityLocalPosition": [
+        -0.09764999896287918,
+        1.4210854397564648e-16,
+        -5.329070399086743e-17
+      ]
+    },
+    {
+      "bone": "RightSideHairSub1_S",
+      "part": "hair",
+      "damping": 0.5,
+      "stiffness": 0.05000000074505806,
+      "spring": 0.0,
+      "pendulum": 0.0020000000949949026,
+      "pendulumRange": 1.0,
+      "mass": 0.0,
+      "rootWeight": 0.30000001192092896,
+      "collisionMask": -1,
+      "colliderType": 0,
+      "particleRadius": 0.05000000074505806,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          0,
+          0
+        ],
+        "axisY": [
+          -15,
+          15
+        ],
+        "axisZ": [
+          -30,
+          30
+        ]
+      },
+      "unityLocalPosition": [
+        0.06861455738544464,
+        0.1559852510690689,
+        0.08516945689916611
+      ]
+    },
+    {
+      "bone": "LeftBackTopHair1_S",
+      "part": "hair",
+      "damping": 0.5,
+      "stiffness": 0.05000000074505806,
+      "spring": 0.0,
+      "pendulum": 0.0020000000949949026,
+      "pendulumRange": 1.0,
+      "mass": 0.0,
+      "rootWeight": 0.75,
+      "collisionMask": -1,
+      "colliderType": 0,
+      "particleRadius": 0.05000000074505806,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          0,
+          0
+        ],
+        "axisY": [
+          -10,
+          20
+        ],
+        "axisZ": [
+          -20,
+          10
+        ]
+      },
+      "unityLocalPosition": [
+        -2.8421708795129297e-16,
+        0.0,
+        3.552713599391162e-17
+      ]
+    },
+    {
+      "bone": "LeftBackSideHair2_S",
+      "part": "hair",
+      "damping": 0.20000000298023224,
+      "stiffness": 0.007000000216066837,
+      "spring": 0.10000000149011612,
+      "pendulum": 0.0020000000949949026,
+      "pendulumRange": 1.0,
+      "mass": 0.6000000238418579,
+      "rootWeight": 0.75,
+      "collisionMask": 8,
+      "colliderType": 0,
+      "particleRadius": 0.030000001192092896,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          0,
+          0
+        ],
+        "axisY": [
+          -20,
+          25
+        ],
+        "axisZ": [
+          -10,
+          30
+        ]
+      },
+      "unityLocalPosition": [
+        -0.09764999896287918,
+        7.105427198782324e-17,
+        8.88178366760566e-17
+      ]
+    },
+    {
+      "bone": "RightBackTopHair1_S",
+      "part": "hair",
+      "damping": 0.5,
+      "stiffness": 0.05000000074505806,
+      "spring": 0.0,
+      "pendulum": 0.0020000000949949026,
+      "pendulumRange": 1.0,
+      "mass": 0.0,
+      "rootWeight": 0.75,
+      "collisionMask": -1,
+      "colliderType": 0,
+      "particleRadius": 0.05000000074505806,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          0,
+          0
+        ],
+        "axisY": [
+          -20,
+          10
+        ],
+        "axisZ": [
+          -20,
+          10
+        ]
+      },
+      "unityLocalPosition": [
+        -2.8421708795129297e-16,
+        0.0,
+        3.552713599391162e-17
+      ]
+    },
+    {
+      "bone": "RightBackTopHair3_S",
+      "part": "hair",
+      "damping": 0.30000001192092896,
+      "stiffness": 0.006000000052154064,
+      "spring": 0.20000000298023224,
+      "pendulum": 0.0020000000949949026,
+      "pendulumRange": 1.0,
+      "mass": 0.699999988079071,
+      "rootWeight": 0.75,
+      "collisionMask": 8,
+      "colliderType": 0,
+      "particleRadius": 0.03500000014901161,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          0,
+          0
+        ],
+        "axisY": [
+          -35,
+          25
+        ],
+        "axisZ": [
+          -35,
+          20
+        ]
+      },
+      "unityLocalPosition": [
+        -0.09764999896287918,
+        -4.668079611747089e-07,
+        -2.160242900117737e-07
+      ]
+    },
+    {
+      "bone": "RightHair2_S",
+      "part": "hair",
+      "damping": 0.20000000298023224,
+      "stiffness": 0.007000000216066837,
+      "spring": 0.10000000149011612,
+      "pendulum": 0.0020000000949949026,
+      "pendulumRange": 1.0,
+      "mass": 0.6000000238418579,
+      "rootWeight": 0.75,
+      "collisionMask": 8,
+      "colliderType": 0,
+      "particleRadius": 0.030000001192092896,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          0,
+          0
+        ],
+        "axisY": [
+          -25,
+          20
+        ],
+        "axisZ": [
+          -30,
+          30
+        ]
+      },
+      "unityLocalPosition": [
+        -0.09764999896287918,
+        0.0,
+        4.44089183380283e-17
+      ]
+    },
+    {
+      "bone": "CenterBackTopHair2_S",
+      "part": "hair",
+      "damping": 0.20000000298023224,
+      "stiffness": 0.007000000216066837,
+      "spring": 0.10000000149011612,
+      "pendulum": 0.0020000000949949026,
+      "pendulumRange": 1.0,
+      "mass": 0.6000000238418579,
+      "rootWeight": 0.75,
+      "collisionMask": 8,
+      "colliderType": 0,
+      "particleRadius": 0.030000001192092896,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          0,
+          0
+        ],
+        "axisY": [
+          -20,
+          20
+        ],
+        "axisZ": [
+          -30,
+          30
+        ]
+      },
+      "unityLocalPosition": [
+        -0.09764999896287918,
+        -7.105427198782324e-17,
+        -5.048709680567018e-31
+      ]
+    },
+    {
+      "bone": "RightBackHair4_S",
+      "part": "hair",
+      "damping": 0.4000000059604645,
+      "stiffness": 0.004999999888241291,
+      "spring": 0.4000000059604645,
+      "pendulum": 0.0020000000949949026,
+      "pendulumRange": 1.0,
+      "mass": 0.800000011920929,
+      "rootWeight": 0.75,
+      "collisionMask": 8,
+      "colliderType": 0,
+      "particleRadius": 0.05000000074505806,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          0,
+          0
+        ],
+        "axisY": [
+          -50,
+          40
+        ],
+        "axisZ": [
+          -100,
+          100
+        ]
+      },
+      "unityLocalPosition": [
+        -0.09764999896287918,
+        -2.1316281596346973e-16,
+        5.773159516292577e-17
+      ]
+    },
+    {
+      "bone": "LeftAddHair3_S",
+      "part": "hair",
+      "damping": 0.4000000059604645,
+      "stiffness": 0.009999999776482582,
+      "spring": 0.20000000298023224,
+      "pendulum": 0.0020000000949949026,
+      "pendulumRange": 1.0,
+      "mass": 0.699999988079071,
+      "rootWeight": 0.5,
+      "collisionMask": 8,
+      "colliderType": 0,
+      "particleRadius": 0.02500000037252903,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          0,
+          0
+        ],
+        "axisY": [
+          -20,
+          20
+        ],
+        "axisZ": [
+          -35,
+          35
+        ]
+      },
+      "unityLocalPosition": [
+        -0.07495596259832382,
+        1.4210854397564648e-16,
+        -7.105427198782324e-17
+      ]
+    },
+    {
+      "bone": "LeftBackTopHair6_S_End",
+      "part": "hair",
+      "damping": 0.8999999761581421,
+      "stiffness": 0.003000000026077032,
+      "spring": 0.6000000238418579,
+      "pendulum": 0.0020000000949949026,
+      "pendulumRange": 1.0,
+      "mass": 1.0,
+      "rootWeight": 0.75,
+      "collisionMask": 8,
+      "colliderType": 0,
+      "particleRadius": 0.04000000283122063,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          0,
+          0
+        ],
+        "axisY": [
+          -70,
+          70
+        ],
+        "axisZ": [
+          -160,
+          160
+        ]
+      },
+      "unityLocalPosition": [
+        -0.09449999779462814,
+        -1.0658140798173486e-16,
+        -7.105427198782324e-17
+      ]
+    },
+    {
+      "bone": "RightSideHair3_S",
+      "part": "hair",
+      "damping": 0.4000000059604645,
+      "stiffness": 0.004999999888241291,
+      "spring": 0.20000000298023224,
+      "pendulum": 0.0020000000949949026,
+      "pendulumRange": 1.0,
+      "mass": 0.699999988079071,
+      "rootWeight": 0.30000001192092896,
+      "collisionMask": 16,
+      "colliderType": 0,
+      "particleRadius": 0.030000001192092896,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          0,
+          0
+        ],
+        "axisY": [
+          -10,
+          25
+        ],
+        "axisZ": [
+          -30,
+          10
+        ]
+      },
+      "unityLocalPosition": [
+        -0.07874999940395355,
+        2.1316281596346973e-16,
+        -7.993605433193992e-17
+      ]
+    },
+    {
+      "bone": "RightBackSideHair3_S",
+      "part": "hair",
+      "damping": 0.30000001192092896,
+      "stiffness": 0.006000000052154064,
+      "spring": 0.20000000298023224,
+      "pendulum": 0.0020000000949949026,
+      "pendulumRange": 1.0,
+      "mass": 0.699999988079071,
+      "rootWeight": 0.75,
+      "collisionMask": 8,
+      "colliderType": 0,
+      "particleRadius": 0.03500000014901161,
+      "limitInfo": {
+        "useLimit": 1,
+        "axisX": [
+          0,
+          0
+        ],
+        "axisY": [
+          -35,
+          25
+        ],
+        "axisZ": [
+          -35,
+          35
+        ]
+      },
+      "unityLocalPosition": [
+        -0.09764999896287918,
+        -4.668079611747089e-07,
+        -2.160242900117737e-07
+      ]
+    }
+  ],
+  "colliders": [
+    {
+      "bone": "Hips",
+      "type": 1,
+      "collisionMask": 1,
+      "offsetA": [
+        0.0,
+        -0.05000000074505806,
+        0.0
+      ],
+      "offsetB": [
+        0.0,
+        0.010000000707805157,
+        0.0
+      ],
+      "radiusA": 0.06100000441074371,
+      "radiusB": 0.06100000441074371
+    },
+    {
+      "bone": "LeftHand",
+      "type": 2,
+      "collisionMask": 56,
+      "offsetA": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "offsetB": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "radiusA": 0.055000003427267075,
+      "radiusB": 0.02500000037252903
+    },
+    {
+      "bone": "Spine1",
+      "type": 1,
+      "collisionMask": 56,
+      "offsetA": [
+        0.0,
+        0.0,
+        -0.003000000026077032
+      ],
+      "offsetB": [
+        1.0,
+        0.07000000029802322,
+        0.0
+      ],
+      "radiusA": 0.11000000685453415,
+      "radiusB": 0.11000000685453415
+    },
+    {
+      "bone": "LeftHand",
+      "type": 1,
+      "collisionMask": 56,
+      "offsetA": [
+        -0.05000000074505806,
+        0.0,
+        0.0
+      ],
+      "offsetB": [
+        0.0,
+        0.0010000000474974513,
+        0.0
+      ],
+      "radiusA": 0.030000001192092896,
+      "radiusB": 0.030000001192092896
+    },
+    {
+      "bone": "RightForeArm",
+      "type": 2,
+      "collisionMask": 56,
+      "offsetA": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "offsetB": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "radiusA": 0.05000000074505806,
+      "radiusB": 0.055000003427267075
+    },
+    {
+      "bone": "Spine2",
+      "type": 1,
+      "collisionMask": 56,
+      "offsetA": [
+        0.0,
+        0.0,
+        0.0010000000474974513
+      ],
+      "offsetB": [
+        0.0,
+        0.10500000417232513,
+        0.0
+      ],
+      "radiusA": 0.11000000685453415,
+      "radiusB": 0.11000000685453415
+    },
+    {
+      "bone": "LeftForeArm",
+      "type": 2,
+      "collisionMask": 56,
+      "offsetA": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "offsetB": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "radiusA": 0.05000000074505806,
+      "radiusB": 0.055000003427267075
+    },
+    {
+      "bone": "RightHand",
+      "type": 1,
+      "collisionMask": 56,
+      "offsetA": [
+        0.05000000074505806,
+        0.0,
+        0.0
+      ],
+      "offsetB": [
+        0.0,
+        0.0010000000474974513,
+        0.0
+      ],
+      "radiusA": 0.030000001192092896,
+      "radiusB": 0.030000001192092896
+    },
+    {
+      "bone": "Neck",
+      "type": 1,
+      "collisionMask": 16,
+      "offsetA": [
+        0.0,
+        0.0020000000949949026,
+        -0.055000003427267075
+      ],
+      "offsetB": [
+        0.0,
+        0.5720000267028809,
+        0.0
+      ],
+      "radiusA": 0.09000000357627869,
+      "radiusB": 0.09000000357627869
+    },
+    {
+      "bone": "Hips",
+      "type": 1,
+      "collisionMask": 1,
+      "offsetA": [
+        0.0,
+        -0.05000000074505806,
+        -0.02500000037252903
+      ],
+      "offsetB": [
+        0.0,
+        0.08000000566244125,
+        0.0
+      ],
+      "radiusA": 0.07000000029802322,
+      "radiusB": 0.07000000029802322
+    },
+    {
+      "bone": "Spine2",
+      "type": 0,
+      "collisionMask": 32,
+      "offsetA": [
+        0.0,
+        0.0950000062584877,
+        0.0
+      ],
+      "offsetB": [
+        0.0,
+        0.1600000113248825,
+        0.0
+      ],
+      "radiusA": 0.07000000029802322,
+      "radiusB": 0.07000000029802322
+    },
+    {
+      "bone": "LeftArm",
+      "type": 2,
+      "collisionMask": 56,
+      "offsetA": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "offsetB": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "radiusA": 0.05000000074505806,
+      "radiusB": 0.055000003427267075
+    },
+    {
+      "bone": "RightHand",
+      "type": 2,
+      "collisionMask": 56,
+      "offsetA": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "offsetB": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "radiusA": 0.055000003427267075,
+      "radiusB": 0.02500000037252903
+    },
+    {
+      "bone": "Hips",
+      "type": 1,
+      "collisionMask": 8,
+      "offsetA": [
+        0.0,
+        0.03400000184774399,
+        -0.09100000560283661
+      ],
+      "offsetB": [
+        0.0,
+        0.30000001192092896,
+        0.0
+      ],
+      "radiusA": 0.10000000149011612,
+      "radiusB": 0.10000000149011612
+    },
+    {
+      "bone": "RightLeg",
+      "type": 2,
+      "collisionMask": 1,
+      "offsetA": [
+        0.0,
+        0.08000000566244125,
+        0.0
+      ],
+      "offsetB": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "radiusA": 0.055000003427267075,
+      "radiusB": 0.08500000089406967
+    },
+    {
+      "bone": "RightArm",
+      "type": 2,
+      "collisionMask": 56,
+      "offsetA": [
+        0.0,
+        0.0,
+        -0.005000000353902578
+      ],
+      "offsetB": [
+        0.0,
+        0.0010000000474974513,
+        0.0
+      ],
+      "radiusA": 0.05000000074505806,
+      "radiusB": 0.055000003427267075
+    },
+    {
+      "bone": "Neck",
+      "type": 1,
+      "collisionMask": 56,
+      "offsetA": [
+        0.0,
+        0.010000000707805157,
+        0.0
+      ],
+      "offsetB": [
+        1.0,
+        0.0010000000474974513,
+        0.0
+      ],
+      "radiusA": 0.02500000037252903,
+      "radiusB": 0.027000000700354576
+    },
+    {
+      "bone": "Neck",
+      "type": 1,
+      "collisionMask": 32,
+      "offsetA": [
+        0.0,
+        0.0020000000949949026,
+        -0.08500000089406967
+      ],
+      "offsetB": [
+        0.0,
+        0.5720000267028809,
+        0.0
+      ],
+      "radiusA": 0.09000000357627869,
+      "radiusB": 0.09000000357627869
+    },
+    {
+      "bone": "LeftLeg",
+      "type": 2,
+      "collisionMask": 1,
+      "offsetA": [
+        0.0,
+        0.08000000566244125,
+        0.0
+      ],
+      "offsetB": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "radiusA": 0.055000003427267075,
+      "radiusB": 0.08500000089406967
+    }
+  ],
+  "chains": [
+    {
+      "bone": "Pelvis",
+      "layers": [
+        {
+          "active": 1,
+          "around": 1,
+          "radius": 0.015,
+          "bones": [
+            "LeftFrontSkirt1_S",
+            "LeftFrontSideSkirt1_S",
+            "LeftBackSideSkirt1_S",
+            "LeftBackSkirt1_S",
+            "RightBackSkirt1_S",
+            "RightBackSideSkirt1_S",
+            "RightFrontSideSkirt1_S",
+            "RightFrontSkirt1_S"
+          ]
+        },
+        {
+          "active": 1,
+          "around": 1,
+          "radius": 0.02,
+          "bones": [
+            "LeftFrontSkirt2_S",
+            "LeftFrontSideSkirt2_S",
+            "LeftBackSideSkirt2_S",
+            "LeftBackSkirt2_S",
+            "RightBackSkirt2_S",
+            "RightBackSideSkirt2_S",
+            "RightFrontSideSkirt2_S",
+            "RightFrontSkirt2_S"
+          ]
+        }
+      ]
+    },
+    {
+      "bone": "Spine",
+      "layers": [
+        {
+          "active": 1,
+          "around": 0,
+          "radius": 0.007,
+          "bones": [
+            "LeftFrontJacket1_S",
+            "LeftFrontSideJacket1_S",
+            "LeftBackSideJacket1_S",
+            "LeftBackJacket1_S",
+            "RightBackJacket1_S",
+            "RightBackSideJacket1_S",
+            "RightFrontSideJacket1_S",
+            "RightFrontJacket1_S"
+          ]
+        },
+        {
+          "active": 1,
+          "around": 0,
+          "radius": 0.018,
+          "bones": [
+            "LeftFrontJacket2_S",
+            "LeftFrontSideJacket2_S",
+            "LeftBackSideJacket2_S",
+            "LeftBackJacket2_S",
+            "RightBackJacket2_S",
+            "RightBackSideJacket2_S",
+            "RightFrontSideJacket2_S",
+            "RightFrontJacket2_S"
+          ]
+        },
+        {
+          "active": 1,
+          "around": 0,
+          "radius": 0.02,
+          "bones": [
+            "LeftFrontJacket3_S",
+            "LeftFrontSideJacket3_S",
+            "LeftBackSideJacket3_S",
+            "LeftBackJacket3_S",
+            "RightBackJacket3_S",
+            "RightBackSideJacket3_S",
+            "RightFrontSideJacket3_S",
+            "RightFrontJacket3_S"
+          ]
+        },
+        {
+          "active": 1,
+          "around": 0,
+          "radius": 0.028,
+          "bones": [
+            "LeftFrontJacket4_S",
+            "LeftFrontSideJacket4_S",
+            "LeftBackSideJacket4_S",
+            "LeftBackJacket4_S",
+            "RightBackJacket4_S",
+            "RightBackSideJacket4_S",
+            "RightFrontSideJacket4_S",
+            "RightFrontJacket4_S"
+          ]
+        }
+      ]
+    }
+  ],
+  "counts": {
+    "ActorAnimationQuartzDriverSkirtBone": 8,
+    "ActorAnimationQuartzDriverHairBone": 10,
+    "ActorSwingDynamicBone": 143,
+    "ActorSwingStaticBone": 19,
+    "ActorSwingChain": 2
+  },
+  "scope": "QuartzDriver follow plus ActorSwing springs, static colliders, and inferred skirt/jacket rings. Collider offsets are baked from Unity rest into PMX/THREE local space when rest+skeleton are supplied. Integrator is a DynamicBone-style approximation; game assemblies are not executed.",
+  "profileId": "jsna",
+  "source": {
+    "body": "mdl_chr_jsna-schl-0000_body",
+    "hair": "mdl_chr_jsna-base-0000_hair",
+    "mapping": "raw-unity-parameters"
+  }
+}

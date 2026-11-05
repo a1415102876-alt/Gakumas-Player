@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#ff7600">
+  <title>怪文书 Beat 编辑器</title>
+  <!-- BeatPlayerApp is reused by beat-editor.js for the middle preview. -->
+  <link rel="stylesheet" href="./beat-player.css?v=20261104-clock-transition-v1">
+  <link rel="stylesheet" href="./beat-editor.css?v=20261103-actor-gizmo-v1">
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "./vendor/three/build/three.module.js",
+        "three/addons/": "./vendor/three/examples/jsm/"
+      }
+    }
+  </script>
+</head>
+<body class="beat-editor-page">
+  <main class="beat-editor-shell">
+    <header class="beat-editor-header">
+      <span class="editor-emblem" aria-hidden="true"></span>
+      <div class="beat-editor-title">
+        <p class="eyebrow">BEAT SCRIPT STUDIO / VISUAL EDITOR</p>
+        <h1>怪文书 Beat 编辑器</h1>
+        <p class="subtitle">用列表、属性面板和真实播放器预览制作 Beat。导入时未显示的扩展字段会随脚本保留。</p>
+      </div>
+      <div class="beat-editor-toolbar" role="toolbar" aria-label="编辑器操作">
+        <button id="beatEditorBackBtn" class="button secondary" type="button">返回怪文书</button>
+        <button id="beatEditorNewBtn" class="button secondary" type="button">新建 Beat</button>
+        <button id="beatEditorUndoBtn" class="button secondary" type="button" disabled>撤销</button>
+        <button id="beatEditorRedoBtn" class="button secondary" type="button" disabled>重做</button>
+        <button id="beatEditorExportBtn" class="button primary" type="button">导出脚本</button>
+      </div>
+    </header>
+
+    <section class="beat-editor-layout">
+      <aside class="beat-editor-list-panel" aria-label="Beat 序列">
+        <div class="editor-section-heading"><div><span class="panel-kicker">SEQUENCE</span><h2>Beat 序列</h2></div><span id="beatEditorDirty" class="editor-state-pill">未修改</span></div>
+        <div class="beat-editor-list-actions">
+          <button id="beatEditorDuplicateBtn" class="icon-button" type="button">复制</button>
+          <button id="beatEditorDeleteBtn" class="icon-button danger" type="button">删除</button>
+          <button id="beatEditorUpBtn" class="icon-button" type="button">上移</button>
+          <button id="beatEditorDownBtn" class="icon-button" type="button">下移</button>
+        </div>
+        <div id="beatEditorList" class="beat-editor-list" role="listbox" aria-label="Beat 列表"></div>
+        <div class="beat-editor-import">
+          <label for="beatEditorImportSource">导入现有脚本</label>
+          <textarea id="beatEditorImportSource" rows="5" placeholder="粘贴完整 Beat 脚本，或使用文件导入"></textarea>
+          <div class="editor-inline-actions">
+            <button id="beatEditorImportBtn" class="button secondary" type="button">导入并解析</button>
+            <label class="file-button button secondary" for="beatEditorFile">打开文件<input id="beatEditorFile" type="file" accept=".txt,.xml,.html,.md,text/plain,text/html"></label>
+          </div>
+        </div>
+      </aside>
+
+      <section class="beat-editor-preview-panel" aria-label="Beat 实时预览">
+        <div class="editor-section-heading"><div><span class="panel-kicker">PREVIEW</span><h2>真实播放器预览</h2></div><span id="beatEditorPreviewStatus" class="editor-state-pill">等待加载</span></div>
+        <div class="editor-preview-settings" aria-label="预览尺寸设置">
+          <div class="editor-preview-setting">
+            <label for="beatEditorStageWidth">横向视野宽度 <output id="beatEditorStageWidthValue" for="beatEditorStageWidth">900px</output></label>
+            <input id="beatEditorStageWidth" type="range" min="620" max="1600" step="20" value="900">
+          </div>
+          <div class="editor-preview-setting">
+            <label for="beatEditorDialogueWidth">文本框宽度 <output id="beatEditorDialogueWidthValue" for="beatEditorDialogueWidth">760px</output></label>
+            <input id="beatEditorDialogueWidth" type="range" min="420" max="1320" step="20" value="760">
+          </div>
+          <button id="beatEditorPreviewReset" class="icon-button" type="button">恢复默认</button>
+        </div>
+        <div class="editor-preview-viewport">
+          <div id="beatEditorStage" class="beat-stage editor-preview-stage" data-shot="keep" aria-label="Beat 预览舞台">
+            <div id="beatEditorStageBackground" class="beat-background" aria-hidden="true"></div>
+            <div class="stage-light stage-light-left"></div><div class="stage-light stage-light-right"></div><div class="stage-floor"></div><div class="stage-vignette"></div>
+            <div class="story-chrome">
+              <div id="beatEditorDialogueCard" class="dialogue-card" tabindex="0" aria-label="预览对话框">
+                <img id="beatEditorSpeakerPortrait" class="beat-speaker-portrait" hidden alt="" draggable="false">
+                <div class="speaker-plate"><strong id="beatEditorSpeaker">等待播放</strong></div>
+                <p id="beatEditorText">请从左侧新建或导入 Beat。</p>
+                <button id="beatEditorAdvance" class="dialogue-advance" type="button" aria-label="下一段"></button>
+              </div>
+              <div id="beatEditorChoices" class="beat-choices" hidden><div id="beatEditorChoiceList" class="beat-choice-list"></div></div>
+              <div class="player-toolbar editor-player-toolbar">
+                <button id="beatEditorPrevious" class="toolbar-button" type="button">上一段</button>
+                <button id="beatEditorPlay" class="toolbar-button play" type="button"><span class="toolbar-label">播放</span></button>
+                <button id="beatEditorNext" class="toolbar-button" type="button">下一段</button>
+                <button id="beatEditorStop" class="toolbar-button quiet" type="button">停止</button>
+                <label class="auto-toggle"><input id="beatEditorAuto" type="checkbox"><span>自动</span></label>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="editor-preview-footer"><span id="beatEditorShotPreview">镜头：—</span><span id="beatEditorStatus" role="status">准备预览。</span><span id="beatEditorProgress">—</span></div>
+      </section>
+
+      <aside id="beatEditorProperties" class="beat-editor-properties" aria-label="Beat 属性">
+        <div class="editor-section-heading"><div><span class="panel-kicker">PROPERTIES</span><h2>当前 Beat</h2></div><span id="beatEditorSelection" class="editor-state-pill">—</span></div>
+        <form id="beatEditorForm" class="editor-property-form">
+          <fieldset><legend>基本信息</legend><label>编号<input id="beatEditorId" data-field="id" type="text"></label><label>说话人<select id="beatEditorSpeakerField" data-field="speaker"></select></label><label>动作 cue<select id="beatEditorCue" data-field="cue"></select></label><label>表情 face<select id="beatEditorFace" data-field="face"></select></label>
+          <label class="editor-span">完整动作列表<span class="editor-motion-row"><select id="beatEditorMotionBucket" aria-label="动作分类"></select><select id="beatEditorMotionFile" aria-label="完整动作"></select></span><input id="beatEditorMotionName" type="text" spellcheck="false" placeholder="或直接填写原文件名，例如 mot_all_chr_cmmn_anshin-001_in"></label><label class="editor-span">仅表情文件<select id="beatEditorFaceFile" aria-label="仅表情文件"></select></label><p class="field-hint editor-free-hint">仅动作可以同时配上面的表情，或这里的仅表情文件。两条会一起播放。成套动作另选仅表情文件时，用这条表情盖过原来的表情。</p></fieldset>
+          <fieldset><legend>角色与画面</legend><label>背景<select id="beatEditorBackground" data-field="background"></select></label><label>站位<select id="beatEditorPosition" data-field="position"></select></label><label>视线<select id="beatEditorLook" data-field="look"></select></label><label>景别<select id="beatEditorShot" data-field="shot"></select></label><label>服装<input id="beatEditorCostume" data-field="costume" type="text" placeholder="Default / Solo1"></label></fieldset>
+          <fieldset><legend>镜头</legend><label>camera 景别<select id="beatEditorCamera" data-field="camera"></select></label><label>焦距 mm<input id="beatEditorFocal" type="number" min="10" max="200" step="1" inputmode="decimal" placeholder="跟随景别"></label><label class="editor-free-toggle">景深<input id="beatEditorDof" type="checkbox"></label><div id="beatEditorDofPanel" class="editor-free-look" hidden><label>光圈<input id="beatEditorDofAperture" type="number" min="1.2" max="22" step="0.1" inputmode="decimal"></label><label>对焦距离<input id="beatEditorDofFocus" type="number" min="0.05" step="0.05" inputmode="decimal" placeholder="当前说话人"></label></div><p class="field-hint editor-free-hint">焦距单位是毫米，按 24mm 竖向画幅换算，留空则沿用景别。景深打开后默认对焦当前说话人，光圈越小背景越糊。关闭景深只取消这一段的虚化。</p><label class="editor-free-toggle">自由镜头<input id="beatEditorFreeLook" type="checkbox"></label><div id="beatEditorFreeLookPanel" class="editor-free-look" hidden><label>位置 X<input id="beatEditorCamX" type="number" step="0.05"></label><label>位置 Y<input id="beatEditorCamY" type="number" step="0.05"></label><label>位置 Z<input id="beatEditorCamZ" type="number" step="0.05"></label><label>水平角<input id="beatEditorCamYaw" type="number" step="1"></label><label>俯仰角<input id="beatEditorCamPitch" type="number" step="1" min="-80" max="80"></label></div><p class="field-hint editor-free-hint">打开后把这一段 Beat 的摄像机直接放到输入的位置和角度，不再使用景别。关闭后删掉这段机位，恢复 camera 与 shot。</p><label class="editor-free-toggle">自由站位<input id="beatEditorFreeActor" type="checkbox"></label><div id="beatEditorFreeActorPanel" class="editor-free-look" hidden><label>位置 X<input id="beatEditorActorX" type="number" step="0.05"></label><label>位置 Y<input id="beatEditorActorY" type="number" step="0.05"></label><label>位置 Z<input id="beatEditorActorZ" type="number" step="0.05"></label><label>朝向<input id="beatEditorActorYaw" type="number" step="1"></label><div class="editor-gizmo-switch" role="group" aria-label="站位手柄"><button id="beatEditorActorGizmoMove" type="button" aria-pressed="true">移动</button><button id="beatEditorActorGizmoRotate" type="button" aria-pressed="false">旋转</button></div></div><p class="field-hint editor-free-hint">打开后把这一段说话人直接放到输入的位置和朝向，之后换人说话也会留在原地。预览里默认出现三轴箭头，切到旋转后改为朝向环，两者交替显示。关闭后只取消这一段自己写的站位；前面已经摆好的位置仍会留下。</p><label class="choice-row editor-free-look"><input id="beatEditorCameraMove" type="checkbox"><span>摄像机运动</span></label><div id="beatEditorCameraMovePanel" class="editor-free-look" hidden><label>起点 X<input id="beatEditorCamMoveFromX" type="number" step="0.01" inputmode="decimal"></label><label>起点 Y<input id="beatEditorCamMoveFromY" type="number" step="0.01" inputmode="decimal"></label><label>起点 Z<input id="beatEditorCamMoveFromZ" type="number" step="0.01" inputmode="decimal"></label><label>起点水平<input id="beatEditorCamMoveFromYaw" type="number" step="1" inputmode="decimal"></label><label>起点俯仰<input id="beatEditorCamMoveFromPitch" type="number" step="1" min="-80" max="80" inputmode="decimal"></label><label>终点 X<input id="beatEditorCamMoveToX" type="number" step="0.01" inputmode="decimal"></label><label>终点 Y<input id="beatEditorCamMoveToY" type="number" step="0.01" inputmode="decimal"></label><label>终点 Z<input id="beatEditorCamMoveToZ" type="number" step="0.01" inputmode="decimal"></label><label>终点水平<input id="beatEditorCamMoveToYaw" type="number" step="1" inputmode="decimal"></label><label>终点俯仰<input id="beatEditorCamMoveToPitch" type="number" step="1" min="-80" max="80" inputmode="decimal"></label><label>秒数<input id="beatEditorCamMoveDuration" type="number" step="0.1" min="0.1" inputmode="decimal"></label><label class="choice-row editor-free-look"><input id="beatEditorCameraWalk" type="checkbox"><span>手持走路</span></label></div><p class="field-hint editor-free-hint">打开后这一段摄像机从起点移动到终点。手持走路会在移动过程中按走路节奏轻微上下起伏，到终点时回到路径上。关闭后删掉这段运动。</p><label class="choice-row editor-free-look"><input id="beatEditorActorMove" type="checkbox"><span>角色运动</span></label><div id="beatEditorActorMovePanel" class="editor-free-look" hidden><label>起点 X<input id="beatEditorActorMoveFromX" type="number" step="0.01" inputmode="decimal"></label><label>起点 Y<input id="beatEditorActorMoveFromY" type="number" step="0.01" inputmode="decimal"></label><label>起点 Z<input id="beatEditorActorMoveFromZ" type="number" step="0.01" inputmode="decimal"></label><label>起点朝向<input id="beatEditorActorMoveFromYaw" type="number" step="1" inputmode="decimal"></label><label>终点 X<input id="beatEditorActorMoveToX" type="number" step="0.01" inputmode="decimal"></label><label>终点 Y<input id="beatEditorActorMoveToY" type="number" step="0.01" inputmode="decimal"></label><label>终点 Z<input id="beatEditorActorMoveToZ" type="number" step="0.01" inputmode="decimal"></label><label>终点朝向<input id="beatEditorActorMoveToYaw" type="number" step="1" inputmode="decimal"></label><label>秒数<input id="beatEditorActorMoveDuration" type="number" step="0.1" min="0.1" inputmode="decimal"></label></div><p class="field-hint editor-free-hint">打开后这一段说话人从起点移动到终点。关闭后删掉这段运动。</p></fieldset>
+          <fieldset><legend>效果</legend><label>叠加动作<select id="beatEditorOverlays" data-field="overlay" multiple size="3"></select></label><label>特效<select id="beatEditorEffects" data-field="effects" multiple size="3"></select></label><label>播放等待<select id="beatEditorWait" data-field="wait"></select></label><label>进入转场<select id="beatEditorTransition" data-field="transition"><option value="">（无）</option><option value="clock">时钟圆形</option></select></label><p class="editor-free-hint">从上一段进入这一段时播放。不选则不加这段转场，换背景仍用原来的色条。这一段如果同时换了背景，就用时钟圆形代替色条。</p></fieldset>
+          <fieldset><legend>文本</legend><label>中文台词<textarea id="beatEditorTextField" data-field="text" rows="5"></textarea></label><label>日文 TTS<textarea id="beatEditorTts" data-field="ttsText" rows="4"></textarea></label></fieldset>
+        </form>
+        <p id="beatEditorValidation" class="editor-validation" role="status"></p>
+      </aside>
+    </section>
+  </main>
+  <textarea id="beatScript" hidden aria-hidden="true"></textarea>
+  <div class="editor-player-contract" aria-hidden="true">
+    <span id="beatProgress"></span><span id="beatSpeaker"></span><span id="beatText"></span><span id="beatShot"></span><span id="beatStatus"></span>
+    <button id="playBeatBtn" type="button"></button><button id="previousBeatBtn" type="button"></button><button id="nextBeatBtn" type="button"></button><button id="stopBeatBtn" type="button"></button><input id="beatAutoPlay" type="checkbox">
+    <img id="beatSpeakerPortrait" alt=""><div id="beatDialogueCard"></div><div id="beatChoices"></div><div id="beatChoiceList"></div><div id="beatDiagnostics"></div>
+  </div>
+  <script src="./fish-tts.js?v=20261103-krnh-nasr-tts-v1"></script>
+  <script type="module" src="./beat-editor.js?v=20261104-gakumas-player-v1"></script>
+</body>
+</html>

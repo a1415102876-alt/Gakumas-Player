@@ -1,0 +1,721 @@
+{
+  "version": 1,
+  "models": [
+    {
+      "modelKey": "amao-casl",
+      "aliases": [
+        "amao-casl-glb-hair-layer"
+      ],
+      "idolId": "amao",
+      "outfitId": "casl",
+      "glb": "E:\\gakumas-pmx-workflow\\output\\amao-casl\\amao-casl.glb",
+      "profile": "secondary-motion-profiles/amao-casl.json",
+      "profileId": "amao-casl",
+      "glbSha256": "1CFBB6EF3C6D5EE0CA2EBD632802321F437911E31DCB163C80F65B1CACDFB52D",
+      "boneSignature": "F1D7C13C5AC78177FC903A78A30F046E453D00A8358166C908C7D7C52665EC7B",
+      "source": {
+        "body": "mdl_chr_amao-casl-0000_body",
+        "face": "mdl_chr_amao-base-0000_face",
+        "hair": "mdl_chr_amao-base-0000_hair",
+        "pmx": "E:\\gakumas-pmx-workflow\\output\\amao-casl\\amao-casl.pmx"
+      }
+    },
+    {
+      "modelKey": "atbm-cstm-0000",
+      "aliases": [
+        "atbm-cstm-0000-glb-hair-layer"
+      ],
+      "idolId": "atbm",
+      "outfitId": "cstm-0000",
+      "glb": "E:\\gakumas-pmx-workflow\\output\\atbm-cstm-0000\\atbm-cstm-0000.glb",
+      "profile": "secondary-motion-profiles/atbm-cstm-0000.json",
+      "profileId": "atbm-cstm-0000",
+      "glbSha256": "57B1314EA1F8367AD532B8362E6A39E80A5236E14167FC90D45FBD2AA8A0A764",
+      "boneSignature": "719AD1E22769E94B4027E641AEADF2A247C47C69598F39E85246C63EC5C43EFB",
+      "source": {
+        "body": "mdl_chr_atbm-cstm-0000_body",
+        "face": "mdl_chr_atbm-base-0000_face",
+        "hair": "mdl_chr_atbm-base-0000_hair",
+        "pmx": "E:\\gakumas-pmx-workflow\\output\\atbm-cstm-0000\\atbm-cstm-0000.pmx"
+      }
+    },
+    {
+      "modelKey": "atbm-schl-0000",
+      "aliases": [
+        "atbm-schl-0000-glb-hair-layer"
+      ],
+      "idolId": "atbm",
+      "outfitId": "schl-0000",
+      "glb": "E:\\gakumas-pmx-workflow\\output\\atbm-schl-0000\\atbm-schl-0000.glb",
+      "profile": "secondary-motion-profiles/atbm-schl-0000.json",
+      "profileId": "atbm-schl-0000",
+      "glbSha256": "EA4764C777FB2C9678042A8FF4D66F81B5BC45A28B0E7FC303D5E66FAE145B77",
+      "boneSignature": "FBDE0F197C3385354CFE6E87796C2B9B6D9B82BB4996F3E117A9C4E41C7CA0A4",
+      "source": {
+        "body": "mdl_chr_atbm-schl-0000_body",
+        "face": "mdl_chr_atbm-base-0000_face",
+        "hair": "mdl_chr_atbm-base-0000_hair",
+        "pmx": "E:\\gakumas-pmx-workflow\\output\\atbm-schl-0000\\atbm-schl-0000.pmx"
+      }
+    },
+    {
+      "modelKey": "fktn-casl",
+      "aliases": [
+        "fktn-casl-glb-hair-layer"
+      ],
+      "idolId": "fktn",
+      "outfitId": "casl",
+      "glb": "E:\\gakumas-pmx-workflow\\output\\fktn-casl\\fktn-casl.glb",
+      "profile": "secondary-motion-profiles/fktn-casl.json",
+      "profileId": "fktn-casl",
+      "glbSha256": "CB67375D362F65B695719E7732C4276021BAB4F4B6418F3E5290F6AD660DD442",
+      "boneSignature": "5C57644AB385536247137CB4962A012810B33C5AAF9170658260F455E758C5D4",
+      "source": {
+        "body": "mdl_chr_fktn-casl-0000_body",
+        "face": "mdl_chr_fktn-base-0000_face",
+        "hair": "mdl_chr_fktn-base-0000_hair",
+        "pmx": "E:\\gakumas-pmx-workflow\\output\\fktn-casl\\fktn-casl.pmx"
+      }
+    },
+    {
+      "modelKey": "hmsz-cstm-0000",
+      "aliases": [
+        "hmsz-cstm-0000-glb-hair-layer"
+      ],
+      "idolId": "hmsz",
+      "outfitId": "cstm-0000",
+      "glb": "E:\\gakumas-pmx-workflow\\output\\hmsz-cstm-0000\\hmsz-cstm-0000.glb",
+      "profile": "secondary-motion-profiles/hmsz-cstm-0000.json",
+      "profileId": "hmsz-cstm-0000",
+      "glbSha256": "231EBFF48FEE7F592D2173DD68664AEF237374B985B59615B424A8D0E9B6E2E0",
+      "boneSignature": "5C3E6DF0068D387152822A15D6470852DAAA20563E0883DC1A4E066D6A5BD77C",
+      "source": {
+        "body": "mdl_chr_hmsz-cstm-0000_body",
+        "face": "mdl_chr_hmsz-base-0000_face",
+        "hair": "mdl_chr_hmsz-base-0000_hair",
+        "pmx": "E:\\gakumas-pmx-workflow\\output\\hmsz-cstm-0000\\hmsz-cstm-0000.pmx"
+      }
+    },
+    {
+      "modelKey": "hmsz-schl-0000",
+      "aliases": [
+        "hmsz-schl-0000-glb-hair-layer"
+      ],
+      "idolId": "hmsz",
+      "outfitId": "schl-0000",
+      "glb": "E:\\gakumas-pmx-workflow\\output\\hmsz-schl-0000\\hmsz-schl-0000.glb",
+      "profile": "secondary-motion-profiles/hmsz-schl-0000.json",
+      "profileId": "hmsz-schl-0000",
+      "glbSha256": "AD52395EC6E809391848AA20352015283DFC2C854885C738A41D46DDDCCC4EFC",
+      "boneSignature": "5B49EB6C76C7083B2C9C462AA83FC371A970BA9F26F0C339FC815D8D3EA4C428",
+      "source": {
+        "body": "mdl_chr_hmsz-schl-0000_body",
+        "face": "mdl_chr_hmsz-base-0000_face",
+        "hair": "mdl_chr_hmsz-base-0000_hair",
+        "pmx": "E:\\gakumas-pmx-workflow\\output\\hmsz-schl-0000\\hmsz-schl-0000.pmx"
+      }
+    },
+    {
+      "modelKey": "hrnm-cstm-0000",
+      "aliases": [
+        "hrnm-cstm-0000-glb-hair-layer"
+      ],
+      "idolId": "hrnm",
+      "outfitId": "cstm-0000",
+      "glb": "E:\\gakumas-pmx-workflow\\output\\hrnm-cstm-0000\\hrnm-cstm-0000.glb",
+      "profile": "secondary-motion-profiles/hrnm-cstm-0000.json",
+      "profileId": "hrnm-cstm-0000",
+      "glbSha256": "DEFD7C73D2B891C41A1A3E71850FADEF251C7C999163C684D6D599ADC8343263",
+      "boneSignature": "2069016727DC02684C5BAB3142355149BCCDDB8A66B6CE76394156BDE3F20F77",
+      "source": {
+        "body": "mdl_chr_hrnm-cstm-0000_body",
+        "face": "mdl_chr_hrnm-base-0000_face",
+        "hair": "mdl_chr_hrnm-base-0000_hair",
+        "pmx": "E:\\gakumas-pmx-workflow\\output\\hrnm-cstm-0000\\hrnm-cstm-0000.pmx"
+      }
+    },
+    {
+      "modelKey": "hrnm-schl-0000",
+      "aliases": [
+        "hrnm-schl-0000-glb-hair-layer"
+      ],
+      "idolId": "hrnm",
+      "outfitId": "schl-0000",
+      "glb": "E:\\gakumas-pmx-workflow\\output\\hrnm-schl-0000\\hrnm-schl-0000.glb",
+      "profile": "secondary-motion-profiles/hrnm-schl-0000.json",
+      "profileId": "hrnm-schl-0000",
+      "glbSha256": "40C0577EBF873FDCA5E51445BA63E2EF02E14A5EDE3E73E783056FBF92D3E7C8",
+      "boneSignature": "CC0B7DB199F4731E7E5351829A2DC8087FC77C23011FF4C2854AE65BCDF4571E",
+      "source": {
+        "body": "mdl_chr_hrnm-schl-0000_body",
+        "face": "mdl_chr_hrnm-base-0000_face",
+        "hair": "mdl_chr_hrnm-base-0000_hair",
+        "pmx": "E:\\gakumas-pmx-workflow\\output\\hrnm-schl-0000\\hrnm-schl-0000.pmx"
+      }
+    },
+    {
+      "modelKey": "hume-cstm-0000",
+      "aliases": [
+        "hume-cstm-0000-glb-hair-layer"
+      ],
+      "idolId": "hume",
+      "outfitId": "cstm-0000",
+      "glb": "E:\\gakumas-pmx-workflow\\output\\hume-cstm-0000\\hume-cstm-0000.glb",
+      "profile": "secondary-motion-profiles/hume-cstm-0000.json",
+      "profileId": "hume-cstm-0000",
+      "glbSha256": "1C566EA1CEA67E423B24BF24CF12BDE62EB5B5DE49F91F1F6B85BA3D77BEF3B4",
+      "boneSignature": "A8498DB7A3D6FD5888D1B3684EF499CA05EA5415B05E2B4DC2881D5E41989815",
+      "source": {
+        "body": "mdl_chr_hume-cstm-0000_body",
+        "face": "mdl_chr_hume-base-0000_face",
+        "hair": "mdl_chr_hume-base-0000_hair",
+        "pmx": "E:\\gakumas-pmx-workflow\\output\\hume-cstm-0000\\hume-cstm-0000.pmx"
+      }
+    },
+    {
+      "modelKey": "hume-schl-0000",
+      "aliases": [
+        "hume-schl-0000-glb-hair-layer"
+      ],
+      "idolId": "hume",
+      "outfitId": "schl-0000",
+      "glb": "E:\\gakumas-pmx-workflow\\output\\hume-schl-0000\\hume-schl-0000.glb",
+      "profile": "secondary-motion-profiles/hume-schl-0000.json",
+      "profileId": "hume-schl-0000",
+      "glbSha256": "2E7B2B59B77CECACE441F791C28FB2BD6B77BF835735A9666379AECD0853A18E",
+      "boneSignature": "228ED6932ABCA9BB8710AC6BD5AF3B30E6B7A03EC51CE688363B33B5E22E428B",
+      "source": {
+        "body": "mdl_chr_hume-schl-0000_body",
+        "face": "mdl_chr_hume-base-0000_face",
+        "hair": "mdl_chr_hume-base-0000_hair",
+        "pmx": "E:\\gakumas-pmx-workflow\\output\\hume-schl-0000\\hume-schl-0000.pmx"
+      }
+    },
+    {
+      "modelKey": "jsna-cstm-0000",
+      "aliases": [
+        "jsna-cstm-0000-glb-hair-layer"
+      ],
+      "idolId": "jsna",
+      "outfitId": "cstm-0000",
+      "glb": "E:\\gakumas-pmx-workflow\\output\\jsna-cstm-0000\\jsna-cstm-0000.glb",
+      "profile": "secondary-motion-profiles/jsna-cstm-0000.json",
+      "profileId": "jsna-cstm-0000",
+      "glbSha256": "3AA0A4E5DE7DE0F149DDDC8B6DF506CCC72C3686DFC45F311624FF6E6C22A1BE",
+      "boneSignature": "64A40FB074FCA3B398F3889A5F9F06AEADD7A7C4A803A81AC27D04C7F0E317BD",
+      "source": {
+        "body": "mdl_chr_jsna-cstm-0000_body",
+        "face": "mdl_chr_jsna-base-0000_face",
+        "hair": "mdl_chr_jsna-base-0000_hair",
+        "pmx": "E:\\gakumas-pmx-workflow\\output\\jsna-cstm-0000\\jsna-cstm-0000.pmx"
+      }
+    },
+    {
+      "modelKey": "jsna-schl-0000",
+      "aliases": [
+        "jsna-schl-0000-glb-hair-layer"
+      ],
+      "idolId": "jsna",
+      "outfitId": "schl-0000",
+      "glb": "E:\\gakumas-pmx-workflow\\output\\jsna-schl-0000\\jsna-schl-0000.glb",
+      "profile": "secondary-motion-profiles/jsna-schl-0000.json",
+      "profileId": "jsna-schl-0000",
+      "glbSha256": "CC4DDF13138ACFE256A4D5D9A728A0858439CA7937656C54522DB6AA5A5B12BE",
+      "boneSignature": "9D41AC11595D2F5ADD4BC0FC6BD0C793D1B05F12C66D51B02BF99070C8234D89",
+      "source": {
+        "body": "mdl_chr_jsna-schl-0000_body",
+        "face": "mdl_chr_jsna-base-0000_face",
+        "hair": "mdl_chr_jsna-base-0000_hair",
+        "pmx": "E:\\gakumas-pmx-workflow\\output\\jsna-schl-0000\\jsna-schl-0000.pmx"
+      }
+    },
+    {
+      "modelKey": "kcna-casl",
+      "aliases": [
+        "kcna-casl-glb-hair-layer"
+      ],
+      "idolId": "kcna",
+      "outfitId": "casl",
+      "glb": "E:\\gakumas-pmx-workflow\\output\\kcna-casl\\kcna-casl.glb",
+      "profile": "secondary-motion-profiles/kcna-casl.json",
+      "profileId": "kcna-casl",
+      "glbSha256": "10DFF9958FC5981BFE2ED2172B774749A29FA9934596C5AEB7ACF030D8F86468",
+      "boneSignature": "709256413AAADAC1B6D082312DE28CABAF35AE503D633C18D7B08E1E1C3DF0AC",
+      "source": {
+        "body": "mdl_chr_kcna-casl-0000_body",
+        "face": "mdl_chr_kcna-base-0000_face",
+        "hair": "mdl_chr_kcna-base-0000_hair",
+        "pmx": "E:\\gakumas-pmx-workflow\\output\\kcna-casl\\kcna-casl.pmx"
+      }
+    },
+    {
+      "modelKey": "kllj-cstm-0000",
+      "aliases": [
+        "kllj-cstm-0000-glb-hair-layer"
+      ],
+      "idolId": "kllj",
+      "outfitId": "cstm-0000",
+      "glb": "E:\\gakumas-pmx-workflow\\output\\kllj-cstm-0000\\kllj-cstm-0000.glb",
+      "profile": "secondary-motion-profiles/kllj-cstm-0000.json",
+      "profileId": "kllj-cstm-0000",
+      "glbSha256": "E03E6AAC60CF90419CAF3E39466B5B1DCEC46E7C41AF7BF3A6249838BCF71D96",
+      "boneSignature": "BA7FADCDBF887AA5C9425C9C7DFFA0A97E403B6798DABB0566E2DD00A7844E90",
+      "source": {
+        "body": "mdl_chr_kllj-cstm-0000_body",
+        "face": "mdl_chr_kllj-base-0000_face",
+        "hair": "mdl_chr_kllj-base-0000_hair",
+        "pmx": "E:\\gakumas-pmx-workflow\\output\\kllj-cstm-0000\\kllj-cstm-0000.pmx"
+      }
+    },
+    {
+      "modelKey": "kllj-schl-0000",
+      "aliases": [
+        "kllj-schl-0000-glb-hair-layer"
+      ],
+      "idolId": "kllj",
+      "outfitId": "schl-0000",
+      "glb": "E:\\gakumas-pmx-workflow\\output\\kllj-schl-0000\\kllj-schl-0000.glb",
+      "profile": "secondary-motion-profiles/kllj-schl-0000.json",
+      "profileId": "kllj-schl-0000",
+      "glbSha256": "0D44C8835AF7C01DB6D934EC96FE8BD2C1C2CEC73E7CE27BFD26F33018820118",
+      "boneSignature": "D352108F7E49F689EF4B2BDEB7365339FA7A61EEA0BBCFC10B677C67C41BA4C3",
+      "source": {
+        "body": "mdl_chr_kllj-schl-0000_body",
+        "face": "mdl_chr_kllj-base-0000_face",
+        "hair": "mdl_chr_kllj-base-0000_hair",
+        "pmx": "E:\\gakumas-pmx-workflow\\output\\kllj-schl-0000\\kllj-schl-0000.pmx"
+      }
+    },
+    {
+      "modelKey": "shro-casl",
+      "aliases": [
+        "shro-casl-glb-hair-layer"
+      ],
+      "idolId": "shro",
+      "outfitId": "casl",
+      "glb": "E:\\gakumas-pmx-workflow\\output\\shro-casl\\shro-casl.glb",
+      "profile": "secondary-motion-profiles/shro-casl.json",
+      "profileId": "shro-casl",
+      "glbSha256": "23451066FEE1454F384733F38D2C4EEFFE6BA90E0DF65E33866F99B2F70F5ABD",
+      "boneSignature": "29B2957D02BD176BCC86B3B195EFA5133E2C05997F00D7F414F2CD1407F4AA44",
+      "source": {
+        "body": "mdl_chr_shro-casl-0000_body",
+        "face": "mdl_chr_shro-base-0000_face",
+        "hair": "mdl_chr_shro-base-0000_hair",
+        "pmx": "E:\\gakumas-pmx-workflow\\output\\shro-casl\\shro-casl.pmx"
+      }
+    },
+    {
+      "modelKey": "ssmk-cstm-0000",
+      "aliases": [
+        "ssmk-cstm-0000-glb-hair-layer"
+      ],
+      "idolId": "ssmk",
+      "outfitId": "cstm-0000",
+      "glb": "E:\\gakumas-pmx-workflow\\output\\ssmk-cstm-0000\\ssmk-cstm-0000.glb",
+      "profile": "secondary-motion-profiles/ssmk-cstm-0000.json",
+      "profileId": "ssmk-cstm-0000",
+      "glbSha256": "8EDBABF68DDEA59FA34FBB35958F22772A903AD2EA454A78CFF98B184BFA2941",
+      "boneSignature": "88D5767C0532DEAAF089EB33F6B729878D687F7F1720C0276B0C36BCFDE2B657",
+      "source": {
+        "body": "mdl_chr_ssmk-cstm-0000_body",
+        "face": "mdl_chr_ssmk-base-0000_face",
+        "hair": "mdl_chr_ssmk-base-0000_hair",
+        "pmx": "E:\\gakumas-pmx-workflow\\output\\ssmk-cstm-0000\\ssmk-cstm-0000.pmx"
+      }
+    },
+    {
+      "modelKey": "ssmk-schl-0000",
+      "aliases": [
+        "ssmk-schl-0000-glb-hair-layer"
+      ],
+      "idolId": "ssmk",
+      "outfitId": "schl-0000",
+      "glb": "E:\\gakumas-pmx-workflow\\output\\ssmk-schl-0000\\ssmk-schl-0000.glb",
+      "profile": "secondary-motion-profiles/ssmk-schl-0000.json",
+      "profileId": "ssmk-schl-0000",
+      "glbSha256": "71AEA047EB29FD9ED274DA64D9F2A65593F121D2EFE52D3BB651B7E751D9E435",
+      "boneSignature": "D3911053BE57D8EFFD08BA60EA1EDF69AD56F46750475B9FF78B4138F57D2BD6",
+      "source": {
+        "body": "mdl_chr_ssmk-schl-0000_body",
+        "face": "mdl_chr_ssmk-base-0000_face",
+        "hair": "mdl_chr_ssmk-base-0000_hair",
+        "pmx": "E:\\gakumas-pmx-workflow\\output\\ssmk-schl-0000\\ssmk-schl-0000.pmx"
+      }
+    },
+    {
+      "modelKey": "ttmr-casl",
+      "aliases": [
+        "ttmr-casl-glb-hair-layer"
+      ],
+      "idolId": "ttmr",
+      "outfitId": "casl",
+      "glb": "E:\\gakumas-pmx-workflow\\output\\ttmr-casl\\ttmr-casl.glb",
+      "profile": "secondary-motion-profiles/ttmr-casl.json",
+      "profileId": "ttmr-casl",
+      "glbSha256": "0E9D951FD2650267F63892D26475D5933C0D2F9577ABE7CB3433C45DDF2108A9",
+      "boneSignature": "42E7933E777DE30F1E71246F367EDE1FD727480C99D469F9956ADD3D83AB4042",
+      "source": {
+        "body": "mdl_chr_ttmr-casl-0000_body",
+        "face": "mdl_chr_ttmr-base-0000_face",
+        "hair": "mdl_chr_ttmr-base-0000_hair",
+        "pmx": "E:\\gakumas-pmx-workflow\\output\\ttmr-casl\\ttmr-casl.pmx"
+      }
+    },
+    {
+      "modelKey": "nasr-casl-0000",
+      "aliases": [
+        "nasr-casl-0000-glb-hair-layer"
+      ],
+      "idolId": "nasr",
+      "outfitId": "casl-0000",
+      "glb": "E:\\gakumas-pmx-workflow\\output\\nasr-casl-0000\\nasr-casl-0000.glb",
+      "profile": "secondary-motion-profiles/nasr-casl-0000.json",
+      "profileId": "nasr-casl-0000",
+      "glbSha256": "FE1569501522B3E9E7E9BB8DF228470DF46269703C7EE74006D9378406B5F0CB",
+      "boneSignature": "E1595CC904302C156135939AF4C45128FE9DCF8C8465ACCEDB986C9F12D419BD",
+      "source": {
+        "body": "mdl_chr_nasr-casl-0000_body",
+        "face": "mdl_chr_nasr-base-0000_face",
+        "hair": "mdl_chr_nasr-base-0000_hair",
+        "pmx": "E:\\gakumas-pmx-workflow\\output\\nasr-casl-0000\\nasr-casl-0000.pmx"
+      }
+    },
+    {
+      "modelKey": "fktn-cstm-0001",
+      "aliases": [
+        "fktn-solo1"
+      ],
+      "idolId": "fktn",
+      "outfitId": "cstm-0001",
+      "glb": "G:\\SillyTavern\\SillyTavern\\public\\mmd-dialogue-stage\\library\\file\\idols\\fktn-solo1\\fktn-cstm-0001.glb",
+      "profile": "secondary-motion-profiles/fktn-cstm-0001.json",
+      "profileId": "fktn-cstm-0001",
+      "glbSha256": "5B0EDF00E4E1C6E102CA6A96ECABB564524D71FD86ECDE23C91118DD4AA04F78",
+      "boneSignature": "E77452A7CDBAE941D5431AFFD69E094A91D5DB34D26AD3910208AA7B52909708",
+      "source": {
+        "body": "E:\\gakumas-unpack-2026-09-06\\asset_bundle\\mdl_chr_fktn-cstm-0001_body",
+        "face": "E:\\gakumas-unpack-2026-09-06\\asset_bundle\\mdl_chr_fktn-base-0000_face",
+        "hair": "E:\\gakumas-unpack-2026-09-06\\asset_bundle\\mdl_chr_fktn-cstm-0001_hair",
+        "capture": "capture-2026-10-7-10-24-20-44104-146267421",
+        "staticCapture": "G:\\gkmas\\gakumas\\gakumas-local\\physics-diagnostics\\capture-2026-10-7-10-24-20-44104-146267421",
+        "nativeStatic": "G:\\SillyTavern\\SillyTavern\\tools\\gakumas-vmd-prototype\\variant-candidates\\fktn-cstm-0001\\native\\fktn-cstm-0001\\fktn-native-static-geometry.json",
+        "captureScope": "static-colliders-only"
+      }
+    },
+    {
+      "modelKey": "hski-cstm-0002",
+      "aliases": [
+        "hski-solo1"
+      ],
+      "idolId": "hski",
+      "outfitId": "cstm-0002",
+      "glb": "E:\\gakumas-pmx-workflow\\output\\solo1-20261013\\hski-cstm-0002\\hski-cstm-0002.glb",
+      "profile": "secondary-motion-profiles/hski-cstm-0002.json",
+      "profileId": "hski-cstm-0002",
+      "glbSha256": "1CC11D6E805C5666E3BC8EBE5725EDA52DB62347838498820AD38F892E8378F7",
+      "boneSignature": "031B4DD97509120DB29E230B0ECC25CD095F7CF428769E0D95BB6885AAE2A999",
+      "source": {
+        "body": "E:\\gakumas-unpack-2026-09-06\\asset_bundle\\mdl_chr_hski-cstm-0002_body",
+        "face": "E:\\gakumas-unpack-2026-09-06\\asset_bundle\\mdl_chr_hski-base-0000_face",
+        "hair": "E:\\gakumas-unpack-2026-09-06\\asset_bundle\\mdl_chr_hski-cstm-0002_hair",
+        "shader": "E:\\gakumas-unpack-2026-09-06\\asset_bundle\\actor-shader",
+        "dependencies": [],
+        "pmx": "E:\\gakumas-pmx-workflow\\output\\solo1-20261013\\hski-cstm-0002\\hski-cstm-0002.pmx",
+        "capture": null,
+        "rest": "G:\\SillyTavern\\SillyTavern\\tools\\gakumas-vmd-prototype\\variant-candidates\\solo1-20261013\\hski-cstm-0002\\glb-rest.json",
+        "report": "G:\\SillyTavern\\SillyTavern\\tools\\gakumas-vmd-prototype\\variant-candidates\\solo1-20261013\\hski-cstm-0002\\authored.json"
+      }
+    },
+    {
+      "modelKey": "ttmr-cstm-0003",
+      "aliases": [
+        "ttmr-solo1"
+      ],
+      "idolId": "ttmr",
+      "outfitId": "cstm-0003",
+      "glb": "E:\\gakumas-pmx-workflow\\output\\solo1-20261013\\ttmr-cstm-0003\\ttmr-cstm-0003.glb",
+      "profile": "secondary-motion-profiles/ttmr-cstm-0003.json",
+      "profileId": "ttmr-cstm-0003",
+      "glbSha256": "6AB9910F17D6C12CE68B0E15B832648356C2216FDEE426BA2EE05FD9BCC80DDF",
+      "boneSignature": "D7CB91E61EAD8B85416ED1B651FAF32630D1518987559D1EE4C31669EC178AEE",
+      "source": {
+        "body": "E:\\gakumas-unpack-2026-09-06\\asset_bundle\\mdl_chr_ttmr-cstm-0003_body",
+        "face": "E:\\gakumas-unpack-2026-09-06\\asset_bundle\\mdl_chr_ttmr-base-0000_face",
+        "hair": "E:\\gakumas-unpack-2026-09-06\\asset_bundle\\mdl_chr_ttmr-cstm-0003_hair",
+        "shader": "E:\\gakumas-unpack-2026-09-06\\asset_bundle\\actor-shader",
+        "dependencies": [],
+        "pmx": "E:\\gakumas-pmx-workflow\\output\\solo1-20261013\\ttmr-cstm-0003\\ttmr-cstm-0003.pmx",
+        "capture": null,
+        "rest": "G:\\SillyTavern\\SillyTavern\\tools\\gakumas-vmd-prototype\\variant-candidates\\solo1-20261013\\ttmr-cstm-0003\\glb-rest.json",
+        "report": "G:\\SillyTavern\\SillyTavern\\tools\\gakumas-vmd-prototype\\variant-candidates\\solo1-20261013\\ttmr-cstm-0003\\authored.json"
+      }
+    },
+    {
+      "modelKey": "amao-cstm-0004",
+      "aliases": [
+        "amao-solo1"
+      ],
+      "idolId": "amao",
+      "outfitId": "cstm-0004",
+      "glb": "E:\\gakumas-pmx-workflow\\output\\solo1-20261013\\amao-cstm-0004\\amao-cstm-0004.glb",
+      "profile": "secondary-motion-profiles/amao-cstm-0004.json",
+      "profileId": "amao-cstm-0004",
+      "glbSha256": "7848F872F80BCD47C9E231E7965C848B53ABA37A1DDE6B449EE9F2C4F4A3A26F",
+      "boneSignature": "BF75E58AB22969D42FB4E60134492C0E5F880CCAE1F5DA638460439D2802DEF5",
+      "source": {
+        "body": "E:\\gakumas-unpack-2026-09-06\\asset_bundle\\mdl_chr_amao-cstm-0004_body",
+        "face": "E:\\gakumas-unpack-2026-09-06\\asset_bundle\\mdl_chr_amao-base-0000_face",
+        "hair": "E:\\gakumas-unpack-2026-09-06\\asset_bundle\\mdl_chr_amao-cstm-0004_hair",
+        "shader": "E:\\gakumas-unpack-2026-09-06\\asset_bundle\\actor-shader",
+        "dependencies": [],
+        "pmx": "E:\\gakumas-pmx-workflow\\output\\solo1-20261013\\amao-cstm-0004\\amao-cstm-0004.pmx",
+        "capture": null,
+        "rest": "G:\\SillyTavern\\SillyTavern\\tools\\gakumas-vmd-prototype\\variant-candidates\\solo1-20261013\\amao-cstm-0004\\glb-rest.json",
+        "report": "G:\\SillyTavern\\SillyTavern\\tools\\gakumas-vmd-prototype\\variant-candidates\\solo1-20261013\\amao-cstm-0004\\authored.json"
+      }
+    },
+    {
+      "modelKey": "hrnm-cstm-0005",
+      "aliases": [
+        "hrnm-solo1"
+      ],
+      "idolId": "hrnm",
+      "outfitId": "cstm-0005",
+      "glb": "E:\\gakumas-pmx-workflow\\output\\solo1-20261013\\hrnm-cstm-0005\\hrnm-cstm-0005.glb",
+      "profile": "secondary-motion-profiles/hrnm-cstm-0005.json",
+      "profileId": "hrnm-cstm-0005",
+      "glbSha256": "2AA7708E3559E6113750270A2979D108026D9764C8B3AC511FA6CE29F7FE3BF5",
+      "boneSignature": "E272AB4B7A1BA193C46CC0236F9C0005D29C178BBB155E96B73B15CB6B6C2231",
+      "source": {
+        "body": "E:\\gakumas-unpack-2026-09-06\\asset_bundle\\mdl_chr_hrnm-cstm-0005_body",
+        "face": "E:\\gakumas-unpack-2026-09-06\\asset_bundle\\mdl_chr_hrnm-base-0000_face",
+        "hair": "E:\\gakumas-unpack-2026-09-06\\asset_bundle\\mdl_chr_hrnm-cstm-0005_hair",
+        "shader": "E:\\gakumas-unpack-2026-09-06\\asset_bundle\\actor-shader",
+        "dependencies": [],
+        "pmx": "E:\\gakumas-pmx-workflow\\output\\solo1-20261013\\hrnm-cstm-0005\\hrnm-cstm-0005.pmx",
+        "capture": null,
+        "rest": "G:\\SillyTavern\\SillyTavern\\tools\\gakumas-vmd-prototype\\variant-candidates\\solo1-20261013\\hrnm-cstm-0005\\glb-rest.json",
+        "report": "G:\\SillyTavern\\SillyTavern\\tools\\gakumas-vmd-prototype\\variant-candidates\\solo1-20261013\\hrnm-cstm-0005\\authored.json"
+      }
+    },
+    {
+      "modelKey": "shro-cstm-0006",
+      "aliases": [
+        "shro-solo1"
+      ],
+      "idolId": "shro",
+      "outfitId": "cstm-0006",
+      "glb": "E:\\gakumas-pmx-workflow\\output\\solo1-20261013\\shro-cstm-0006\\shro-cstm-0006.glb",
+      "profile": "secondary-motion-profiles/shro-cstm-0006.json",
+      "profileId": "shro-cstm-0006",
+      "glbSha256": "30C6DBC6D61201A12D1D8A1835DFE0F7EBD8CC6C5BC58507CB1578C891544542",
+      "boneSignature": "1CB6BCBCD147120198C4F79C08688277547075083537A681BDF6920D6E7101C8",
+      "source": {
+        "body": "E:\\gakumas-unpack-2026-09-06\\asset_bundle\\mdl_chr_shro-cstm-0006_body",
+        "face": "E:\\gakumas-unpack-2026-09-06\\asset_bundle\\mdl_chr_shro-base-0000_face",
+        "hair": "E:\\gakumas-unpack-2026-09-06\\asset_bundle\\mdl_chr_shro-cstm-0006_hair",
+        "shader": "E:\\gakumas-unpack-2026-09-06\\asset_bundle\\actor-shader",
+        "dependencies": [],
+        "pmx": "E:\\gakumas-pmx-workflow\\output\\solo1-20261013\\shro-cstm-0006\\shro-cstm-0006.pmx",
+        "capture": null,
+        "rest": "G:\\SillyTavern\\SillyTavern\\tools\\gakumas-vmd-prototype\\variant-candidates\\solo1-20261013\\shro-cstm-0006\\glb-rest.json",
+        "report": "G:\\SillyTavern\\SillyTavern\\tools\\gakumas-vmd-prototype\\variant-candidates\\solo1-20261013\\shro-cstm-0006\\authored.json"
+      }
+    },
+    {
+      "modelKey": "kllj-cstm-0007",
+      "aliases": [
+        "kllj-solo1"
+      ],
+      "idolId": "kllj",
+      "outfitId": "cstm-0007",
+      "glb": "E:\\gakumas-pmx-workflow\\output\\solo1-20261013\\kllj-cstm-0007\\kllj-cstm-0007.glb",
+      "profile": "secondary-motion-profiles/kllj-cstm-0007.json",
+      "profileId": "kllj-cstm-0007",
+      "glbSha256": "3D086C933D807683BB3DA2AA1C6CF20F5EBB2DDFF340B219DAA873D797AFCC51",
+      "boneSignature": "FE304D3CC067BAEB6572D571AFB58A35CABFB40BD114404768F684ADA9623FF9",
+      "source": {
+        "body": "E:\\gakumas-unpack-2026-09-06\\asset_bundle\\mdl_chr_kllj-cstm-0007_body",
+        "face": "E:\\gakumas-unpack-2026-09-06\\asset_bundle\\mdl_chr_kllj-base-0000_face",
+        "hair": "E:\\gakumas-unpack-2026-09-06\\asset_bundle\\mdl_chr_kllj-cstm-0007_hair",
+        "shader": "E:\\gakumas-unpack-2026-09-06\\asset_bundle\\actor-shader",
+        "dependencies": [],
+        "pmx": "E:\\gakumas-pmx-workflow\\output\\solo1-20261013\\kllj-cstm-0007\\kllj-cstm-0007.pmx",
+        "capture": null,
+        "rest": "G:\\SillyTavern\\SillyTavern\\tools\\gakumas-vmd-prototype\\variant-candidates\\solo1-20261013\\kllj-cstm-0007\\glb-rest.json",
+        "report": "G:\\SillyTavern\\SillyTavern\\tools\\gakumas-vmd-prototype\\variant-candidates\\solo1-20261013\\kllj-cstm-0007\\authored.json"
+      }
+    },
+    {
+      "modelKey": "kcna-cstm-0008",
+      "aliases": [
+        "kcna-solo1"
+      ],
+      "idolId": "kcna",
+      "outfitId": "cstm-0008",
+      "glb": "E:\\gakumas-pmx-workflow\\output\\solo1-20261013\\kcna-cstm-0008\\kcna-cstm-0008.glb",
+      "profile": "secondary-motion-profiles/kcna-cstm-0008.json",
+      "profileId": "kcna-cstm-0008",
+      "glbSha256": "1B85188527336EBB901DD85C56617D64D8EEF5067981F8348AB2A663A223A950",
+      "boneSignature": "B532CB8D1E45A160061B6F4B0B752F72849598CC38C30B8D89C1F93AF63402EF",
+      "source": {
+        "body": "E:\\gakumas-unpack-2026-09-06\\asset_bundle\\mdl_chr_kcna-cstm-0008_body",
+        "face": "E:\\gakumas-unpack-2026-09-06\\asset_bundle\\mdl_chr_kcna-base-0000_face",
+        "hair": "E:\\gakumas-unpack-2026-09-06\\asset_bundle\\mdl_chr_kcna-cstm-0008_hair",
+        "shader": "E:\\gakumas-unpack-2026-09-06\\asset_bundle\\actor-shader",
+        "dependencies": [],
+        "pmx": "E:\\gakumas-pmx-workflow\\output\\solo1-20261013\\kcna-cstm-0008\\kcna-cstm-0008.pmx",
+        "capture": null,
+        "rest": "G:\\SillyTavern\\SillyTavern\\tools\\gakumas-vmd-prototype\\variant-candidates\\solo1-20261013\\kcna-cstm-0008\\glb-rest.json",
+        "report": "G:\\SillyTavern\\SillyTavern\\tools\\gakumas-vmd-prototype\\variant-candidates\\solo1-20261013\\kcna-cstm-0008\\authored.json"
+      }
+    },
+    {
+      "modelKey": "ssmk-cstm-0009",
+      "aliases": [
+        "ssmk-solo1"
+      ],
+      "idolId": "ssmk",
+      "outfitId": "cstm-0009",
+      "glb": "E:\\gakumas-pmx-workflow\\output\\solo1-20261013\\ssmk-cstm-0009\\ssmk-cstm-0009.glb",
+      "profile": "secondary-motion-profiles/ssmk-cstm-0009.json",
+      "profileId": "ssmk-cstm-0009",
+      "glbSha256": "6942C5210ACAE1713030C9F872964CB969DE582E6A7ADF979E4B390742B80CD0",
+      "boneSignature": "044E137B792556A969BDC6811BC0096EEE888C91FEED318B86D47758F1B8D70E",
+      "source": {
+        "body": "E:\\gakumas-unpack-2026-09-06\\asset_bundle\\mdl_chr_ssmk-cstm-0009_body",
+        "face": "E:\\gakumas-unpack-2026-09-06\\asset_bundle\\mdl_chr_ssmk-cstm-0009_face",
+        "hair": "E:\\gakumas-unpack-2026-09-06\\asset_bundle\\mdl_chr_ssmk-cstm-0009_hair",
+        "shader": "E:\\gakumas-unpack-2026-09-06\\asset_bundle\\actor-shader",
+        "dependencies": [
+          "E:\\gakumas-unpack-2026-09-06\\asset_bundle\\mdl_chr_ssmk-base-0000_face"
+        ],
+        "pmx": "E:\\gakumas-pmx-workflow\\output\\solo1-20261013\\ssmk-cstm-0009\\ssmk-cstm-0009.pmx",
+        "capture": null,
+        "rest": "G:\\SillyTavern\\SillyTavern\\tools\\gakumas-vmd-prototype\\variant-candidates\\solo1-20261013\\ssmk-cstm-0009\\glb-rest.json",
+        "report": "G:\\SillyTavern\\SillyTavern\\tools\\gakumas-vmd-prototype\\variant-candidates\\solo1-20261013\\ssmk-cstm-0009\\authored.json"
+      }
+    },
+    {
+      "modelKey": "hume-cstm-0010",
+      "aliases": [
+        "hume-solo1"
+      ],
+      "idolId": "hume",
+      "outfitId": "cstm-0010",
+      "glb": "E:\\gakumas-pmx-workflow\\output\\solo1-20261013\\hume-cstm-0010\\hume-cstm-0010.glb",
+      "profile": "secondary-motion-profiles/hume-cstm-0010.json",
+      "profileId": "hume-cstm-0010",
+      "glbSha256": "9A0172A94F6CA08C683715DF3FFE04247B42155E651E678FBEDCFF27BBC6959A",
+      "boneSignature": "9DBFA9DAEAB5D15479C835961BC860B57008DFCAAB0B6CEF1690FD27A557DEBF",
+      "source": {
+        "body": "E:\\gakumas-unpack-2026-09-06\\asset_bundle\\mdl_chr_hume-cstm-0010_body",
+        "face": "E:\\gakumas-unpack-2026-09-06\\asset_bundle\\mdl_chr_hume-base-0000_face",
+        "hair": "E:\\gakumas-unpack-2026-09-06\\asset_bundle\\mdl_chr_hume-cstm-0010_hair",
+        "shader": "E:\\gakumas-unpack-2026-09-06\\asset_bundle\\actor-shader",
+        "dependencies": [],
+        "pmx": "E:\\gakumas-pmx-workflow\\output\\solo1-20261013\\hume-cstm-0010\\hume-cstm-0010.pmx",
+        "capture": null,
+        "rest": "G:\\SillyTavern\\SillyTavern\\tools\\gakumas-vmd-prototype\\variant-candidates\\solo1-20261013\\hume-cstm-0010\\glb-rest.json",
+        "report": "G:\\SillyTavern\\SillyTavern\\tools\\gakumas-vmd-prototype\\variant-candidates\\solo1-20261013\\hume-cstm-0010\\authored.json"
+      }
+    },
+    {
+      "modelKey": "hmsz-cstm-0011",
+      "aliases": [
+        "hmsz-solo1"
+      ],
+      "idolId": "hmsz",
+      "outfitId": "cstm-0011",
+      "glb": "E:\\gakumas-pmx-workflow\\output\\solo1-20261013\\hmsz-cstm-0011\\hmsz-cstm-0011.glb",
+      "profile": "secondary-motion-profiles/hmsz-cstm-0011.json",
+      "profileId": "hmsz-cstm-0011",
+      "glbSha256": "03F65BC28D3A3C967305DD7621998B1DDDAE4E803D10E0B91FDBB39A7BC76B9B",
+      "boneSignature": "59D9FDD9A7A242592B050A29E74136D88792101C250BE996475A898B3BFADB1A",
+      "source": {
+        "body": "E:\\gakumas-unpack-2026-09-06\\asset_bundle\\mdl_chr_hmsz-cstm-0011_body",
+        "face": "E:\\gakumas-unpack-2026-09-06\\asset_bundle\\mdl_chr_hmsz-cstm-0011_face",
+        "hair": "E:\\gakumas-unpack-2026-09-06\\asset_bundle\\mdl_chr_hmsz-cstm-0011_hair",
+        "shader": "E:\\gakumas-unpack-2026-09-06\\asset_bundle\\actor-shader",
+        "dependencies": [
+          "E:\\gakumas-unpack-2026-09-06\\asset_bundle\\mdl_chr_hmsz-base-0000_face"
+        ],
+        "pmx": "E:\\gakumas-pmx-workflow\\output\\solo1-20261013\\hmsz-cstm-0011\\hmsz-cstm-0011.pmx",
+        "capture": null,
+        "rest": "G:\\SillyTavern\\SillyTavern\\tools\\gakumas-vmd-prototype\\variant-candidates\\solo1-20261013\\hmsz-cstm-0011\\glb-rest.json",
+        "report": "G:\\SillyTavern\\SillyTavern\\tools\\gakumas-vmd-prototype\\variant-candidates\\solo1-20261013\\hmsz-cstm-0011\\authored.json"
+      }
+    },
+    {
+      "modelKey": "jsna-cstm-0012",
+      "aliases": [
+        "jsna-solo1"
+      ],
+      "idolId": "jsna",
+      "outfitId": "cstm-0012",
+      "glb": "E:\\gakumas-pmx-workflow\\output\\solo1-20261013\\jsna-cstm-0012\\jsna-cstm-0012.glb",
+      "profile": "secondary-motion-profiles/jsna-cstm-0012.json",
+      "profileId": "jsna-cstm-0012",
+      "glbSha256": "288D4B98904FFE6E13130FB89A2E52A6D402A7B814F48E0FDDE569FE4A7695D2",
+      "boneSignature": "5B7C67F89EEB014A2832B3F23FE137238D18E79B053040C07D8FD692A5F2581C",
+      "source": {
+        "body": "E:\\gakumas-unpack-2026-09-06\\asset_bundle\\mdl_chr_jsna-cstm-0012_body",
+        "face": "E:\\gakumas-unpack-2026-09-06\\asset_bundle\\mdl_chr_jsna-base-0000_face",
+        "hair": "E:\\gakumas-unpack-2026-09-06\\asset_bundle\\mdl_chr_jsna-cstm-0012_hair",
+        "shader": "E:\\gakumas-unpack-2026-09-06\\asset_bundle\\actor-shader",
+        "dependencies": [],
+        "pmx": "E:\\gakumas-pmx-workflow\\output\\solo1-20261013\\jsna-cstm-0012\\jsna-cstm-0012.pmx",
+        "capture": null,
+        "rest": "G:\\SillyTavern\\SillyTavern\\tools\\gakumas-vmd-prototype\\variant-candidates\\solo1-20261013\\jsna-cstm-0012\\glb-rest.json",
+        "report": "G:\\SillyTavern\\SillyTavern\\tools\\gakumas-vmd-prototype\\variant-candidates\\solo1-20261013\\jsna-cstm-0012\\authored.json"
+      }
+    },
+    {
+      "modelKey": "atbm-cstm-0106",
+      "aliases": [
+        "atbm-solo1"
+      ],
+      "idolId": "atbm",
+      "outfitId": "cstm-0106",
+      "glb": "E:\\gakumas-pmx-workflow\\output\\solo1-20261013\\atbm-cstm-0106\\atbm-cstm-0106.glb",
+      "profile": "secondary-motion-profiles/atbm-cstm-0106.json",
+      "profileId": "atbm-cstm-0106",
+      "glbSha256": "E2168F4AF44CA91579D1F03E1FA90BC7400610D42E3684C60C0498E859CEAC56",
+      "boneSignature": "35C10EAC92C6569A71E339F5D133428281711A1957889D1564E059083F675B6D",
+      "source": {
+        "body": "E:\\gakumas-unpack-2026-09-06\\asset_bundle\\mdl_chr_atbm-cstm-0106_body",
+        "face": "E:\\gakumas-unpack-2026-09-06\\asset_bundle\\mdl_chr_atbm-cstm-0106_face",
+        "hair": "E:\\gakumas-unpack-2026-09-06\\asset_bundle\\mdl_chr_atbm-cstm-0106_hair",
+        "shader": "E:\\gakumas-unpack-2026-09-06\\asset_bundle\\actor-shader",
+        "dependencies": [
+          "E:\\gakumas-unpack-2026-09-06\\asset_bundle\\mdl_chr_atbm-base-0001_face"
+        ],
+        "pmx": "E:\\gakumas-pmx-workflow\\output\\solo1-20261013\\atbm-cstm-0106\\atbm-cstm-0106.pmx",
+        "capture": null,
+        "rest": "G:\\SillyTavern\\SillyTavern\\tools\\gakumas-vmd-prototype\\variant-candidates\\solo1-20261013\\atbm-cstm-0106\\glb-rest.json",
+        "report": "G:\\SillyTavern\\SillyTavern\\tools\\gakumas-vmd-prototype\\variant-candidates\\solo1-20261013\\atbm-cstm-0106\\authored.json"
+      }
+    },
+    {
+      "modelKey": "krnh-casl",
+      "aliases": [
+        "krnh-casl-glb-hair-layer"
+      ],
+      "idolId": "krnh",
+      "outfitId": "casl",
+      "glb": "E:\\gakumas-pmx-workflow\\output\\krnh-casl\\krnh-casl.glb",
+      "profile": "secondary-motion-profiles/krnh-casl.json",
+      "profileId": "krnh-casl",
+      "glbSha256": "22533B2709A24D7E9C01D567F2126FCDA43982228E83EC442C37F0BEB8C8924B",
+      "boneSignature": "DE0321630DF5125C400FFBD3E2E4224901BB05EB3218CDAE6697FDDC2C8FF866",
+      "source": {
+        "body": "mdl_chr_krnh-casl-0000_body",
+        "face": "mdl_chr_krnh-base-0000_face",
+        "hair": "mdl_chr_krnh-base-0000_hair",
+        "pmx": null,
+        "skeleton": "G:/SillyTavern/SillyTavern/tools/gakumas-vmd-prototype/krnh-candidate-20261102/skeletons/krnh-casl.json"
+      }
+    }
+  ]
+}

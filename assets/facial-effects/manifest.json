@@ -1,0 +1,1510 @@
+{
+  "schema": "gakumas-facial-effects/v1",
+  "source": "E:\\gakumas-unpack-2026-09-06\\asset_bundle",
+  "unityVersion": "2022.3.21f1",
+  "effects": [
+    {
+      "id": "fktn-eye-kirakira",
+      "category": "materialEffect",
+      "description": "藤田琴音星星眼材质和3x3高光图集",
+      "bundles": [
+        {
+          "bundle": "mef_mat_chr_fktn_eye-kirakira-001",
+          "textures": [
+            {
+              "name": "t_chr_fktn_eye-kirakira-001_sdw",
+              "file": "public/mmd-dialogue-stage/assets/facial-effects/fktn-eye-kirakira/textures/t_chr_fktn_eye-kirakira-001_sdw.png",
+              "width": 1024,
+              "height": 1024,
+              "mode": "RGBA"
+            },
+            {
+              "name": "t_chr_fktn_eye-kirakira-001_col_alp",
+              "file": "public/mmd-dialogue-stage/assets/facial-effects/fktn-eye-kirakira/textures/t_chr_fktn_eye-kirakira-001_col_alp.png",
+              "width": 1024,
+              "height": 1024,
+              "mode": "RGBA"
+            },
+            {
+              "name": "t_chr_fktn_eye-kirakira-001_def",
+              "file": "public/mmd-dialogue-stage/assets/facial-effects/fktn-eye-kirakira/textures/t_chr_fktn_eye-kirakira-001_def.png",
+              "width": 1024,
+              "height": 1024,
+              "mode": "RGBA"
+            }
+          ],
+          "meshes": [],
+          "objects": [
+            {
+              "type": "MonoBehaviour",
+              "pathId": "-2692345697483452012",
+              "name": "mef_mat_chr_fktn_eye-kirakira-001"
+            }
+          ]
+        },
+        {
+          "bundle": "mot_all_chr_fktn_facial-all-unique-kirakira1_in",
+          "textures": [],
+          "meshes": [],
+          "objects": [
+            {
+              "type": "MonoBehaviour",
+              "pathId": "-4737807842692326012",
+              "name": "mot_all_chr_fktn_facial-all-unique-kirakira1_in"
+            },
+            {
+              "type": "AnimationClip",
+              "pathId": "7014185894346138203",
+              "name": "mot_all_chr_fktn_facial-all-unique-kirakira1_in_f"
+            }
+          ]
+        }
+      ],
+      "mount": null,
+      "directory": "fktn-eye-kirakira",
+      "missingBundles": []
+    },
+    {
+      "id": "common-tears-001-left",
+      "category": "prefabEffect",
+      "description": "左眼泪滴和下落泪珠粒子",
+      "bundles": [
+        {
+          "bundle": "mef_pfb_chr_cmmn_eye-tears-001_l",
+          "textures": [],
+          "meshes": [],
+          "objects": [
+            {
+              "type": "MonoBehaviour",
+              "pathId": "4790290058035421611",
+              "name": "mef_pfb_chr_cmmn_eye-tears-001_l"
+            }
+          ]
+        },
+        {
+          "bundle": "eff_ps_adv_tears-001-l_in",
+          "textures": [
+            {
+              "name": "eff_ps_adv_tex_sweat_dis_00",
+              "file": "public/mmd-dialogue-stage/assets/facial-effects/common-tears-001-left/textures/eff_ps_adv_tex_sweat_dis_00.png",
+              "width": 512,
+              "height": 512,
+              "mode": "RGBA"
+            },
+            {
+              "name": "eff_ps_adv_tex_sweat_drop_00",
+              "file": "public/mmd-dialogue-stage/assets/facial-effects/common-tears-001-left/textures/eff_ps_adv_tex_sweat_drop_00.png",
+              "width": 512,
+              "height": 512,
+              "mode": "RGBA"
+            },
+            {
+              "name": "eff_ps_adv_tex_sweat_01",
+              "file": "public/mmd-dialogue-stage/assets/facial-effects/common-tears-001-left/textures/eff_ps_adv_tex_sweat_01.png",
+              "width": 512,
+              "height": 512,
+              "mode": "RGBA"
+            },
+            {
+              "name": "eff_ps_adv_tex_tears_02",
+              "file": "public/mmd-dialogue-stage/assets/facial-effects/common-tears-001-left/textures/eff_ps_adv_tex_tears_02.png",
+              "width": 512,
+              "height": 512,
+              "mode": "RGBA"
+            }
+          ],
+          "meshes": [
+            {
+              "name": "eff_ps_live_mdl_sweat_01",
+              "file": "public/mmd-dialogue-stage/assets/facial-effects/common-tears-001-left/meshes/eff_ps_live_mdl_sweat_01.obj",
+              "vertices": 201,
+              "submeshes": 1
+            },
+            {
+              "name": "eff_ps_live_mdl_tears_02",
+              "file": "public/mmd-dialogue-stage/assets/facial-effects/common-tears-001-left/meshes/eff_ps_live_mdl_tears_02.obj",
+              "vertices": 102,
+              "submeshes": 1
+            }
+          ],
+          "objects": [
+            {
+              "type": "GameObject",
+              "pathId": "-9175068370529318598",
+              "name": "ps_tears_001_l"
+            },
+            {
+              "type": "Transform",
+              "pathId": "-8798997468484302534",
+              "name": "unnamed"
+            },
+            {
+              "type": "ParticleSystem",
+              "pathId": "-8316444143918937798",
+              "name": "unnamed"
+            },
+            {
+              "type": "Material",
+              "pathId": "-6996084311400872247",
+              "name": "eff_ps_adv_mat_tears_03_alp_dis"
+            },
+            {
+              "type": "ParticleSystem",
+              "pathId": "-5581381369747502790",
+              "name": "unnamed"
+            },
+            {
+              "type": "ParticleSystem",
+              "pathId": "-5544387710893258438",
+              "name": "unnamed"
+            },
+            {
+              "type": "ParticleSystem",
+              "pathId": "-5203269122416080582",
+              "name": "unnamed"
+            },
+            {
+              "type": "Material",
+              "pathId": "-3110096316555600086",
+              "name": "eff_ps_adv_mat_sweat_jaw_02_alp_dis"
+            },
+            {
+              "type": "Transform",
+              "pathId": "-2414265799038629574",
+              "name": "unnamed"
+            },
+            {
+              "type": "Transform",
+              "pathId": "-1947046514811827910",
+              "name": "unnamed"
+            },
+            {
+              "type": "GameObject",
+              "pathId": "-1257394643184940742",
+              "name": "ps_tears_drop_l"
+            },
+            {
+              "type": "Material",
+              "pathId": "94991638248987276",
+              "name": "eff_ps_adv_mat_sweat_drop_00_alp_dis"
+            },
+            {
+              "type": "Transform",
+              "pathId": "820668093548038458",
+              "name": "unnamed"
+            },
+            {
+              "type": "GameObject",
+              "pathId": "2159926892773607738",
+              "name": "ps_tears_dropfall_l_01"
+            },
+            {
+              "type": "Transform",
+              "pathId": "2625226829970835770",
+              "name": "unnamed"
+            },
+            {
+              "type": "ParticleSystem",
+              "pathId": "5077281633669712186",
+              "name": "unnamed"
+            },
+            {
+              "type": "GameObject",
+              "pathId": "5783545364225952058",
+              "name": "ps_tears_dropfall_l_02"
+            },
+            {
+              "type": "GameObject",
+              "pathId": "7752842317319735610",
+              "name": "eff_ps_adv_tears-001-l_in"
+            }
+          ]
+        }
+      ],
+      "mount": "Root_Body/Reference/Hips/Spine/Spine1/Spine2/Neck/Head/Head_Face/Loc_LeftEyeUnder_NoBind",
+      "directory": "common-tears-001-left",
+      "missingBundles": []
+    },
+    {
+      "id": "common-tears-001-right",
+      "category": "prefabEffect",
+      "description": "右眼泪滴和下落泪珠粒子",
+      "bundles": [
+        {
+          "bundle": "mef_pfb_chr_cmmn_eye-tears-001_r",
+          "textures": [],
+          "meshes": [],
+          "objects": [
+            {
+              "type": "MonoBehaviour",
+              "pathId": "-5218001571889932242",
+              "name": "mef_pfb_chr_cmmn_eye-tears-001_r"
+            }
+          ]
+        },
+        {
+          "bundle": "eff_ps_adv_tears-001-r_in",
+          "textures": [
+            {
+              "name": "eff_ps_adv_tex_sweat_dis_00",
+              "file": "public/mmd-dialogue-stage/assets/facial-effects/common-tears-001-right/textures/eff_ps_adv_tex_sweat_dis_00.png",
+              "width": 512,
+              "height": 512,
+              "mode": "RGBA"
+            },
+            {
+              "name": "eff_ps_adv_tex_sweat_drop_00",
+              "file": "public/mmd-dialogue-stage/assets/facial-effects/common-tears-001-right/textures/eff_ps_adv_tex_sweat_drop_00.png",
+              "width": 512,
+              "height": 512,
+              "mode": "RGBA"
+            },
+            {
+              "name": "eff_ps_adv_tex_sweat_01",
+              "file": "public/mmd-dialogue-stage/assets/facial-effects/common-tears-001-right/textures/eff_ps_adv_tex_sweat_01.png",
+              "width": 512,
+              "height": 512,
+              "mode": "RGBA"
+            },
+            {
+              "name": "eff_ps_adv_tex_tears_02",
+              "file": "public/mmd-dialogue-stage/assets/facial-effects/common-tears-001-right/textures/eff_ps_adv_tex_tears_02.png",
+              "width": 512,
+              "height": 512,
+              "mode": "RGBA"
+            }
+          ],
+          "meshes": [
+            {
+              "name": "eff_ps_live_mdl_sweat_01",
+              "file": "public/mmd-dialogue-stage/assets/facial-effects/common-tears-001-right/meshes/eff_ps_live_mdl_sweat_01.obj",
+              "vertices": 201,
+              "submeshes": 1
+            },
+            {
+              "name": "eff_ps_live_mdl_tears_02",
+              "file": "public/mmd-dialogue-stage/assets/facial-effects/common-tears-001-right/meshes/eff_ps_live_mdl_tears_02.obj",
+              "vertices": 102,
+              "submeshes": 1
+            }
+          ],
+          "objects": [
+            {
+              "type": "GameObject",
+              "pathId": "-8718794135391815104",
+              "name": "eff_ps_adv_tears-001-r_in"
+            },
+            {
+              "type": "Transform",
+              "pathId": "-7697138077847963072",
+              "name": "unnamed"
+            },
+            {
+              "type": "GameObject",
+              "pathId": "-7222345176401561024",
+              "name": "ps_tears_drop_r"
+            },
+            {
+              "type": "Material",
+              "pathId": "-6996084311400872247",
+              "name": "eff_ps_adv_mat_tears_03_alp_dis"
+            },
+            {
+              "type": "GameObject",
+              "pathId": "-6245358414060176832",
+              "name": "ps_tears_dropfall_r_01"
+            },
+            {
+              "type": "ParticleSystem",
+              "pathId": "-5759761242237683136",
+              "name": "unnamed"
+            },
+            {
+              "type": "ParticleSystem",
+              "pathId": "-4798039690472703424",
+              "name": "unnamed"
+            },
+            {
+              "type": "Transform",
+              "pathId": "-4650378374383519168",
+              "name": "unnamed"
+            },
+            {
+              "type": "ParticleSystem",
+              "pathId": "-4261787340590794176",
+              "name": "unnamed"
+            },
+            {
+              "type": "ParticleSystem",
+              "pathId": "-3219427694063502784",
+              "name": "unnamed"
+            },
+            {
+              "type": "Material",
+              "pathId": "-3110096316555600086",
+              "name": "eff_ps_adv_mat_sweat_jaw_02_alp_dis"
+            },
+            {
+              "type": "Transform",
+              "pathId": "-125612687481816512",
+              "name": "unnamed"
+            },
+            {
+              "type": "Material",
+              "pathId": "94991638248987276",
+              "name": "eff_ps_adv_mat_sweat_drop_00_alp_dis"
+            },
+            {
+              "type": "ParticleSystem",
+              "pathId": "1141907385063389760",
+              "name": "unnamed"
+            },
+            {
+              "type": "Transform",
+              "pathId": "3988422962675857984",
+              "name": "unnamed"
+            },
+            {
+              "type": "GameObject",
+              "pathId": "5015254068840512064",
+              "name": "ps_tears_dropfall_r_02"
+            },
+            {
+              "type": "Transform",
+              "pathId": "5334737549586217536",
+              "name": "unnamed"
+            },
+            {
+              "type": "GameObject",
+              "pathId": "7222698261303343680",
+              "name": "ps_tears_001_r"
+            }
+          ]
+        }
+      ],
+      "mount": "Root_Body/Reference/Hips/Spine/Spine1/Spine2/Neck/Head/Head_Face/Loc_RightEyeUnder_NoBind",
+      "directory": "common-tears-001-right",
+      "missingBundles": []
+    },
+    {
+      "id": "common-tears-filled-002-left",
+      "category": "prefabEffect",
+      "description": "左眼充满眼泪循环粒子",
+      "bundles": [
+        {
+          "bundle": "mef_pfb_chr_cmmn_eye-tearsfilled-002_l",
+          "textures": [],
+          "meshes": [],
+          "objects": [
+            {
+              "type": "MonoBehaviour",
+              "pathId": "-3412316256710513512",
+              "name": "mef_pfb_chr_cmmn_eye-tearsfilled-002_l"
+            }
+          ]
+        },
+        {
+          "bundle": "eff_ps_adv_tears-filled-002-l_in",
+          "textures": [
+            {
+              "name": "eff_ps_adv_tex_tears_01",
+              "file": "public/mmd-dialogue-stage/assets/facial-effects/common-tears-filled-002-left/textures/eff_ps_adv_tex_tears_01.png",
+              "width": 512,
+              "height": 512,
+              "mode": "RGBA"
+            },
+            {
+              "name": "eff_ps_adv_tex_sweat_dis_00",
+              "file": "public/mmd-dialogue-stage/assets/facial-effects/common-tears-filled-002-left/textures/eff_ps_adv_tex_sweat_dis_00.png",
+              "width": 512,
+              "height": 512,
+              "mode": "RGBA"
+            }
+          ],
+          "meshes": [
+            {
+              "name": "eff_ps_live_mdl_tears_01",
+              "file": "public/mmd-dialogue-stage/assets/facial-effects/common-tears-filled-002-left/meshes/eff_ps_live_mdl_tears_01.obj",
+              "vertices": 121,
+              "submeshes": 1
+            }
+          ],
+          "objects": [
+            {
+              "type": "Transform",
+              "pathId": "-9023798343106330406",
+              "name": "unnamed"
+            },
+            {
+              "type": "GameObject",
+              "pathId": "-3631403983822618406",
+              "name": "eff_ps_adv_tears-filled-002-l_in"
+            },
+            {
+              "type": "ParticleSystem",
+              "pathId": "-3193636347291533094",
+              "name": "unnamed"
+            },
+            {
+              "type": "ParticleSystem",
+              "pathId": "-900532930323185446",
+              "name": "unnamed"
+            },
+            {
+              "type": "Material",
+              "pathId": "-458656292621574694",
+              "name": "eff_ps_adv_mat_tears_01_alp_dis"
+            },
+            {
+              "type": "GameObject",
+              "pathId": "2185936490117365978",
+              "name": "ps_tears_filled_002_l"
+            },
+            {
+              "type": "Transform",
+              "pathId": "2669732217771884762",
+              "name": "unnamed"
+            }
+          ]
+        }
+      ],
+      "mount": "Root_Body/Reference/Hips/Spine/Spine1/Spine2/Neck/Head/Head_Face/Loc_LeftEyeUnder_NoBind",
+      "directory": "common-tears-filled-002-left",
+      "missingBundles": []
+    },
+    {
+      "id": "common-tears-filled-002-right",
+      "category": "prefabEffect",
+      "description": "右眼充满眼泪循环粒子",
+      "bundles": [
+        {
+          "bundle": "mef_pfb_chr_cmmn_eye-tearsfilled-002_r",
+          "textures": [],
+          "meshes": [],
+          "objects": [
+            {
+              "type": "MonoBehaviour",
+              "pathId": "7428572969263325570",
+              "name": "mef_pfb_chr_cmmn_eye-tearsfilled-002_r"
+            }
+          ]
+        },
+        {
+          "bundle": "eff_ps_adv_tears-filled-002-r_in",
+          "textures": [
+            {
+              "name": "eff_ps_adv_tex_tears_01",
+              "file": "public/mmd-dialogue-stage/assets/facial-effects/common-tears-filled-002-right/textures/eff_ps_adv_tex_tears_01.png",
+              "width": 512,
+              "height": 512,
+              "mode": "RGBA"
+            },
+            {
+              "name": "eff_ps_adv_tex_sweat_dis_00",
+              "file": "public/mmd-dialogue-stage/assets/facial-effects/common-tears-filled-002-right/textures/eff_ps_adv_tex_sweat_dis_00.png",
+              "width": 512,
+              "height": 512,
+              "mode": "RGBA"
+            }
+          ],
+          "meshes": [
+            {
+              "name": "eff_ps_live_mdl_tears_01",
+              "file": "public/mmd-dialogue-stage/assets/facial-effects/common-tears-filled-002-right/meshes/eff_ps_live_mdl_tears_01.obj",
+              "vertices": 121,
+              "submeshes": 1
+            }
+          ],
+          "objects": [
+            {
+              "type": "Transform",
+              "pathId": "-2869070180118116769",
+              "name": "unnamed"
+            },
+            {
+              "type": "ParticleSystem",
+              "pathId": "-469547214875605409",
+              "name": "unnamed"
+            },
+            {
+              "type": "Material",
+              "pathId": "-458656292621574694",
+              "name": "eff_ps_adv_mat_tears_01_alp_dis"
+            },
+            {
+              "type": "Transform",
+              "pathId": "1157285371880851039",
+              "name": "unnamed"
+            },
+            {
+              "type": "GameObject",
+              "pathId": "6935058490570032735",
+              "name": "ps_tears_filled_002_r"
+            },
+            {
+              "type": "ParticleSystem",
+              "pathId": "7200222891967628895",
+              "name": "unnamed"
+            },
+            {
+              "type": "GameObject",
+              "pathId": "8446286353343235679",
+              "name": "eff_ps_adv_tears-filled-002-r_in"
+            }
+          ]
+        }
+      ],
+      "mount": "Root_Body/Reference/Hips/Spine/Spine1/Spine2/Neck/Head/Head_Face/Loc_RightEyeUnder_NoBind",
+      "directory": "common-tears-filled-002-right",
+      "missingBundles": []
+    },
+    {
+      "id": "common-tears-filled-003-left",
+      "category": "prefabEffect",
+      "description": "左眼充满眼泪循环粒子变体",
+      "bundles": [
+        {
+          "bundle": "mef_pfb_chr_cmmn_eye-tearsfilled-003_l",
+          "textures": [],
+          "meshes": [],
+          "objects": [
+            {
+              "type": "MonoBehaviour",
+              "pathId": "-8279119585754778033",
+              "name": "mef_pfb_chr_cmmn_eye-tearsfilled-003_l"
+            }
+          ]
+        },
+        {
+          "bundle": "eff_ps_adv_tears-filled-003-l_in",
+          "textures": [
+            {
+              "name": "eff_ps_adv_tex_sweat_dis_00",
+              "file": "public/mmd-dialogue-stage/assets/facial-effects/common-tears-filled-003-left/textures/eff_ps_adv_tex_sweat_dis_00.png",
+              "width": 512,
+              "height": 512,
+              "mode": "RGBA"
+            },
+            {
+              "name": "eff_ps_adv_tex_tears_00",
+              "file": "public/mmd-dialogue-stage/assets/facial-effects/common-tears-filled-003-left/textures/eff_ps_adv_tex_tears_00.png",
+              "width": 512,
+              "height": 512,
+              "mode": "RGBA"
+            }
+          ],
+          "meshes": [
+            {
+              "name": "eff_ps_live_mdl_tears_00",
+              "file": "public/mmd-dialogue-stage/assets/facial-effects/common-tears-filled-003-left/meshes/eff_ps_live_mdl_tears_00.obj",
+              "vertices": 141,
+              "submeshes": 1
+            }
+          ],
+          "objects": [
+            {
+              "type": "GameObject",
+              "pathId": "-6833840210821794913",
+              "name": "ps_tears_filled_001_l"
+            },
+            {
+              "type": "Transform",
+              "pathId": "-6828081269027916897",
+              "name": "unnamed"
+            },
+            {
+              "type": "ParticleSystem",
+              "pathId": "-6262900782518979681",
+              "name": "unnamed"
+            },
+            {
+              "type": "Transform",
+              "pathId": "-5770409914812746849",
+              "name": "unnamed"
+            },
+            {
+              "type": "Material",
+              "pathId": "-2647999904960677042",
+              "name": "eff_ps_adv_mat_tears_00_alp_dis"
+            },
+            {
+              "type": "ParticleSystem",
+              "pathId": "-1873676639205739617",
+              "name": "unnamed"
+            },
+            {
+              "type": "GameObject",
+              "pathId": "583003748264489887",
+              "name": "eff_ps_adv_tears-filled-003-l_in"
+            }
+          ]
+        }
+      ],
+      "mount": "Root_Body/Reference/Hips/Spine/Spine1/Spine2/Neck/Head/Head_Face/Loc_LeftEyeUnder_NoBind",
+      "directory": "common-tears-filled-003-left",
+      "missingBundles": []
+    },
+    {
+      "id": "common-tears-filled-003-right",
+      "category": "prefabEffect",
+      "description": "右眼充满眼泪循环粒子变体",
+      "bundles": [
+        {
+          "bundle": "mef_pfb_chr_cmmn_eye-tearsfilled-003_r",
+          "textures": [],
+          "meshes": [],
+          "objects": [
+            {
+              "type": "MonoBehaviour",
+              "pathId": "-8580700796479803940",
+              "name": "mef_pfb_chr_cmmn_eye-tearsfilled-003_r"
+            }
+          ]
+        },
+        {
+          "bundle": "eff_ps_adv_tears-filled-003-r_in",
+          "textures": [
+            {
+              "name": "eff_ps_adv_tex_sweat_dis_00",
+              "file": "public/mmd-dialogue-stage/assets/facial-effects/common-tears-filled-003-right/textures/eff_ps_adv_tex_sweat_dis_00.png",
+              "width": 512,
+              "height": 512,
+              "mode": "RGBA"
+            },
+            {
+              "name": "eff_ps_adv_tex_tears_00",
+              "file": "public/mmd-dialogue-stage/assets/facial-effects/common-tears-filled-003-right/textures/eff_ps_adv_tex_tears_00.png",
+              "width": 512,
+              "height": 512,
+              "mode": "RGBA"
+            }
+          ],
+          "meshes": [
+            {
+              "name": "eff_ps_live_mdl_tears_00",
+              "file": "public/mmd-dialogue-stage/assets/facial-effects/common-tears-filled-003-right/meshes/eff_ps_live_mdl_tears_00.obj",
+              "vertices": 141,
+              "submeshes": 1
+            }
+          ],
+          "objects": [
+            {
+              "type": "ParticleSystem",
+              "pathId": "-5269977973213738964",
+              "name": "unnamed"
+            },
+            {
+              "type": "Transform",
+              "pathId": "-3055447741033330644",
+              "name": "unnamed"
+            },
+            {
+              "type": "GameObject",
+              "pathId": "-3028469930993039316",
+              "name": "eff_ps_adv_tears-filled-003-r_in"
+            },
+            {
+              "type": "Material",
+              "pathId": "-2647999904960677042",
+              "name": "eff_ps_adv_mat_tears_00_alp_dis"
+            },
+            {
+              "type": "ParticleSystem",
+              "pathId": "2568941718586345516",
+              "name": "unnamed"
+            },
+            {
+              "type": "Transform",
+              "pathId": "4049791952165685292",
+              "name": "unnamed"
+            },
+            {
+              "type": "GameObject",
+              "pathId": "6212856838414092332",
+              "name": "ps_tears_filled_001_r"
+            }
+          ]
+        }
+      ],
+      "mount": "Root_Body/Reference/Hips/Spine/Spine1/Spine2/Neck/Head/Head_Face/Loc_RightEyeUnder_NoBind",
+      "directory": "common-tears-filled-003-right",
+      "missingBundles": []
+    },
+    {
+      "id": "atbm-eye-nohighlight",
+      "category": "materialEffect",
+      "description": "无高光眼睛材质",
+      "bundles": [
+        {
+          "bundle": "mef_mat_chr_atbm_eye-nohighlight-001",
+          "textures": [
+            {
+              "name": "t_chr_atbm_eye-nohighlight_col_alp",
+              "file": "public/mmd-dialogue-stage/assets/facial-effects/atbm-eye-nohighlight/textures/t_chr_atbm_eye-nohighlight_col_alp.png",
+              "width": 1024,
+              "height": 1024,
+              "mode": "RGBA"
+            },
+            {
+              "name": "t_chr_atbm_eye-nohighlight_sdw",
+              "file": "public/mmd-dialogue-stage/assets/facial-effects/atbm-eye-nohighlight/textures/t_chr_atbm_eye-nohighlight_sdw.png",
+              "width": 1024,
+              "height": 1024,
+              "mode": "RGBA"
+            },
+            {
+              "name": "t_chr_atbm_eye-nohighlight_def",
+              "file": "public/mmd-dialogue-stage/assets/facial-effects/atbm-eye-nohighlight/textures/t_chr_atbm_eye-nohighlight_def.png",
+              "width": 1024,
+              "height": 1024,
+              "mode": "RGBA"
+            }
+          ],
+          "meshes": [],
+          "objects": [
+            {
+              "type": "MonoBehaviour",
+              "pathId": "-3741514700537690522",
+              "name": "mef_mat_chr_atbm_eye-nohighlight-001"
+            }
+          ]
+        },
+        {
+          "bundle": "mef_mat_chr_atbm_ehl-nohighlight-001",
+          "textures": [
+            {
+              "name": "t_chr_cmmn_ehl-nohighlight-001_col",
+              "file": "public/mmd-dialogue-stage/assets/facial-effects/atbm-eye-nohighlight/textures/t_chr_cmmn_ehl-nohighlight-001_col.png",
+              "width": 4,
+              "height": 4,
+              "mode": "RGBA"
+            }
+          ],
+          "meshes": [],
+          "objects": [
+            {
+              "type": "MonoBehaviour",
+              "pathId": "1171287696713598135",
+              "name": "mef_mat_chr_atbm_ehl-nohighlight-001"
+            }
+          ]
+        },
+        {
+          "bundle": "mot_all_chr_atbm_facial-all-unique-nohighlight1_in",
+          "textures": [],
+          "meshes": [],
+          "objects": [
+            {
+              "type": "MonoBehaviour",
+              "pathId": "-4887138857914375136",
+              "name": "mot_all_chr_atbm_facial-all-unique-nohighlight1_in"
+            },
+            {
+              "type": "AnimationClip",
+              "pathId": "-1317588713410165644",
+              "name": "mot_all_chr_atbm_facial-all-unique-nohighlight1_in_f"
+            }
+          ]
+        }
+      ],
+      "mount": null,
+      "directory": "atbm-eye-nohighlight",
+      "missingBundles": []
+    },
+    {
+      "id": "kcna-eye-futougou-left",
+      "category": "prefabEffect",
+      "description": "花海咲季左眼不对称眼形",
+      "bundles": [
+        {
+          "bundle": "mef_pfb_chr_kcna_eye-futougou-001_l",
+          "textures": [
+            {
+              "name": "t_chr_cmmn_eye-normal-001_col_alp",
+              "file": "public/mmd-dialogue-stage/assets/facial-effects/kcna-eye-futougou-left/textures/t_chr_cmmn_eye-normal-001_col_alp.png",
+              "width": 1024,
+              "height": 1024,
+              "mode": "RGBA"
+            }
+          ],
+          "meshes": [
+            {
+              "name": "Geo_futougou_l",
+              "file": "public/mmd-dialogue-stage/assets/facial-effects/kcna-eye-futougou-left/meshes/Geo_futougou_l.obj",
+              "vertices": 4,
+              "submeshes": 1
+            }
+          ],
+          "objects": [
+            {
+              "type": "GameObject",
+              "pathId": "-6592367179725233317",
+              "name": "Geo_futougou_l"
+            },
+            {
+              "type": "Material",
+              "pathId": "-5789820000050791505",
+              "name": "m_mef_eye_normal_001"
+            },
+            {
+              "type": "Transform",
+              "pathId": "-4052200057890561189",
+              "name": "unnamed"
+            },
+            {
+              "type": "MonoBehaviour",
+              "pathId": "-68626994136557413",
+              "name": "mef_pfb_chr_kcna_eye-futougou-001_l"
+            },
+            {
+              "type": "Transform",
+              "pathId": "4655928892055200603",
+              "name": "unnamed"
+            },
+            {
+              "type": "GameObject",
+              "pathId": "6949593359619171163",
+              "name": "mdl_chr_kcna-futougou_l"
+            }
+          ]
+        }
+      ],
+      "mount": "Root_Body/Reference/Hips/Spine/Spine1/Spine2/Neck/Head/Head_Face",
+      "directory": "kcna-eye-futougou-left",
+      "missingBundles": []
+    },
+    {
+      "id": "kcna-eye-futougou-right",
+      "category": "prefabEffect",
+      "description": "花海咲季右眼不对称眼形",
+      "bundles": [
+        {
+          "bundle": "mef_pfb_chr_kcna_eye-futougou-001_r",
+          "textures": [
+            {
+              "name": "t_chr_cmmn_eye-normal-001_col_alp",
+              "file": "public/mmd-dialogue-stage/assets/facial-effects/kcna-eye-futougou-right/textures/t_chr_cmmn_eye-normal-001_col_alp.png",
+              "width": 1024,
+              "height": 1024,
+              "mode": "RGBA"
+            }
+          ],
+          "meshes": [
+            {
+              "name": "Geo_futougou_r",
+              "file": "public/mmd-dialogue-stage/assets/facial-effects/kcna-eye-futougou-right/meshes/Geo_futougou_r.obj",
+              "vertices": 4,
+              "submeshes": 1
+            }
+          ],
+          "objects": [
+            {
+              "type": "Material",
+              "pathId": "-5789820000050791505",
+              "name": "m_mef_eye_normal_001"
+            },
+            {
+              "type": "MonoBehaviour",
+              "pathId": "-4392798765988952208",
+              "name": "mef_pfb_chr_kcna_eye-futougou-001_r"
+            },
+            {
+              "type": "Transform",
+              "pathId": "-2728988176001593023",
+              "name": "unnamed"
+            },
+            {
+              "type": "Transform",
+              "pathId": "-2576919835094216383",
+              "name": "unnamed"
+            },
+            {
+              "type": "GameObject",
+              "pathId": "6042050289556263233",
+              "name": "mdl_chr_kcna-futougou_r"
+            },
+            {
+              "type": "GameObject",
+              "pathId": "6708333950106472769",
+              "name": "Geo_futougou_r"
+            }
+          ]
+        }
+      ],
+      "mount": "Root_Body/Reference/Hips/Spine/Spine1/Spine2/Neck/Head/Head_Face",
+      "directory": "kcna-eye-futougou-right",
+      "missingBundles": []
+    },
+    {
+      "id": "jsna-head-gaan",
+      "category": "prefabEffect",
+      "description": "篠澤广黑线脸部网格",
+      "bundles": [
+        {
+          "bundle": "mef_pfb_chr_jsna_head-gaan-001",
+          "textures": [
+            {
+              "name": "t_chr_cmmn_head-normal-001_col_alp",
+              "file": "public/mmd-dialogue-stage/assets/facial-effects/jsna-head-gaan/textures/t_chr_cmmn_head-normal-001_col_alp.png",
+              "width": 1024,
+              "height": 1024,
+              "mode": "RGBA"
+            }
+          ],
+          "meshes": [
+            {
+              "name": "Geo_gaan",
+              "file": "public/mmd-dialogue-stage/assets/facial-effects/jsna-head-gaan/meshes/Geo_gaan.obj",
+              "vertices": 4,
+              "submeshes": 1
+            }
+          ],
+          "objects": [
+            {
+              "type": "Transform",
+              "pathId": "-7489606787154251548",
+              "name": "unnamed"
+            },
+            {
+              "type": "MonoBehaviour",
+              "pathId": "-3070902771419542307",
+              "name": "mef_pfb_chr_jsna_head-gaan-001"
+            },
+            {
+              "type": "Material",
+              "pathId": "692128640271095649",
+              "name": "m_mef_head_normal_001"
+            },
+            {
+              "type": "Transform",
+              "pathId": "2039279550587597028",
+              "name": "unnamed"
+            },
+            {
+              "type": "GameObject",
+              "pathId": "4466932976253137124",
+              "name": "Geo_gaan"
+            },
+            {
+              "type": "GameObject",
+              "pathId": "6082049962638700772",
+              "name": "mdl_chr_jsna-gaan"
+            }
+          ]
+        }
+      ],
+      "mount": "Root_Body/Reference/Hips/Spine/Spine1/Spine2/Neck/Head/Head_Face",
+      "directory": "jsna-head-gaan",
+      "missingBundles": []
+    },
+    {
+      "id": "fktn-face-decals",
+      "category": "decalOverride",
+      "description": "藤田琴音脸部 Shadow、Pale、腮红和线条 decal 资源",
+      "bundles": [
+        {
+          "bundle": "mdl_chr_fktn-base-0000_face",
+          "textures": [
+            {
+              "name": "t_chr_fktn-base-0000_ehl_col",
+              "file": "public/mmd-dialogue-stage/assets/facial-effects/fktn-face-decals/textures/t_chr_fktn-base-0000_ehl_col.png",
+              "width": 512,
+              "height": 512,
+              "mode": "RGBA"
+            },
+            {
+              "name": "t_chr_fktn-base-0000_fce_lyr",
+              "file": "public/mmd-dialogue-stage/assets/facial-effects/fktn-face-decals/textures/t_chr_fktn-base-0000_fce_lyr.png",
+              "width": 2048,
+              "height": 1024,
+              "mode": "RGBA"
+            },
+            {
+              "name": "t_chr_fktn-base-0000_fce_sdw",
+              "file": "public/mmd-dialogue-stage/assets/facial-effects/fktn-face-decals/textures/t_chr_fktn-base-0000_fce_sdw.png",
+              "width": 1024,
+              "height": 1024,
+              "mode": "RGBA"
+            },
+            {
+              "name": "t_chr_fktn-base-0000_eye_col_alp",
+              "file": "public/mmd-dialogue-stage/assets/facial-effects/fktn-face-decals/textures/t_chr_fktn-base-0000_eye_col_alp.png",
+              "width": 1024,
+              "height": 1024,
+              "mode": "RGBA"
+            },
+            {
+              "name": "t_chr_fktn-base-0000_fce_def",
+              "file": "public/mmd-dialogue-stage/assets/facial-effects/fktn-face-decals/textures/t_chr_fktn-base-0000_fce_def.png",
+              "width": 1024,
+              "height": 1024,
+              "mode": "RGBA"
+            },
+            {
+              "name": "t_chr_fktn-base-0000_fce_col",
+              "file": "public/mmd-dialogue-stage/assets/facial-effects/fktn-face-decals/textures/t_chr_fktn-base-0000_fce_col.png",
+              "width": 1024,
+              "height": 1024,
+              "mode": "RGBA"
+            },
+            {
+              "name": "t_chr_fktn-base-0000_eye_def",
+              "file": "public/mmd-dialogue-stage/assets/facial-effects/fktn-face-decals/textures/t_chr_fktn-base-0000_eye_def.png",
+              "width": 1024,
+              "height": 1024,
+              "mode": "RGBA"
+            },
+            {
+              "name": "t_chr_fktn-base-0000_eye_sdw",
+              "file": "public/mmd-dialogue-stage/assets/facial-effects/fktn-face-decals/textures/t_chr_fktn-base-0000_eye_sdw.png",
+              "width": 1024,
+              "height": 1024,
+              "mode": "RGBA"
+            },
+            {
+              "name": "t_chr_fktn-base-0000_rmp",
+              "file": "public/mmd-dialogue-stage/assets/facial-effects/fktn-face-decals/textures/t_chr_fktn-base-0000_rmp.png",
+              "width": 1024,
+              "height": 4,
+              "mode": "RGBA"
+            }
+          ],
+          "meshes": [
+            {
+              "name": "_CombinedFaceMesh",
+              "file": "public/mmd-dialogue-stage/assets/facial-effects/fktn-face-decals/meshes/_CombinedFaceMesh.obj",
+              "vertices": 5206,
+              "submeshes": 9
+            }
+          ],
+          "objects": [
+            {
+              "type": "Transform",
+              "pathId": "-9097546398133604278",
+              "name": "unnamed"
+            },
+            {
+              "type": "Transform",
+              "pathId": "-8771318100978847670",
+              "name": "unnamed"
+            },
+            {
+              "type": "MonoBehaviour",
+              "pathId": "-8706840297975861174",
+              "name": "unnamed"
+            },
+            {
+              "type": "GameObject",
+              "pathId": "-8643425760619483062",
+              "name": "RightCheek"
+            },
+            {
+              "type": "GameObject",
+              "pathId": "-8042931270661066678",
+              "name": "CheekLineWhole"
+            },
+            {
+              "type": "GameObject",
+              "pathId": "-7704886802514071478",
+              "name": "LeftCheekLine"
+            },
+            {
+              "type": "Material",
+              "pathId": "-7692710914631339294",
+              "name": "m_fcp"
+            },
+            {
+              "type": "Transform",
+              "pathId": "-7243813405155413942",
+              "name": "unnamed"
+            },
+            {
+              "type": "GameObject",
+              "pathId": "-7194008979941838774",
+              "name": "Loc_RightEyeCenter"
+            },
+            {
+              "type": "GameObject",
+              "pathId": "-7074346813066137526",
+              "name": "Loc_LeftEyeUnder_NoBind"
+            },
+            {
+              "type": "Transform",
+              "pathId": "-6865811396812230582",
+              "name": "unnamed"
+            },
+            {
+              "type": "GameObject",
+              "pathId": "-6488187761158082486",
+              "name": "Loc_RightCheek"
+            },
+            {
+              "type": "Transform",
+              "pathId": "-6197361351781207990",
+              "name": "unnamed"
+            },
+            {
+              "type": "GameObject",
+              "pathId": "-5257793534655090614",
+              "name": "Loc_LeftCheek"
+            },
+            {
+              "type": "MonoBehaviour",
+              "pathId": "-5158475622495768502",
+              "name": "unnamed"
+            },
+            {
+              "type": "GameObject",
+              "pathId": "-4656984500238766006",
+              "name": "RightCheekLine"
+            },
+            {
+              "type": "Transform",
+              "pathId": "-4341268927577345974",
+              "name": "unnamed"
+            },
+            {
+              "type": "GameObject",
+              "pathId": "-4147387685605429174",
+              "name": "Tongue2"
+            },
+            {
+              "type": "Material",
+              "pathId": "-4085360821127363326",
+              "name": "m_fce"
+            },
+            {
+              "type": "GameObject",
+              "pathId": "-3987586717648048054",
+              "name": "Tongue3"
+            },
+            {
+              "type": "Transform",
+              "pathId": "-3800112356649684918",
+              "name": "unnamed"
+            },
+            {
+              "type": "GameObject",
+              "pathId": "-3710696937530544054",
+              "name": "Loc_RightEyeUnder_NoBind"
+            },
+            {
+              "type": "Transform",
+              "pathId": "-3197728158178168758",
+              "name": "unnamed"
+            },
+            {
+              "type": "GameObject",
+              "pathId": "-3123056473812520886",
+              "name": "LeftCheek"
+            },
+            {
+              "type": "GameObject",
+              "pathId": "-2603633318908809142",
+              "name": "Loc_LeftEyeCenter"
+            },
+            {
+              "type": "MonoBehaviour",
+              "pathId": "-2313817525955612598",
+              "name": "unnamed"
+            },
+            {
+              "type": "Transform",
+              "pathId": "-2281877317414113206",
+              "name": "unnamed"
+            },
+            {
+              "type": "Transform",
+              "pathId": "-1901014187575496630",
+              "name": "unnamed"
+            },
+            {
+              "type": "GameObject",
+              "pathId": "-1587079242705489846",
+              "name": "FacialDecal"
+            },
+            {
+              "type": "Transform",
+              "pathId": "-1585792026603442102",
+              "name": "unnamed"
+            },
+            {
+              "type": "Transform",
+              "pathId": "-1521761314542604214",
+              "name": "unnamed"
+            },
+            {
+              "type": "Transform",
+              "pathId": "-1427793297579986870",
+              "name": "unnamed"
+            },
+            {
+              "type": "GameObject",
+              "pathId": "-1035815738293571510",
+              "name": "Pale"
+            },
+            {
+              "type": "MonoBehaviour",
+              "pathId": "-889624917451624374",
+              "name": "unnamed"
+            },
+            {
+              "type": "Transform",
+              "pathId": "-601164313341218742",
+              "name": "unnamed"
+            },
+            {
+              "type": "GameObject",
+              "pathId": "-597942730976677814",
+              "name": "CheekWhole"
+            },
+            {
+              "type": "MonoBehaviour",
+              "pathId": "-523559440348303286",
+              "name": "unnamed"
+            },
+            {
+              "type": "GameObject",
+              "pathId": "-219553883816939446",
+              "name": "mdl_chr_fktn-base-0000_face"
+            },
+            {
+              "type": "MonoBehaviour",
+              "pathId": "-161208348953300918",
+              "name": "unnamed"
+            },
+            {
+              "type": "Transform",
+              "pathId": "241288763950280778",
+              "name": "unnamed"
+            },
+            {
+              "type": "GameObject",
+              "pathId": "301769802884296778",
+              "name": "FaceScaleRatio_DIS"
+            },
+            {
+              "type": "Transform",
+              "pathId": "357985517383888970",
+              "name": "unnamed"
+            },
+            {
+              "type": "MonoBehaviour",
+              "pathId": "498802521661091914",
+              "name": "unnamed"
+            },
+            {
+              "type": "Transform",
+              "pathId": "735168678800437322",
+              "name": "unnamed"
+            },
+            {
+              "type": "GameObject",
+              "pathId": "1049649028465143882",
+              "name": "RightEye"
+            },
+            {
+              "type": "GameObject",
+              "pathId": "1240051650279747658",
+              "name": "VLSkinningRenderer"
+            },
+            {
+              "type": "MonoBehaviour",
+              "pathId": "1448290674425573450",
+              "name": "unnamed"
+            },
+            {
+              "type": "Transform",
+              "pathId": "1515484494787424330",
+              "name": "unnamed"
+            },
+            {
+              "type": "Transform",
+              "pathId": "1758274110530367562",
+              "name": "unnamed"
+            },
+            {
+              "type": "Transform",
+              "pathId": "1898225949592105034",
+              "name": "unnamed"
+            },
+            {
+              "type": "MonoBehaviour",
+              "pathId": "1911035882656215114",
+              "name": "unnamed"
+            },
+            {
+              "type": "MonoBehaviour",
+              "pathId": "1953438749487968330",
+              "name": "unnamed"
+            },
+            {
+              "type": "GameObject",
+              "pathId": "2134417986848206922",
+              "name": "Loc_ForeHead"
+            },
+            {
+              "type": "MonoBehaviour",
+              "pathId": "2233474392845365322",
+              "name": "unnamed"
+            },
+            {
+              "type": "MonoBehaviour",
+              "pathId": "2450728267795181642",
+              "name": "unnamed"
+            },
+            {
+              "type": "GameObject",
+              "pathId": "2461897899820101706",
+              "name": "Tongue4"
+            },
+            {
+              "type": "Transform",
+              "pathId": "2464868307302330442",
+              "name": "unnamed"
+            },
+            {
+              "type": "Material",
+              "pathId": "2488125565436980825",
+              "name": "m_ebs"
+            },
+            {
+              "type": "GameObject",
+              "pathId": "2863909450642468938",
+              "name": "Loc_RightEyeOuter"
+            },
+            {
+              "type": "Transform",
+              "pathId": "2865347777641230410",
+              "name": "unnamed"
+            },
+            {
+              "type": "GameObject",
+              "pathId": "3097655866477817930",
+              "name": "Shadow"
+            },
+            {
+              "type": "GameObject",
+              "pathId": "3097674924762640458",
+              "name": "Tongue1"
+            },
+            {
+              "type": "MonoBehaviour",
+              "pathId": "3295258910044565578",
+              "name": "unnamed"
+            },
+            {
+              "type": "Material",
+              "pathId": "3409172648681056087",
+              "name": "m_ehl"
+            },
+            {
+              "type": "Transform",
+              "pathId": "3530982306177658954",
+              "name": "unnamed"
+            },
+            {
+              "type": "MonoBehaviour",
+              "pathId": "3557304622000812106",
+              "name": "unnamed"
+            },
+            {
+              "type": "Transform",
+              "pathId": "4186715701338615882",
+              "name": "unnamed"
+            },
+            {
+              "type": "MonoBehaviour",
+              "pathId": "4564747948300349514",
+              "name": "unnamed"
+            },
+            {
+              "type": "MonoBehaviour",
+              "pathId": "4630880945002754122",
+              "name": "unnamed"
+            },
+            {
+              "type": "Transform",
+              "pathId": "5412995085079392330",
+              "name": "unnamed"
+            },
+            {
+              "type": "GameObject",
+              "pathId": "6274757533742641226",
+              "name": "Head_Face"
+            },
+            {
+              "type": "MonoBehaviour",
+              "pathId": "6488513941454762058",
+              "name": "unnamed"
+            },
+            {
+              "type": "Material",
+              "pathId": "6633329526995276234",
+              "name": "m_eye"
+            },
+            {
+              "type": "MonoBehaviour",
+              "pathId": "7259748426272059466",
+              "name": "unnamed"
+            },
+            {
+              "type": "Transform",
+              "pathId": "7373867807152517194",
+              "name": "unnamed"
+            },
+            {
+              "type": "GameObject",
+              "pathId": "7987640025441284170",
+              "name": "LeftEye"
+            },
+            {
+              "type": "MonoBehaviour",
+              "pathId": "8232424308160049226",
+              "name": "unnamed"
+            },
+            {
+              "type": "MonoBehaviour",
+              "pathId": "8359040939514966090",
+              "name": "unnamed"
+            },
+            {
+              "type": "Transform",
+              "pathId": "8502090184586014794",
+              "name": "unnamed"
+            },
+            {
+              "type": "Transform",
+              "pathId": "8734570510660644938",
+              "name": "unnamed"
+            },
+            {
+              "type": "MonoBehaviour",
+              "pathId": "8863926474539380810",
+              "name": "unnamed"
+            },
+            {
+              "type": "GameObject",
+              "pathId": "8990821850874949706",
+              "name": "Loc_Jaw"
+            },
+            {
+              "type": "Transform",
+              "pathId": "9060456403364851786",
+              "name": "unnamed"
+            },
+            {
+              "type": "GameObject",
+              "pathId": "9102935213834219594",
+              "name": "Loc_LeftEyeOuter"
+            }
+          ]
+        }
+      ],
+      "mount": "Head_Face/FacialDecal",
+      "directory": "fktn-face-decals",
+      "missingBundles": []
+    }
+  ],
+  "missingBundles": []
+}
