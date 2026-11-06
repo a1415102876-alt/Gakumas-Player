@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#6DD4C6">
   <title>Gakuen Idolmaster Player</title>
   <link rel="stylesheet" href="./beat-player.css?v=20261106-hide-2d-floor-v1">
-  <link rel="stylesheet" href="./gakumas-swiss.css?v=20261105-floor-ssr-v1">
+  <link rel="stylesheet" href="./gakumas-swiss.css?v=20261106-player-chat-v4">
   <script type="importmap">
     {
       "imports": {
@@ -50,7 +50,10 @@
         <a class="gp-brand" href="./gakumas-player.html" aria-label="Gakuen Idolmaster Player">
           <span class="gp-mark" aria-hidden="true"><img src="./assets/logo.png" alt=""></span>
         </a>
-        <button id="gpSettingsBtn" class="gp-settings-button" type="button">设置</button>
+        <div class="gp-header-actions">
+          <button id="gpHeaderChatBtn" class="gp-settings-button" type="button">闲聊</button>
+          <button id="gpSettingsBtn" class="gp-settings-button" type="button">设置</button>
+        </div>
       </div>
     </header>
 
@@ -87,6 +90,12 @@
             <strong>编辑器</strong><small>EDITOR</small>
             <em>逐条制作 Beat，返回后播放。</em>
           </button>
+          <button id="gpModeChat" class="gp-mode" type="button" role="radio" data-gp-mode="chat" aria-checked="false">
+            <span class="gp-mode-icon" aria-hidden="true"><i class="gp-shape gp-circle"></i><i class="gp-shape gp-square"></i></span>
+            <span class="gp-mode-no">04</span>
+            <strong>闲聊</strong><small>CHAT</small>
+            <em>在家·教室和她说话，直接演出。</em>
+          </button>
         </div>
 
         <div id="gpInputCard" class="gp-card gp-input-card">
@@ -108,6 +117,13 @@
           <p class="gp-card-note">用列表、属性面板和实时预览逐条制作 Beat。编辑完成后点编辑器里的“返回怪文书”，脚本会回到“Beat 脚本”框，确认后即可播放。</p>
           <p class="gp-card-note">已经有现成的 Beat 脚本，也可以直接粘贴到“Beat 脚本”框里。</p>
           <button id="gpOpenEditorBtn" class="gp-capsule gp-capsule-main" type="button"><span>打开可视化编辑器</span><svg aria-hidden="true"><use href="#gpArrow"/></svg></button>
+        </div>
+
+        <div id="gpChatCard" class="gp-card gp-chat-card" hidden>
+          <header class="gp-card-head"><div><small>HOME CHAT</small><h3>闲聊</h3></div></header>
+          <p class="gp-card-note">场景固定在家·教室（午）的主页机位。选一位偶像，输入想对她说的话。世界书只核对这位偶像，回答用播放器的对话框在教室里演出来。</p>
+          <p class="gp-card-note">藤田琴音、花海咲季、月村手毬、花海佑芽、有村麻央、仓本千奈、葛城莉莉娅、紫云清夏、筱泽广、姬崎莉波、十王星南、秦谷美铃、雨夜燕。</p>
+          <button id="gpEnterChatBtn" class="gp-capsule gp-capsule-main" type="button"><span>进入教室</span><svg aria-hidden="true"><use href="#gpArrow"/></svg></button>
         </div>
       </section>
 
@@ -162,6 +178,28 @@
       <button id="gpPlayerSettingsBtn" class="gp-player-button gp-player-settings" type="button">设置</button>
     </div>
     </div>
+    <form id="gpChatBar" class="gp-chat-bar" hidden>
+      <label class="gp-chat-idol">偶像
+        <select id="chatIdolSelect" aria-label="选择偶像">
+          <option value="kotone">藤田琴音</option>
+          <option value="hski">花海咲季</option>
+          <option value="ttmr">月村手毬</option>
+          <option value="hume">花海佑芽</option>
+          <option value="mao">有村麻央</option>
+          <option value="kcna">仓本千奈</option>
+          <option value="kllj">葛城莉莉娅</option>
+          <option value="ssmk">紫云清夏</option>
+          <option value="shro">筱泽广</option>
+          <option value="hrnm">姬崎莉波</option>
+          <option value="jsna">十王星南</option>
+          <option value="hmsz">秦谷美铃</option>
+          <option value="atbm">雨夜燕</option>
+        </select>
+      </label>
+      <input id="chatInput" type="text" maxlength="1200" placeholder="对她说点什么" autocomplete="off" enterkeyhint="send" aria-label="闲聊输入">
+      <button id="sendChatBtn" class="gp-capsule gp-capsule-main" type="submit"><span>发送</span></button>
+      <p id="chatStatus" class="gp-chat-status" role="status"></p>
+    </form>
   </section>
 
   <dialog id="gpSettings" class="gp-settings" aria-labelledby="gpSettingsTitle">
@@ -210,6 +248,6 @@
   <input id="beatAutoPlay" type="checkbox" checked hidden>
   <span id="beatShot" hidden></span><span id="beatStatus" hidden></span><ul id="beatDiagnostics" hidden></ul>
   <script src="./fish-tts.js?v=20261106-tts-host-v1"></script>
-  <script type="module" src="./gakumas-player/gakumas-player.js?v=20261106-tts-host-v1"></script>
+  <script type="module" src="./gakumas-player/gakumas-player.js?v=20261106-player-chat-v4"></script>
 </body>
 </html>

@@ -1,4 +1,4 @@
-export const GP_MODE = Object.freeze({ FULL: 'full', EXPAND: 'expand', EDITOR: 'editor' });
+export const GP_MODE = Object.freeze({ FULL: 'full', EXPAND: 'expand', EDITOR: 'editor', CHAT: 'chat' });
 export const GP_DRAFT_KEY = 'hatsuGakumasPlayerDraftV1';
 export const GP_MAX_INPUT = 200000;
 
@@ -27,6 +27,14 @@ const MODE_COPY = Object.freeze({
     action: '打开可视化编辑器',
     busy: '',
   }),
+  [GP_MODE.CHAT]: Object.freeze({
+    title: '闲聊',
+    english: 'CHAT',
+    summary: '在家·教室（午）的主页机位和她说话。世界书只核对这位偶像，回答直接在教室里演出。',
+    placeholder: '',
+    action: '进入教室',
+    busy: '正在读取世界书……',
+  }),
 });
 
 export function normalizeGpMode(value) {
@@ -38,7 +46,8 @@ export function gpModeCopy(mode) {
 }
 
 export function gpModeUsesAi(mode) {
-  return normalizeGpMode(mode) !== GP_MODE.EDITOR;
+  const normalized = normalizeGpMode(mode);
+  return normalized !== GP_MODE.EDITOR && normalized !== GP_MODE.CHAT;
 }
 
 export function normalizeGpDraft(raw) {

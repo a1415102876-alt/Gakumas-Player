@@ -3,11 +3,11 @@ import { setLivePictureOptions } from '../live-portrait.js?v=20261105-floor-ssr-
 import { createLocalChatBridge, normalizeChatReply } from '../beat-chat.js?v=20261103-weird-no-default-idol-v1';
 import { loadTavernWorldbook } from '../worldbook-scan.js?v=20261024-worldbook-v1';
 import { applyFishTtsSettings, fishTtsStatus, resolveFishTtsSettings } from '../free-chat-tts.js?v=20261106-tts-host-v1';
-import { SANDBOX_CHAT_SETTINGS_KEY, buildSandboxChatSettings, mergeStoredChatSettings, readStoredFreeChatSettings } from '../sandbox/sandbox-chat.js?v=20261026-settings-persist-v1';
+import { SANDBOX_CHAT_SETTINGS_KEY, buildSandboxChatSettings, mergeStoredChatSettings, readStoredFreeChatSettings } from '../sandbox/sandbox-chat.js?v=20261106-player-chat-v1';
 import { aaLevel } from '../gakumas-aa.js?v=20261105-aa-level-v1';
 import { SANDBOX_PICTURE_KEY, normalizeSandboxPicture } from '../sandbox/sandbox-picture.js?v=20261105-floor-ssr-v1';
 import { buildWeirdContinuationPrompt, buildWeirdScriptPrompt, extractClosedBeatScript, prepareDirectBeatScript, WEIRD_SCRIPT_MODE } from '../sandbox/sandbox-weird-script.js?v=20261106-expand-style-v1';
-import { appendBeatScript, GP_MODE, gpModeCopy, gpModeUsesAi, normalizeGpMode, readGpDraft, summarizeBeatScript, writeGpDraft } from './gakumas-player-model.js?v=20261104-gakumas-player-v1';
+import { appendBeatScript, GP_MODE, gpModeCopy, gpModeUsesAi, normalizeGpMode, readGpDraft, summarizeBeatScript, writeGpDraft } from './gakumas-player-model.js?v=20261106-player-chat-v1';
 
 const field = id => document.getElementById(id);
 const EDITOR_RESULT_KEY = 'hatsuBeatEditorResult';
@@ -15,8 +15,17 @@ const CANCELLED_MESSAGE = '已取消闲聊生成';
 
 let worldbook = [];
 let worldbookPromise = null;
+
+function selectedChatIdolName() {
+  const select = field('chatIdolSelect');
+  return select?.selectedOptions?.[0]?.textContent?.trim() || '藤田琴音';
+}
+
 const bridge = createLocalChatBridge({
-  getSettings: () => buildSandboxChatSettings(readStoredFreeChatSettings(), { worldbookEntries: worldbook }),
+  getSettings: () => buildSandboxChatSettings(readStoredFreeChatSettings(), {
+    idolName: selectedChatIdolName(),
+    worldbookEntries: worldbook,
+  }),
 });
 
 function readPicture() {
@@ -34,7 +43,7 @@ applyFishTtsSettings(resolveFishTtsSettings(), {
   onError: message => showToast(String(message || '角色语音播放失败')),
 });
 
-const app = new BeatPlayerApp(document, { loadSample: false });
+const app = new BeatPlayerApp(document, { loadSample: false, chatBridge: bridge });
 const updateBeatPlayButton = app.updatePlayButton.bind(app);
 app.updatePlayButton = () => {
   updateBeatPlayButton();
@@ -132,6 +141,8 @@ function syncInputCount() {
 function syncMode() {
   const copy = gpModeCopy(view.mode);
   const ai = gpModeUsesAi(view.mode);
+  const editor = view.mode === GP_MODE.EDITOR;
+  const chat = view.mode === GP_MODE.CHAT;
   document.querySelectorAll('[data-gp-mode]').forEach((button) => {
     const selected = button.dataset.gpMode === view.mode;
     button.classList.toggle('is-active', selected);
@@ -142,8 +153,12 @@ function syncMode() {
   document.body.dataset.mode = view.mode;
   const inputCard = field('gpInputCard');
   const editorCard = field('gpEditorCard');
+  const chatCard = field('gpChatCard');
+  const scriptPanel = field('gpScriptPanel');
   if (inputCard) inputCard.hidden = !ai;
-  if (editorCard) editorCard.hidden = ai;
+  if (editorCard) editorCard.hidden = !editor;
+  if (chatCard) chatCard.hidden = !chat;
+  if (scriptPanel) scriptPanel.hidden = chat;
   if (ai) {
     field('gpInputTitle').textContent = view.mode === GP_MODE.EXPAND ? '故事大纲' : '完整文案';
     field('gpInputEnglish').textContent = copy.english;
@@ -156,6 +171,11 @@ function syncMode() {
   if (generate) {
     generate.classList.toggle('is-busy', view.busy);
     generate.querySelector('span').textContent = view.busy ? '取消生成' : copy.action;
+  }
+  const enterChatButton = field('gpEnterChatBtn');
+  if (enterChatButton) {
+    enterChatButton.disabled = view.busy;
+    enterChatButton.querySelector('span').textContent = view.busy && chat ? '正在读取' : '进入教室';
   }
   const script = field('gpScript');
   if (script) script.readOnly = view.busy;
@@ -351,17 +371,21 @@ function schedulePlayerChromeHide() {
   if (chromeTimer != null) return;
   chromeTimer = setTimeout(() => {
     chromeTimer = null;
-    if (view.phase !== 'play') return;
+    if (!stageOpen()) return;
     const chrome = field('gpPlayerChrome');
     if (!chrome || chrome.contains(document.activeElement)) return;
     chrome.classList.add('is-hidden');
   }, CHROME_HIDE_MS);
 }
 
+function stageOpen() {
+  return view.phase === 'play' || view.phase === 'chat';
+}
+
 function playerPointerInChrome(event) {
   const player = field('gpPlayer');
   const chrome = field('gpPlayerChrome');
-  if (!player || !chrome || view.phase !== 'play') return;
+  if (!player || !chrome || !stageOpen()) return;
   const fromTop = event.clientY - player.getBoundingClientRect().top;
   const inZone = fromTop <= CHROME_REVEAL_PX || chrome.contains(event.target);
   if (!inZone) {
@@ -376,8 +400,13 @@ function setPhase(phase) {
   view.phase = phase;
   document.body.dataset.phase = phase;
   const player = field('gpPlayer');
-  if (player) player.hidden = phase !== 'play';
-  if (phase === 'play') {
+  if (player) {
+    player.hidden = !stageOpen();
+    player.classList.toggle('is-chat', phase === 'chat');
+  }
+  const chatBar = field('gpChatBar');
+  if (chatBar) chatBar.hidden = phase !== 'chat';
+  if (stageOpen()) {
     showPlayerChrome();
     schedulePlayerChromeHide();
   } else {
@@ -392,13 +421,13 @@ function setPhase(phase) {
 function syncAutoButton() {
   const button = field('gpAutoBtn');
   if (!button) return;
-  const playing = Boolean(app.state.playing) && view.phase === 'play';
+  const playing = Boolean(app.state.playing) && stageOpen();
   button.setAttribute('aria-pressed', playing ? 'true' : 'false');
   button.querySelector('span').textContent = playing ? '暂停' : '自动';
 }
 
 function toggleAutoplay() {
-  if (view.phase !== 'play') return;
+  if (!stageOpen()) return;
   if (app.state.playing) {
     app.clearTimer();
     app.state.playing = false;
@@ -446,12 +475,34 @@ async function play() {
 }
 
 function leavePlayer() {
-  if (view.phase !== 'play') return;
+  if (!stageOpen()) return;
+  const chatting = view.phase === 'chat';
   app.setDialogueRevealEnabled?.(false);
-  app.stop();
+  if (chatting && app.chatState?.active) app.exitChatMode();
+  else app.stop();
   setPhase('compose');
   syncScriptSummary();
-  field('gpPlayBtn')?.focus({ preventScroll: true });
+  (chatting ? field('gpEnterChatBtn') : field('gpPlayBtn'))?.focus({ preventScroll: true });
+}
+
+async function enterChat() {
+  if (view.busy || view.phase === 'chat') return;
+  if (view.mode !== GP_MODE.CHAT) setMode(GP_MODE.CHAT);
+  view.busy = true;
+  syncMode();
+  setStatus('gpComposeStatus', '正在读取世界书……', 'busy');
+  try {
+    await ensureWorldbook();
+  } finally {
+    view.busy = false;
+    syncMode();
+  }
+  if (view.mode !== GP_MODE.CHAT) return;
+  setStatus('gpComposeStatus', '');
+  setPhase('chat');
+  app.enterChatMode(field('chatIdolSelect')?.value || 'kotone');
+  app.fixedCameraOptions = { layout: 'home-home', zoom: 1 };
+  field('chatInput')?.focus({ preventScroll: true });
 }
 
 function selectedAa() {
@@ -551,6 +602,9 @@ field('gpScriptEditorBtn')?.addEventListener('click', openEditor);
 field('gpCopyBtn')?.addEventListener('click', () => { void copyScript(); });
 field('gpClearBtn')?.addEventListener('click', clearScript);
 field('gpPlayBtn')?.addEventListener('click', () => { void play(); });
+field('gpEnterChatBtn')?.addEventListener('click', () => { void enterChat(); });
+field('gpHeaderChatBtn')?.addEventListener('click', () => { void enterChat(); });
+field('gpChatBar')?.addEventListener('submit', (event) => { event.preventDefault(); });
 field('gpPlayer')?.addEventListener('pointermove', playerPointerInChrome);
 field('gpPlayer')?.addEventListener('pointerdown', playerPointerInChrome);
 field('gpPlayerChrome')?.addEventListener('focusin', showPlayerChrome);
@@ -585,7 +639,7 @@ field('gpInput')?.addEventListener('keydown', (event) => {
   }
 });
 document.addEventListener('keydown', (event) => {
-  if (event.key !== 'Escape' || view.phase !== 'play') return;
+  if (event.key !== 'Escape' || !stageOpen()) return;
   event.preventDefault();
   leavePlayer();
 });
