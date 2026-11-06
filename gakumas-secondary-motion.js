@@ -2469,6 +2469,12 @@ export class SecondaryMotion {
         this.fixedStepCount = 0;
         this.fixedRoot = null;
         this.lastRootPosition = null;
+        // nativeDynamicSpringRecord() builds a merged copy of two records. The
+        // collision passes asked for it once per collider test, thousands of
+        // times a frame, although nothing writes those records while a frame
+        // runs. update() empties this map, so edits made between frames (tests
+        // and setInitialRotation do that) are still picked up on the next one.
+        this.dynamicViews = new Map();
         this.nativePrewarmSteps = Number.isFinite(Number(table.nativePrewarmSteps ?? table.prewarmSteps))
             ? Math.max(0, Math.floor(Number(table.nativePrewarmSteps ?? table.prewarmSteps)))
             : table.physicsAlgorithm === RECOVERED_PHYSICS_ALGORITHM ? 30 : 0;
@@ -2980,8 +2986,18 @@ export class SecondaryMotion {
         writePose(this.animationPose);
     }
 
+    #dynamicView(item) {
+        let view = this.dynamicViews.get(item);
+        if (view === undefined) {
+            view = nativeDynamicSpringRecord(item);
+            this.dynamicViews.set(item, view);
+        }
+        return view;
+    }
+
     update(delta = 1 / 60, options = {}) {
         this.runtime.renderFrames += 1;
+        this.dynamicViews.clear();
         if (!this.enabled) {
             this.#restoreRest();
             this.reset();
@@ -3774,7 +3790,7 @@ export class SecondaryMotion {
     }
 
     #resolveStaticCollisionsAt(item, next, worldColliders, restTail, traceBone, traceKey = 'afterCollision', keepLength = true, originOverride = null, contactHistory = item.current) {
-        const dynamicRecord = nativeDynamicSpringRecord(item);
+        const dynamicRecord = this.#dynamicView(item);
         // ActorAnimationSwingSolver does not use the dynamic collider enum to
         // disable static-body checks. A child setting with type 4 still
         // supplies collisionMask and collisionRadius to CheckDynamicCollision;
@@ -3915,8 +3931,8 @@ export class SecondaryMotion {
                 const result = resolveDynamicParticlePair(
                     first.current,
                     second.current,
-                    nativeDynamicSpringRecord(first),
-                    nativeDynamicSpringRecord(second),
+                    this.#dynamicView(first),
+                    this.#dynamicView(second),
                     this.scale,
                     first.previous,
                     second.previous,
@@ -4232,11 +4248,10 @@ export class SecondaryMotion {
             if (!first || !second) continue;
             let positionA = [...first.current];
             let positionB = [...second.current];
+            const firstView = this.#dynamicView(first);
+            const secondView = this.#dynamicView(second);
             for (const collider of worldColliders) {
-                if (!nativeStaticColliderAllowed([
-                    nativeDynamicSpringRecord(first),
-                    nativeDynamicSpringRecord(second),
-                ], collider, this.table)) continue;
+                if (!nativeStaticColliderAllowed([firstView, secondView], collider, this.table)) continue;
                 if (skipsContralateralLegChainCollider(
                     first.record.bone,
                     second.record.bone,

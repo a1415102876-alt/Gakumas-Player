@@ -107,27 +107,28 @@ export class SecondaryMotionHost {
         this.mirror.scene.updateMatrixWorld(true);
     }
 
-    update({ epoch, seq, step, options, local }) {
+    update({ epoch, seq, clock, step, options, local }) {
         if (!this.motion) throw new Error('physics worker received update before bind');
         this.#sync(local);
         const started = now();
         this.motion.update(step, options);
         const solveMs = now() - started;
         const output = this.readOutput();
-        // The input buffer goes back so the proxy can reuse it next frame.
+        // The input buffer goes back so the proxy can reuse it next frame, and
+        // the request's clock comes back so the result is tied to its moment.
         return {
-            reply: { type: 'result', epoch, seq, output, local, solveMs, runtime: { ...this.motion.runtime } },
+            reply: { type: 'result', epoch, seq, clock, output, local, solveMs, runtime: { ...this.motion.runtime } },
             transfer: [output.buffer, local.buffer],
         };
     }
 
-    reset({ epoch, seq, local }) {
+    reset({ epoch, seq, clock, local }) {
         if (!this.motion) throw new Error('physics worker received reset before bind');
         this.#sync(local);
         this.motion.reset();
         const output = this.readOutput();
         return {
-            reply: { type: 'result', epoch, seq, output, local, solveMs: 0, runtime: { ...this.motion.runtime }, reset: true },
+            reply: { type: 'result', epoch, seq, clock, output, local, solveMs: 0, runtime: { ...this.motion.runtime }, reset: true },
             transfer: [output.buffer, local.buffer],
         };
     }

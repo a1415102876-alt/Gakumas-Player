@@ -45,7 +45,7 @@ import { portraitCrowdBudget } from './portrait-crowd-budget.js?v=20261024-crowd
 import { configureGlbAnimationTarget, detectLivePortraitFormat } from './live-portrait-model.js';
 import { bindGlbMorphTracks } from './glb-morph-tracks.js?v=20260929-face-primitives-v1';
 import { SecondaryMotion, applyHairRestRotationRebase, rebaseHairAnimationTracks, refreshRestInverseBinds } from './gakumas-secondary-motion.js?v=20261102-krnh-sleeve-gravity-v1';
-import { SecondaryMotionProxy, physicsWorkerSupported } from './secondary-motion-proxy.js?v=20261106-physics-worker-v1';
+import { SecondaryMotionProxy, physicsLead, physicsWorkerSupported } from './secondary-motion-proxy.js?v=20261106-physics-worker-v1';
 import { FacialEffectsStage } from './facial-effects-stage.js?v=20261017-browser-cache-v1';
 import { loadResourceLibrary } from './asset-runtime.js?v=20261104-krnh-motion-index-v1';
 import { filterPreferredSitItems } from './seated-posture.js?v=20261027-seated-rollback-v1';
@@ -954,6 +954,7 @@ export class LivePortraitRuntime {
         if (this.modelFormat !== 'glb' || !physicsWorkerSupported()) return false;
         const proxy = new SecondaryMotionProxy({
             createWorker: createPhysicsWorker,
+            lead: physicsLead(),
             onFail: reason => {
                 if (this.physicsProxy === proxy) {
                     this.physicsProxy = null;
