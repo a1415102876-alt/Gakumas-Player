@@ -2477,6 +2477,7 @@ export class LivePortraitRuntime {
             gkCharacterShadowEnabled: { value: 0 },
             gkCharacterShadowReceive: { value: 1 },
             gkCharacterShadowContact: { value: 0.001 },
+            gkCharacterShadowSize: { value: 4096 },
             gkHairFadeParam: { value: new THREE.Vector4(0.15, 4.0, 0.3, 2.0) },
             ...createActorRoomUniforms(),
             ...createGakumasLookUniformValues(),
@@ -2683,6 +2684,8 @@ export class LivePortraitRuntime {
             uniforms.gkCharacterShadowMap.value = shadowLight?.shadow.map?.texture || null;
             if (shadowLight) uniforms.gkCharacterShadowMatrix.value.copy(shadowLight.shadow.matrix);
             uniforms.gkCharacterShadowContact.value = characterShadow?.contact || 0.001;
+            // Texel size of the allocated map, which three keeps until it is disposed.
+            uniforms.gkCharacterShadowSize.value = shadowLight?.shadow.map?.width || shadowLight?.shadow.mapSize.x || 4096;
             applyGakumasLookUniforms(uniforms);
             applySceneActorUniforms(uniforms, this.stageScene, roomSample);
         });

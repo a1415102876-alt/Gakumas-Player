@@ -1,3 +1,33 @@
+// The game samples its character shadow map with four hardware-comparison taps
+// at +-half a texel (GPA: cb0 holds +-1/8192 for a 4096 map), each bilinearly
+// filtered. Bilinear taps one texel apart share texels, so the average of the
+// four collapses exactly into a 3x3 footprint whose per-axis weights are
+// (1 - a, 1, a) / 2, with a the fractional texel position. Nine fetches give
+// the same result as sixteen. Three's shadow map is an RGBA-packed depth
+// target without hardware comparison, so each texel is compared by hand.
+const SHADOW_FILTER = `
+float gkCharacterShadowTap(vec2 uv, float depth, float bias) {
+    return (depth - unpackRGBAToDepth(texture2D(gkCharacterShadowMap, uv))) > bias ? 0.0 : 1.0;
+}
+float gkCharacterShadowRow(vec2 uv, float depth, float bias, vec3 wx, float texel) {
+    return wx.x * gkCharacterShadowTap(uv, depth, bias)
+        + wx.y * gkCharacterShadowTap(uv + vec2(texel, 0.0), depth, bias)
+        + wx.z * gkCharacterShadowTap(uv + vec2(texel * 2.0, 0.0), depth, bias);
+}
+float gkCharacterShadowLit(vec3 proj, float bias) {
+    float texel = 1.0 / max(gkCharacterShadowSize, 1.0);
+    vec2 coord = proj.xy * gkCharacterShadowSize - 1.0;
+    vec2 cell = floor(coord);
+    vec2 f = coord - cell;
+    vec2 uv = (cell + 0.5) * texel;
+    vec3 wx = vec3(1.0 - f.x, 1.0, f.x) * 0.5;
+    vec3 wy = vec3(1.0 - f.y, 1.0, f.y) * 0.5;
+    return wy.x * gkCharacterShadowRow(uv, proj.z, bias, wx, texel)
+        + wy.y * gkCharacterShadowRow(uv + vec2(0.0, texel), proj.z, bias, wx, texel)
+        + wy.z * gkCharacterShadowRow(uv + vec2(0.0, texel * 2.0), proj.z, bias, wx, texel);
+}
+`;
+
 export function injectActorShader(shader, uniforms) {
     Object.assign(shader.uniforms, uniforms);
     shader.vertexShader = `
@@ -59,6 +89,7 @@ uniform sampler2D gkCharacterShadowMap;
 uniform float gkCharacterShadowEnabled;
 uniform float gkCharacterShadowReceive;
 uniform float gkCharacterShadowContact;
+uniform float gkCharacterShadowSize;
 uniform mat4 gkWorldToScene;
 uniform int gkAddLightCount;
 uniform vec4 gkAddLightPosition[8];
@@ -115,6 +146,11 @@ varying vec3 gkActorWorldPosition;
 varying float gkRampAddId;
 varying float gkRimMask;
 ${shader.fragmentShader}`;
+    // The filter needs unpackRGBAToDepth, so it goes right after three's packing
+    // chunk. Without that chunk it follows the declarations above.
+    shader.fragmentShader = shader.fragmentShader.includes('#include <packing>')
+        ? shader.fragmentShader.replace('#include <packing>', `#include <packing>\n${SHADOW_FILTER}`)
+        : shader.fragmentShader.replace('varying float gkRimMask;', `varying float gkRimMask;\n${SHADOW_FILTER}`);
     shader.vertexShader = shader.vertexShader.replace('#include <begin_vertex>', `#include <begin_vertex>
 vec4 gkVertexHigh = floor(gakumasVertexColor * 15.9375 + 0.03125);
 vec4 gkVertexLow = gakumasVertexColor * 255.0 - gkVertexHigh * 16.0;
@@ -185,8 +221,9 @@ float gkShadow = 1.0;
 if (gkCharacterShadowEnabled > 0.5 && gkCharacterShadowReceive > 0.5) {
     vec3 gkShadowProj = gkCharacterShadowCoord.xyz / max(gkCharacterShadowCoord.w, 0.0001);
     if (all(greaterThanEqual(gkShadowProj.xy, vec2(0.0))) && all(lessThanEqual(gkShadowProj.xy, vec2(1.0))) && gkShadowProj.z <= 1.0) {
-        float gkSampleDepth = unpackRGBAToDepth(texture2D(gkCharacterShadowMap, gkShadowProj.xy));
-        gkShadow = (gkShadowProj.z - gkSampleDepth) > gkCharacterShadowContact ? 0.0 : 1.0;
+        // Filtered like the game's four comparison taps. The curve below is the
+        // game's own and only does anything on a filtered (non 0/1) value.
+        gkShadow = gkCharacterShadowLit(gkShadowProj, gkCharacterShadowContact);
         gkShadow = clamp(gkShadow * ((4.0 * gkShadow - 6.0) * gkShadow + 3.0), 0.0, 1.0);
     }
 }

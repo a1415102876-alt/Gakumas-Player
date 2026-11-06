@@ -424,6 +424,22 @@ void main() {
 }
 `;
 
+// The game writes HDR color (its character shader clamps at 1000, not 1), and
+// every later pass reads it back unclamped. These targets used to be 8-bit, so
+// highlights clipped before bloom, and the TAA history kept linear values in an
+// 8-bit buffer where darks have coarse steps. Half float fixes both. It needs
+// float render targets, which WebGL2 exposes through one of two extensions.
+//   ?hdr=off  or  globalThis.__HATSU_HDR_POST = false   keeps the 8-bit chain.
+export function hdrPostSupported(renderer, env = globalThis) {
+    if (env?.__HATSU_HDR_POST === false) return false;
+    try {
+        if (new URLSearchParams(env?.location?.search || '').get('hdr') === 'off') return false;
+    } catch { /* no location: use the capability test alone */ }
+    const extensions = renderer?.extensions;
+    if (!renderer?.capabilities?.isWebGL2 || typeof extensions?.has !== 'function') return false;
+    return extensions.has('EXT_color_buffer_float') || extensions.has('EXT_color_buffer_half_float');
+}
+
 function makeTarget(width, height, { depth = false, stencil = depth, samples = 0, type = THREE.UnsignedByteType, nearest = false } = {}) {
     const filter = nearest ? THREE.NearestFilter : THREE.LinearFilter;
     const target = new THREE.WebGLRenderTarget(width, height, {
@@ -540,28 +556,36 @@ export class GakumasPostPass {
         // drawn here. A multisample resolve allocates the paired depth buffer
         // as unsized DEPTH_STENCIL, which this WebGL path rejects.
         this.samples = 0;
-        this.color = makeTarget(1, 1, { depth: true });
-        if ('colorSpace' in this.color.texture && THREE.SRGBColorSpace) this.color.texture.colorSpace = THREE.SRGBColorSpace;
+        this.hdr = hdrPostSupported(renderer);
+        const colorType = this.hdr ? THREE.HalfFloatType : THREE.UnsignedByteType;
+        this.color = makeTarget(1, 1, { depth: true, type: colorType });
+        // Three writes linear values into any render target. 8-bit stores them in
+        // an sRGB buffer to keep dark steps fine; half float is linear already.
+        if ('colorSpace' in this.color.texture) {
+            this.color.texture.colorSpace = this.hdr ? THREE.LinearSRGBColorSpace : THREE.SRGBColorSpace;
+        }
         this.msaa = null;
         this.depth = new THREE.DepthTexture(1, 1, THREE.UnsignedInt248Type);
         this.depth.format = THREE.DepthStencilFormat;
         this.depth.magFilter = THREE.NearestFilter;
         this.depth.minFilter = THREE.NearestFilter;
         this.color.depthTexture = this.depth;
-        this.history = [makeTarget(1, 1), makeTarget(1, 1)];
+        this.history = [makeTarget(1, 1, { type: colorType }), makeTarget(1, 1, { type: colorType })];
         this.velocity = createVelocityMaterial();
         this.velocityTarget = makeTarget(1, 1, { type: THREE.HalfFloatType, nearest: true });
         if ('colorSpace' in this.velocityTarget.texture && THREE.NoColorSpace) {
             this.velocityTarget.texture.colorSpace = THREE.NoColorSpace;
         }
-        this.bloomA = makeTarget(1, 1);
-        this.bloomB = makeTarget(1, 1);
-        this.softA = makeTarget(1, 1);
-        this.softB = makeTarget(1, 1);
-        this.dofTarget = makeTarget(1, 1);
+        // Bloom, diffusion, depth of field and the capture-space pass all carry
+        // scene color, so they follow it. spaceA/B hold ambient occlusion only.
+        this.bloomA = makeTarget(1, 1, { type: colorType });
+        this.bloomB = makeTarget(1, 1, { type: colorType });
+        this.softA = makeTarget(1, 1, { type: colorType });
+        this.softB = makeTarget(1, 1, { type: colorType });
+        this.dofTarget = makeTarget(1, 1, { type: colorType });
         this.spaceA = makeTarget(1, 1);
         this.spaceB = makeTarget(1, 1);
-        this.spaceFull = makeTarget(1, 1);
+        this.spaceFull = makeTarget(1, 1, { type: colorType });
         if ('colorSpace' in this.spaceA.texture && THREE.NoColorSpace) {
             this.spaceA.texture.colorSpace = THREE.NoColorSpace;
             this.spaceB.texture.colorSpace = THREE.NoColorSpace;
