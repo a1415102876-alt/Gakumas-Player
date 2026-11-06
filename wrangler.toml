@@ -1,6 +1,9 @@
 name = "gakumas-player"
 compatibility_date = "2026-11-06"
 
-# The repository root is the static player. `/` is index.html, which opens the player page.
+[build]
+command = "node prepare-assets.mjs"
+
+# Upload the copied site, not the clone. The clone's .git pack is larger than Workers allows.
 [assets]
-directory = "."
+directory = "./dist"

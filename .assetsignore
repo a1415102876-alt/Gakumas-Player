@@ -1,2 +1,6 @@
+.git
 .git/
+.git/**
+**/.git/**
 node_modules/
+.wrangler/
