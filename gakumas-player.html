@@ -169,7 +169,8 @@
       <header class="gp-card-head"><div><small>SETTINGS</small><h3 id="gpSettingsTitle">设置</h3></div><button class="gp-icon-button" value="cancel" type="submit" aria-label="关闭设置"><svg><use href="#gpClose"/></svg></button></header>
       <fieldset>
         <legend>AI 接口</legend>
-        <label>API 地址<input id="gpApiBase" type="url" placeholder="https://example.com/v1" autocomplete="off" spellcheck="false"></label>
+        <p class="gp-settings-note">地址和模型可以留空。留空也能保存画面和语音，只是还不能扩写。</p>
+        <label>API 地址<input id="gpApiBase" type="text" inputmode="url" placeholder="https://example.com/v1" autocomplete="off" spellcheck="false"></label>
         <label>模型<input id="gpApiModel" type="text" placeholder="模型名" autocomplete="off" spellcheck="false"></label>
         <label>密钥<input id="gpApiKey" type="password" placeholder="只保存在本机" autocomplete="off"></label>
       </fieldset>
@@ -209,6 +210,6 @@
   <input id="beatAutoPlay" type="checkbox" checked hidden>
   <span id="beatShot" hidden></span><span id="beatStatus" hidden></span><ul id="beatDiagnostics" hidden></ul>
   <script src="./fish-tts.js?v=20261103-krnh-nasr-tts-v1"></script>
-  <script type="module" src="./gakumas-player/gakumas-player.js?v=20261105-floor-ssr-v1"></script>
+  <script type="module" src="./gakumas-player/gakumas-player.js?v=20261106-optional-api-v1"></script>
 </body>
 </html>

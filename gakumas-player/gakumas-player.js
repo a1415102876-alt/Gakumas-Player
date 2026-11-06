@@ -522,11 +522,10 @@ function saveSettings() {
     onError: message => showToast(String(message || '角色语音播放失败')),
   });
   const picture = savePicture();
-  const chatText = next.baseUrl && next.model ? 'AI 接口已保存在本机。' : '请填写 API 地址和模型。';
+  const chatText = next.baseUrl && next.model ? 'AI 接口已记下。' : 'AI 接口未填写，扩写时再补也可以。';
   const aaText = `抗锯齿：${aaLevel(picture.aa).label}。`;
   const blurText = picture.motionBlur ? '运动模糊：开。' : '运动模糊：关。';
-  setStatus('gpSettingsStatus', `${chatText}${aaText}${blurText}${fishTtsStatus(voice)}`, next.baseUrl && next.model ? 'ok' : 'warn');
-  if (next.baseUrl && next.model) setStatus('gpComposeStatus', '');
+  setStatus('gpSettingsStatus', `设置已保存在本机。${chatText}${aaText}${blurText}${fishTtsStatus(voice)}`, 'ok');
 }
 
 function moveModeFocus(current, step) {
