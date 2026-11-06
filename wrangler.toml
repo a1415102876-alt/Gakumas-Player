@@ -1,0 +1,6 @@
+name = "gakumas-player"
+compatibility_date = "2026-11-06"
+
+# The repository root is the static player. `/` is index.html, which opens the player page.
+[assets]
+directory = "."
