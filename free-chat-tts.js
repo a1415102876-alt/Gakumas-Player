@@ -13,7 +13,7 @@ export function readFishTtsPreferences(storage = globalThis.localStorage) {
 
 export function resolveFishTtsSettings(input = {}, storage = globalThis.localStorage) {
     const saved = readFishTtsPreferences(storage);
-    const proxyUrl = String(input.proxyUrl ?? saved.proxyUrl ?? DEFAULT_FISH_TTS_PROXY).trim() || DEFAULT_FISH_TTS_PROXY;
+    const proxyUrl = String(input.proxyUrl ?? saved.proxyUrl ?? DEFAULT_FISH_TTS_PROXY).replace(/\s+/g, "") || DEFAULT_FISH_TTS_PROXY;
     const model = String(input.model ?? saved.model ?? DEFAULT_FISH_TTS_MODEL).trim() || DEFAULT_FISH_TTS_MODEL;
     const apiKey = String(input.apiKey ?? saved.apiKey ?? '').trim();
     const enabled = input.enabled == null ? Boolean(saved.enabled) : Boolean(input.enabled);

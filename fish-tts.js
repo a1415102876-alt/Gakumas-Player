@@ -208,7 +208,7 @@
   }
 
   function normalizeProxyUrl(value) {
-    const candidate = String(value || "").trim();
+    const candidate = String(value || "").replace(/\s+/g, "");
     if (!candidate || /^\/api\/fish-tts\/?$/i.test(candidate)) return `${DEFAULT_WORKER_ORIGIN}/api/fish-tts`;
     return candidate;
   }

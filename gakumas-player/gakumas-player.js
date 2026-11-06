@@ -2,7 +2,7 @@ import { BeatPlayerApp } from '../beat-player.js?v=20261105-floor-ssr-v1';
 import { setLivePictureOptions } from '../live-portrait.js?v=20261105-floor-ssr-v1';
 import { createLocalChatBridge, normalizeChatReply } from '../beat-chat.js?v=20261103-weird-no-default-idol-v1';
 import { loadTavernWorldbook } from '../worldbook-scan.js?v=20261024-worldbook-v1';
-import { applyFishTtsSettings, fishTtsStatus, resolveFishTtsSettings } from '../free-chat-tts.js?v=20261024-tts-v1';
+import { applyFishTtsSettings, fishTtsStatus, resolveFishTtsSettings } from '../free-chat-tts.js?v=20261106-tts-host-v1';
 import { SANDBOX_CHAT_SETTINGS_KEY, buildSandboxChatSettings, mergeStoredChatSettings, readStoredFreeChatSettings } from '../sandbox/sandbox-chat.js?v=20261026-settings-persist-v1';
 import { aaLevel } from '../gakumas-aa.js?v=20261105-aa-level-v1';
 import { SANDBOX_PICTURE_KEY, normalizeSandboxPicture } from '../sandbox/sandbox-picture.js?v=20261105-floor-ssr-v1';
@@ -521,6 +521,7 @@ function saveSettings() {
     persist: true,
     onError: message => showToast(String(message || '角色语音播放失败')),
   });
+  field('gpTtsProxy').value = voice.proxyUrl || '';
   const picture = savePicture();
   const chatText = next.baseUrl && next.model ? 'AI 接口已记下。' : 'AI 接口未填写，扩写时再补也可以。';
   const aaText = `抗锯齿：${aaLevel(picture.aa).label}。`;
