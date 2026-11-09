@@ -36,6 +36,12 @@ export class SceneDirector {
                 pixelRatio: active.reduce((total, actor) => total + (Number(actor.renderer?.pixelRatio) || 0), 0),
                 geometries: active.reduce((total, actor) => total + (Number(actor.renderer?.geometries) || 0), 0),
                 textures: active.reduce((total, actor) => total + (Number(actor.renderer?.textures) || 0), 0),
+                estimatedTextureBytes: active.reduce((total, actor) => total
+                    + (Number(actor.textureBudget?.model?.estimatedBytesAfter) || 0)
+                    + (Number(actor.textureBudget?.scene?.estimatedBytesAfter) || 0), 0),
+                estimatedTextureBytesSaved: active.reduce((total, actor) => total
+                    + (Number(actor.textureBudget?.model?.estimatedBytesSaved) || 0)
+                    + (Number(actor.textureBudget?.scene?.estimatedBytesSaved) || 0), 0),
                 phases: active.reduce((totals, actor) => {
                     for (const [name, value] of Object.entries(actor.frame?.phases || {})) {
                         totals[name] = (Number(totals[name]) || 0) + (Number(value) || 0);
@@ -47,6 +53,15 @@ export class SceneDirector {
                 chainCollisionHits: active.reduce((total, actor) => total + (Number(actor.physics?.chainCollisionHits) || 0), 0),
             },
         };
+    }
+
+    getResourceSnapshots({ sceneTextureBytes = 0 } = {}) {
+        return this.allEntries().map(entry => entry.player?.getResourceSnapshot?.({
+            label: [entry.canvas?.dataset?.idol, entry.canvas?.dataset?.costume].filter(Boolean).join(' · ') || '偶像',
+            kind: '偶像独立 WebGL context',
+            present: entry.present === true && entry.canvas?.style?.visibility !== 'hidden',
+            sceneTextureBytes,
+        })).filter(Boolean);
     }
 
     activateCostumes(costumes = {}) {
@@ -64,7 +79,7 @@ export class SceneDirector {
         }
     }
 
-    async preload(cast, { prewarm = false, cuesById = null, costumesById = null, resources = this.resources, performances = this.performances } = {}) {
+    async preload(cast, { prewarm = false, focusedId = '', cuesById = null, costumesById = null, resources = this.resources, performances = this.performances } = {}) {
         this.resources = resources;
         this.performances = performances;
         const ids = [...new Set((Array.isArray(cast) ? cast : []).map(String).filter(Boolean))];
@@ -113,6 +128,10 @@ export class SceneDirector {
         let motionsReady = true;
         if (prewarm && readyEntries.length) {
             await Promise.all(readyEntries.map(async entry => {
+                if (entry.canvas.style.visibility !== 'visible') {
+                    const focused = entry.canvas.dataset.idol === focusedId;
+                    entry.player.setCrowdBudget?.({ count: focused ? 1 : 2, focused });
+                }
                 if (!entry.warmed && entry.player.prewarm) {
                     entry.warmed = await entry.player.prewarm();
                 }
@@ -120,6 +139,9 @@ export class SceneDirector {
                 if (cues?.length && entry.player.preloadCues) {
                     const ready = await entry.player.preloadCues(cues);
                     motionsReady &&= ready;
+                }
+                if (entry.canvas.style.visibility !== 'visible') {
+                    entry.player.setPresentationActive?.(false);
                 }
             }));
         }
@@ -163,7 +185,8 @@ export class SceneDirector {
                         entry.present = true;
                         entry.canvas.style.visibility = 'visible';
                         entry.canvas.style.opacity = '1';
-                        entry.player.resume();
+                        if (entry.player.setPresentationActive) entry.player.setPresentationActive(true);
+                        else entry.player.resume();
                     } });
                 } else {
                     if (!firstFrameReady && entry.player.prepareStageFirstFrame) {
@@ -174,7 +197,8 @@ export class SceneDirector {
                     if (!deferPresentation) {
                         entry.canvas.style.visibility = 'visible';
                         entry.canvas.style.opacity = '1';
-                        entry.player.resume();
+                        if (entry.player.setPresentationActive) entry.player.setPresentationActive(true);
+                        else entry.player.resume();
                     }
                 }
             } else if (!target && entry.present) {
@@ -184,7 +208,8 @@ export class SceneDirector {
                 entry.present = false;
                 entry.canvas.style.visibility = 'hidden';
                 entry.canvas.style.opacity = '0';
-                entry.player.pause();
+                if (entry.player.setPresentationActive) entry.player.setPresentationActive(false);
+                else entry.player.pause();
             }
         }));
         const present = Object.entries(snapshot.actors);
@@ -218,9 +243,10 @@ export class SceneDirector {
         const fallback = speakerPresent ? null : present[0];
         for (const entry of this.allEntries()) {
             const visible = present.includes(entry);
+            const focused = visible && (count <= 1 || entry.canvas.dataset.idol === this.crowdSpeaker || entry === fallback);
             entry.player.setCrowdBudget?.({
-                count: visible ? count : 1,
-                focused: !visible || count <= 1 || entry.canvas.dataset.idol === this.crowdSpeaker || entry === fallback,
+                count: visible ? count : 2,
+                focused,
             });
         }
     }

@@ -1,9 +1,11 @@
 import * as THREE from 'three';
 import { GakumasSceneStage } from './gakumas-scene.js?v=20261105-light-range-v1';
 import { GakumasPostPass } from './gakumas-post.js?v=20261105-floor-ssr-v1';
-import { isBeatScene, resolveBeatBackgroundAsset, sceneAssetUrl } from './beat-background-assets.js?v=20261008-background-aliases-v1';
+import { isBeatScene, resolveBeatBackgroundAsset, sceneAssetUrl } from './beat-background-assets.js?v=20261108-chat-clock-v1';
 import { applyCameraFocal, applyCameraPose, SceneFreeLook } from './scene-free-look.js?v=20261103-camera-lens-v1';
 import { createFreeLookControls } from './scene-free-look-controls.js?v=20261102-beat-camera-pose-v1';
+import { collectSceneTextures, downscaleTextureSources } from './portrait-texture-budget.js?v=20261108-texture-budget-v1';
+import { estimateRendererResources } from './gpu-resource-estimator.js?v=20261108-resource-monitor-v1';
 
 function warmScene(renderer, scene, camera) {
     const textures = new Set();
@@ -54,8 +56,12 @@ export class BeatScenePool {
             stage.resources = this.resources;
             const entry = { asset, stage, loaded: false };
             this.entries.set(name, entry);
-            entry.ready = stage.load(sceneAssetUrl(asset), { layout: asset.defaultLayout || 'generic-medium' }).then(stats => {
+            entry.ready = stage.load(sceneAssetUrl(asset), { layout: asset.defaultLayout || 'generic-medium' }).then(async stats => {
                 entry.loaded = Boolean(stats) && !this.disposed;
+                if (entry.loaded) {
+                    entry.textureBudget = await downscaleTextureSources(collectSceneTextures(stage.scene));
+                    stage.textureBudget = entry.textureBudget;
+                }
                 if (this.disposed) stage.unload();
                 return entry.loaded;
             }).catch(error => {
@@ -133,7 +139,7 @@ export class BeatScenePool {
             canvas.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:2;';
             this.container.append(canvas);
             this.fallbackCanvas = canvas;
-            this.fallbackRenderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, stencil: true });
+            this.fallbackRenderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, stencil: true, powerPreference: 'high-performance' });
             this.fallbackRenderer.setPixelRatio(Math.min(globalThis.devicePixelRatio || 1, 1.75));
             this.fallbackRenderer.outputColorSpace = THREE.SRGBColorSpace;
             this.fallbackRenderer.toneMapping = THREE.NoToneMapping;
@@ -193,6 +199,29 @@ export class BeatScenePool {
             camera,
             { velocityRoot: this.fallbackStage.scene },
         ));
+    }
+
+    getResourceSnapshots() {
+        const loaded = [...this.entries.values()].filter(entry => entry.loaded);
+        const snapshots = [];
+        if (this.fallbackRenderer) {
+            const scenes = loaded.map(entry => entry.stage.scene);
+            const sceneTextureBytes = loaded.reduce((total, entry) => total
+                + (Number(entry.textureBudget?.estimatedBytesAfter) || 0), 0);
+            snapshots.push({
+                label: '场景池 / 隐藏背景预热',
+                kind: '共享背景 WebGL context',
+                present: this.fallbackCanvas?.style?.visibility === 'visible',
+                memory: estimateRendererResources({
+                    renderer: this.fallbackRenderer,
+                    roots: scenes,
+                    postPass: this.fallbackPost,
+                    sceneTextureBytes,
+                    three: THREE,
+                }),
+            });
+        }
+        return snapshots;
     }
 
     dispose() {

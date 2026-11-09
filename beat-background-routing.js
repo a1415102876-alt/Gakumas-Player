@@ -1792,6 +1792,12 @@ const data = {
         "family": "env_3d_home_classroom-00-00"
       },
       {
+        "alias": "家·教室（夜）",
+        "token": "home-classroom-night",
+        "group": "住宅",
+        "family": "env_3d_home_classroom-00-00-night"
+      },
+      {
         "alias": "班级教室",
         "token": "school-classroom-00",
         "group": "校内",

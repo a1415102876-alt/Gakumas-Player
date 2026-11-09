@@ -39,8 +39,8 @@ import {
 import { parsePortraitCue, selectPortraitPerformance, portraitPerformanceCandidates } from './portrait-cues.js?v=20261103-paired-face-v1';
 import { StageAttentionController } from './stage-attention.js?v=20261103-adopt-base-v1';
 import { bindVisemeMorphs } from './dialogue-intent.js?v=20261011-emotion-cue-labels-v2';
-import { applyTalkMouthProfile, selectTalkMouthProfile, talkArticulationFromPhase } from './tts-lip-sync.js?v=20261013-audio-talk-v3';
-import { SceneDirector } from './scene-director.js?v=20261102-krnh-3d-v1';
+import { applyTalkMouthProfile, selectTalkMouthProfile, talkArticulationFromPhase } from './tts-lip-sync.js?v=20261107-surprise-mouth-v1';
+import { SceneDirector } from './scene-director.js?v=20261108-resource-monitor-v1';
 import { portraitCrowdBudget } from './portrait-crowd-budget.js?v=20261024-crowd-budget-v1';
 import { configureGlbAnimationTarget, detectLivePortraitFormat } from './live-portrait-model.js';
 import { bindGlbMorphTracks } from './glb-morph-tracks.js?v=20260929-face-primitives-v1';
@@ -51,6 +51,8 @@ import { loadResourceLibrary } from './asset-runtime.js?v=20261104-krnh-motion-i
 import { filterPreferredSitItems } from './seated-posture.js?v=20261027-seated-rollback-v1';
 import { createPerformanceBucket, recordPerformanceSample, snapshotPerformanceBucket } from './performance-monitor-core.js?v=20261030-perf-diagnostic-v2';
 import { phonePropForIdol, propVisibilityForCue, resolvePropAnchorName } from './stage-props.js';
+import { collectSceneTextures, downscaleTextureSources } from './portrait-texture-budget.js?v=20261108-texture-budget-v1';
+import { collectPostTargets, estimateImageTextureBytes, estimateRendererResources } from './gpu-resource-estimator.js?v=20261108-resource-monitor-v1';
 
 function portraitMotionLoops(item) {
     const family = item?.family || item?.catalog?.family || '';
@@ -75,6 +77,8 @@ export {
 
 const LIBRARY_JSON = './library.json?v=20261013-all-idol-solo1-v1';
 const MOTION_MAP_JSON = './gakumas-motion-map.json?v=20261010-story-actions-v1';
+const PRESENTATION_BUFFER_RELEASE_DELAY_MS = 8000;
+const GPU_TEXTURE_RELEASE_DELAY_MS = 20000;
 const STAGE_ASSET_ROOT = new URL('./', import.meta.url);
 const SECONDARY_MOTION_JSON = new URL('gakumas-secondary-motion.json?v=20261002-secondary-motion-v25-kcna-native-skirt', STAGE_ASSET_ROOT).href;
 const SECONDARY_MOTION_MANIFEST = new URL('secondary-motion-manifest.json?v=20261026-hair-contact-v1', STAGE_ASSET_ROOT).href;
@@ -277,6 +281,7 @@ export class LivePortraitRuntime {
         this.visemeBound = {};
         this.paused = true;
         this.crowdBudget = null;
+        this.gpuTexturesReleased = false;
         this.performanceMonitor = {
             enabled: globalThis.__HATSU_PERF_MONITOR_ENABLED === true,
             bucket: createPerformanceBucket(),
@@ -322,6 +327,7 @@ export class LivePortraitRuntime {
         this.performanceSelection = null;
         this.playGeneration = 0;
         this.frameId = 0;
+        this.presentationReleaseTimer = 0;
         this.clock = new THREE.Clock();
         this.gakumasHeadBone = null;
         this.gakumasHeadRight = new THREE.Vector3(1, 0, 0);
@@ -376,7 +382,7 @@ export class LivePortraitRuntime {
     }
 
     setupRenderer(canvas) {
-        this.renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, stencil: true });
+        this.renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, stencil: true, powerPreference: 'high-performance' });
         this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.75));
         if ('outputColorSpace' in this.renderer && THREE.SRGBColorSpace) this.renderer.outputColorSpace = THREE.SRGBColorSpace;
         this.renderer.toneMapping = THREE.NoToneMapping;
@@ -593,6 +599,11 @@ export class LivePortraitRuntime {
         else this.animationMixer = new THREE.AnimationMixer(model);
         await this.bindSecondaryMotion(model);
         await this.loadPhoneProp(idolId);
+        this.textureBudget = await downscaleTextureSources([
+            ...collectSceneTextures(this.scene),
+            ...this.gakumasTextures.map(entry => entry.texture),
+            ...Object.values(this.gakumasFallbacks),
+        ]);
         this.frameVnCamera();
         await this.ensureFamily('idle', { play: true });
         this.ready = Boolean(this.model);
@@ -1754,6 +1765,10 @@ export class LivePortraitRuntime {
                 width: Number(this.renderer?.domElement?.width) || 0,
                 height: Number(this.renderer?.domElement?.height) || 0,
             },
+            textureBudget: {
+                model: this.textureBudget || null,
+                scene: this.stageScene?.textureBudget || null,
+            },
             budget: {
                 pixelRatio: Number(budget.pixelRatio) || 0,
                 shadowMap: Number(budget.shadowMap) || 0,
@@ -1773,6 +1788,24 @@ export class LivePortraitRuntime {
                 }
                 : null,
             frame: snapshotPerformanceBucket(monitor.bucket),
+        };
+    }
+
+    getResourceSnapshot(meta = {}) {
+        return {
+            label: meta.label || this.canvas?.dataset?.idol || '偶像渲染器',
+            kind: meta.kind || '角色',
+            present: meta.present === true,
+            memory: estimateRendererResources({
+                renderer: this.renderer,
+                roots: [this.scene],
+                postPass: this.postPass,
+                lookPass: this.lookPass,
+                modelTextureBytes: this.gpuTexturesReleased ? 0 : this.textureBudget?.estimatedBytesAfter || 0,
+                sceneTextureBytes: Number(meta.sceneTextureBytes) || this.stageScene?.textureBudget?.estimatedBytesAfter || 0,
+                plateTextureBytes: this.gpuTexturesReleased ? 0 : estimateImageTextureBytes(this.plateTexture?.image),
+                three: THREE,
+            }),
         };
     }
 
@@ -1819,18 +1852,47 @@ export class LivePortraitRuntime {
         this.lookPass?.setSize(1, 1);
     }
 
+    getRetainedResourceTargets() {
+        const targets = collectPostTargets(this.postPass, this.lookPass);
+        if (this.characterShadowLight?.shadow?.map?.isWebGLRenderTarget) targets.add(this.characterShadowLight.shadow.map);
+        return targets;
+    }
+
+    releaseModelGpuTextures() {
+        const textures = collectSceneTextures(this.model);
+        this.gakumasTextures.forEach(entry => { if (entry.texture?.isTexture) textures.add(entry.texture); });
+        Object.values(this.gakumasFallbacks).forEach(texture => { if (texture?.isTexture) textures.add(texture); });
+        if (this.plateTexture?.isTexture) textures.add(this.plateTexture);
+        textures.forEach(texture => texture.dispose());
+        this.gpuTexturesReleased = true;
+    }
+
     setPresentationActive(active) {
-        // Hide the draw loop without disposing the context, compiled shaders,
-        // textures, or the posed skeleton. Preload stays warm for the next cut.
+        // Keep the renderer and pose warm briefly, then release large GPU allocations.
         if (active) {
+            clearTimeout(this.presentationReleaseTimer);
+            this.presentationReleaseTimer = 0;
+            clearTimeout(this.gpuTextureReleaseTimer);
+            this.gpuTextureReleaseTimer = 0;
+            this.gpuTexturesReleased = false;
             this.resume();
             if (!this.paused) this.renderFrame();
             return;
         }
-        if (this.paused) return;
-        this.paused = true;
-        this.stopLoop();
-        this.releasePresentationBuffers();
+        if (!this.paused) {
+            this.paused = true;
+            this.stopLoop();
+        }
+        clearTimeout(this.presentationReleaseTimer);
+        clearTimeout(this.gpuTextureReleaseTimer);
+        this.presentationReleaseTimer = setTimeout(() => {
+            this.presentationReleaseTimer = 0;
+            if (this.paused) this.releasePresentationBuffers();
+        }, PRESENTATION_BUFFER_RELEASE_DELAY_MS);
+        this.gpuTextureReleaseTimer = setTimeout(() => {
+            this.gpuTextureReleaseTimer = 0;
+            if (this.paused) this.releaseModelGpuTextures();
+        }, GPU_TEXTURE_RELEASE_DELAY_MS);
     }
 
     settleInactiveActions() {
@@ -2719,6 +2781,10 @@ export class LivePortraitRuntime {
 
     dispose() {
         livePictureRuntimes.delete(this);
+        clearTimeout(this.presentationReleaseTimer);
+        this.presentationReleaseTimer = 0;
+        clearTimeout(this.gpuTextureReleaseTimer);
+        this.gpuTextureReleaseTimer = 0;
         this.pause();
         this.physicsProxy?.dispose();
         this.physicsProxy = null;

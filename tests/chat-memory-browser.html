@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>聊天记忆浏览器验证</title>
+<h1>聊天记忆浏览器验证</h1>
+<p>仅使用测试对话，不调用外部 AI。请在专用本地测试端口运行。</p>
+<button id="run" type="button">运行 IndexedDB 验证</button>
+<pre id="result" role="status"></pre>
+<a href="../gakumas-player.html">查看测试页面中的聊天记忆</a>
+<script type="module">
+import { createChatMemoryStore } from '../sandbox/chat-memory.js';
+const out = document.getElementById('result');
+const assert = (condition, message) => { if (!condition) throw new Error(message); out.textContent += `PASS ${message}\n`; };
+const exchange = index => ({ requestId: `browser-test-${index}`, user: { content: `玩家说：测试对话 ${index}`, text: `测试对话 ${index}` }, assistant: { content: '<beat speaker="kotone" cue="talk">测试回复</beat>', text: `测试回复 ${index}` } });
+document.getElementById('run').addEventListener('click', async () => {
+    out.textContent = '';
+    try {
+        const dbName = `hatsu-chat-memory-test-${Date.now()}`;
+        const store = createChatMemoryStore({ dbName });
+        await store.remember('藤田琴音', exchange(1));
+        await store.remember('花海咲季', exchange(2));
+        const reopened = createChatMemoryStore({ dbName });
+        assert((await reopened.all('藤田琴音')).length === 1, '重新建立存储实例后记录仍在');
+        assert((await reopened.all('花海咲季'))[0].user.text === '测试对话 2', '偶像之间的记录相互隔离');
+        await reopened.remember('藤田琴音', exchange(1));
+        assert((await reopened.list('藤田琴音')).total === 1, '相同请求不会重复保存');
+        for (let i = 3; i < 36; i++) await reopened.remember('藤田琴音', exchange(i));
+        const first = await reopened.list('藤田琴音');
+        const second = await reopened.list('藤田琴音', { offset: 30 });
+        assert(first.rows.length === 30 && first.total === 34 && second.rows.length === 4, '记录分页保留全部对话');
+        assert(new Set([...first.rows, ...second.rows].map(row => row.id)).size === 34, '跨页没有重复或遗漏');
+        const context = await reopened.context('藤田琴音', '测试');
+        assert(context.history.length === 24, '近期十二轮对话可恢复为模型上下文');
+        await reopened.clear('藤田琴音');
+        assert((await reopened.all('藤田琴音')).length === 0 && (await reopened.all('花海咲季')).length === 1, '清空只影响指定偶像');
+        if (new URLSearchParams(location.search).get('preview') === '1' && location.hostname === '127.0.0.1' && location.port !== '4173') {
+            const demo = createChatMemoryStore();
+            for (let i = 1; i <= 34; i++) await demo.remember('藤田琴音', exchange(i));
+            await demo.remember('花海咲季', exchange(35));
+            out.textContent += '全部通过；已为此测试端口准备历史列表预览。';
+        } else out.textContent += '全部通过；验证记录位于独立的测试数据库，不影响应用的聊天记忆。';
+    } catch (error) { out.textContent += `FAIL ${error.stack || error}`; }
+});
+</script></html>

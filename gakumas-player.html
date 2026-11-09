@@ -3,10 +3,13 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#6DD4C6">
+  <meta name="theme-color" content="#fff7e8">
   <title>Gakuen Idolmaster Player</title>
+  <link rel="icon" href="./assets/star.png">
   <link rel="stylesheet" href="./beat-player.css?v=20261106-hide-2d-floor-v1">
-  <link rel="stylesheet" href="./gakumas-swiss.css?v=20261106-player-chat-v4">
+  <link rel="stylesheet" href="./gakumas-gakuen.css?v=20261107-gakuen-v2">
+  <link rel="stylesheet" href="./gakumas-gakuen-player.css?v=20261108-resource-monitor-v1">
+  <link rel="stylesheet" href="./gakumas-opening.css?v=20261107-gakuen-v2">
   <script type="importmap">
     {
       "imports": {
@@ -15,138 +18,174 @@
       }
     }
   </script>
+  <script>
+    /* Decide before first paint whether the opening plays, so the page never flashes. */
+    (function () {
+      var root = document.documentElement;
+      var reduced = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+      var skip = /[?&]opening=(0|off|skip)/.test(location.search);
+      var seen = false;
+      try { seen = sessionStorage.getItem('gpOpeningSeen') === '1'; } catch (e) { /* storage blocked */ }
+      if (reduced || skip || seen) root.setAttribute('data-opening', 'off');
+      else root.setAttribute('data-opening', 'on');
+    })();
+  </script>
 </head>
 <body class="gp-page" data-phase="compose">
   <svg class="gp-defs" width="0" height="0" aria-hidden="true" focusable="false">
     <defs>
-      <filter id="gpRough" x="-5%" y="-5%" width="110%" height="110%"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="7" result="noise"/><feDisplacementMap in="SourceGraphic" in2="noise" scale="3"/></filter>
-      <symbol id="gpStar" viewBox="0 0 100 100"><path d="M50 0A50 50 0 0 0 100 50A50 50 0 0 0 50 100A50 50 0 0 0 0 50A50 50 0 0 0 50 0Z"/></symbol>
-      <symbol id="gpSpark" viewBox="0 0 24 24"><path d="M12 0C12.9 7.2 16.8 11.1 24 12C16.8 12.9 12.9 16.8 12 24C11.1 16.8 7.2 12.9 0 12C7.2 11.1 11.1 7.2 12 0Z"/></symbol>
-      <symbol id="gpArrow" viewBox="0 0 24 24"><path d="M5 12h13M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
-      <symbol id="gpCopy" viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
-      <symbol id="gpPen" viewBox="0 0 24 24"><path d="M4 20l1-5L15.5 4.5a2.1 2.1 0 0 1 3 3L8 18z M13.5 6.5l3 3" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
-      <symbol id="gpTrash" viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3M6.5 7l1 13h9l1-13" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
-      <symbol id="gpGear" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
-      <symbol id="gpPlay" viewBox="0 0 24 24"><path d="M8 5.5v13l10.5-6.5z" fill="currentColor"/></symbol>
-      <symbol id="gpPause" viewBox="0 0 24 24"><path d="M7.5 5h3v14h-3zM13.5 5h3v14h-3z" fill="currentColor"/></symbol>
-      <symbol id="gpPrev" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
-      <symbol id="gpNext" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
-      <symbol id="gpBack" viewBox="0 0 24 24"><path d="M10 6l-6 6 6 6M4.5 12H20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
-      <symbol id="gpClose" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></symbol>
+      <symbol id="gpStar" viewBox="0 0 100 100"><path d="M50 0C54 30 70 46 100 50C70 54 54 70 50 100C46 70 30 54 0 50C30 46 46 30 50 0Z"/></symbol>
+      <symbol id="gpArrow" viewBox="0 0 24 24"><path d="M5 12h13M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+      <symbol id="gpCopy" viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="3" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2" fill="none" stroke="currentColor" stroke-width="2.2"/></symbol>
+      <symbol id="gpPen" viewBox="0 0 24 24"><path d="M4 20l1-5L15.5 4.5a2.1 2.1 0 0 1 3 3L8 18z M13.5 6.5l3 3" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/></symbol>
+      <symbol id="gpTrash" viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3M6.5 7l1 13h9l1-13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/></symbol>
+      <symbol id="gpGear" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></symbol>
+      <symbol id="gpChat" viewBox="0 0 24 24"><path d="M4 6.5A2.5 2.5 0 0 1 6.5 4h11A2.5 2.5 0 0 1 20 6.5v7a2.5 2.5 0 0 1-2.5 2.5H11l-4.5 4v-4H6.5A2.5 2.5 0 0 1 4 13.5z" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/><circle cx="9" cy="10" r="1.2" fill="currentColor"/><circle cx="12.5" cy="10" r="1.2" fill="currentColor"/><circle cx="16" cy="10" r="1.2" fill="currentColor"/></symbol>
+      <symbol id="gpDoc" viewBox="0 0 24 24"><path d="M6 3.5h8.5L19 8v12.5H6z M14 3.5V8.5h5 M9 13h7M9 16.5h5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/></symbol>
+      <symbol id="gpWand" viewBox="0 0 24 24"><path d="M4 20L15 9M13.5 5.5l5 5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><path d="M19 3l.8 2.2L22 6l-2.2.8L19 9l-.8-2.2L16 6l2.2-.8zM6 5l.6 1.6L8.2 7l-1.6.6L6 9.2l-.6-1.6L3.8 7l1.6-.4z" fill="currentColor"/></symbol>
+      <symbol id="gpFilm" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="14" rx="3" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M8 5v14M16 5v14M3.5 9.5H8M3.5 14.5H8M16 9.5h4.5M16 14.5h4.5" stroke="currentColor" stroke-width="2"/></symbol>
+      <symbol id="gpPlay" viewBox="0 0 24 24"><path d="M8 5.5v13l10.5-6.5z" fill="currentColor" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></symbol>
+      <symbol id="gpPause" viewBox="0 0 24 24"><path d="M7.5 5h3.2v14H7.5zM13.3 5h3.2v14h-3.2z" fill="currentColor"/></symbol>
+      <symbol id="gpPrev" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+      <symbol id="gpNext" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+      <symbol id="gpBack" viewBox="0 0 24 24"><path d="M10 6l-6 6 6 6M4.5 12H20" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+      <symbol id="gpClose" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></symbol>
     </defs>
   </svg>
 
-  <main class="gp-app">
-    <div class="gp-backdrop" aria-hidden="true">
-      <span class="gp-outline-word">GAKUMAS</span>
-      <span class="gp-motif gp-motif-a"><i class="gp-shape gp-circle"></i><i class="gp-shape gp-half"></i></span>
-      <span class="gp-motif gp-motif-b"><i class="gp-shape gp-diamond"></i><i class="gp-shape gp-triangle"></i></span>
-      <span class="gp-motif gp-motif-c"><svg class="gp-shape gp-star-shape"><use href="#gpStar"/></svg><i class="gp-shape gp-bars"></i></span>
-      <span class="gp-motif gp-motif-d"><i class="gp-shape gp-square"></i><i class="gp-shape gp-circle"></i></span>
+  <!-- Opening: shown once per tab session. Skipped by ?opening=0 and by reduced motion. -->
+  <div id="gpOpening" class="gp-opening" aria-hidden="true">
+    <div class="gp-op-sky"></div>
+    <div class="gp-op-tiles"></div>
+    <div class="gp-op-bands" id="gpOpBands"></div>
+    <div class="gp-op-petals" id="gpOpPetals"></div>
+    <div class="gp-op-crest"></div>
+    <div class="gp-op-stage">
+      <div class="gp-op-trio" id="gpOpTrio"></div>
+      <div class="gp-op-logo"><img src="./assets/logo.png" alt=""></div>
+      <p class="gp-op-sub"><span>SCRIPT STUDIO</span><i></i><span>HATSUBOSHI GAKUEN</span></p>
+      <div class="gp-op-load"><i id="gpOpFill"></i></div>
     </div>
+    <button id="gpOpSkip" class="gp-op-skip" type="button" tabindex="-1">跳过</button>
+  </div>
+
+  <main class="gp-app">
+    <div class="gp-backdrop" id="gpBackdrop" aria-hidden="true"></div>
 
     <header class="gp-header">
       <div class="gp-header-inner">
-        <a class="gp-brand" href="./gakumas-player.html" aria-label="Gakuen Idolmaster Player">
-          <span class="gp-mark" aria-hidden="true"><img src="./assets/logo.png" alt=""></span>
-        </a>
+        <a class="gp-brand" href="./gakumas-player.html" aria-label="Gakuen Idolmaster Player"><img src="./assets/logo.png" alt=""></a>
         <div class="gp-header-actions">
-          <button id="gpHeaderChatBtn" class="gp-settings-button" type="button">闲聊</button>
-          <button id="gpSettingsBtn" class="gp-settings-button" type="button">设置</button>
+          <button id="gpHeaderChatBtn" class="gp-pill gp-pill-mint" type="button"><svg aria-hidden="true"><use href="#gpChat"/></svg><span>闲聊</span></button>
+          <button id="gpSettingsBtn" class="gp-pill" type="button"><svg aria-hidden="true"><use href="#gpGear"/></svg><span>设置</span></button>
         </div>
       </div>
     </header>
 
-    <section class="gp-hero" aria-labelledby="gpHeroTitle">
-      <p class="gp-kicker">SCRIPT STUDIO</p>
-      <h1 id="gpHeroTitle">怪文书制作<img class="gp-sparkle" src="./assets/star.png" alt="" aria-hidden="true"></h1>
-      <p class="gp-hero-lead">先得到一份完整的 Beat 脚本，确认或修改之后，再开始播放。</p>
-      <ol class="gp-steps" aria-label="制作步骤">
-        <li data-step="input"><b>01</b><span>输入</span></li>
-        <li data-step="script"><b>02</b><span>Beat 脚本</span></li>
-        <li data-step="play"><b>03</b><span>播放</span></li>
-      </ol>
-    </section>
-
-    <div class="gp-workspace">
-      <section class="gp-compose" aria-label="输入">
-        <header class="gp-section-title"><span class="gp-hex">MODE</span><h2>选择制作方式</h2></header>
-        <div class="gp-modes" role="radiogroup" aria-label="制作方式">
-          <button id="gpModeFull" class="gp-mode" type="button" role="radio" data-gp-mode="full" aria-checked="true">
-            <span class="gp-mode-icon" aria-hidden="true"><i class="gp-shape gp-square"></i><i class="gp-shape gp-half"></i></span>
-            <span class="gp-mode-no">01</span>
-            <strong>全文案</strong><small>FULL TEXT</small>
-            <em>贴入完整文案，AI 只整理格式。</em>
-          </button>
-          <button id="gpModeExpand" class="gp-mode" type="button" role="radio" data-gp-mode="expand" aria-checked="false">
-            <span class="gp-mode-icon" aria-hidden="true"><i class="gp-shape gp-circle"></i><i class="gp-shape gp-triangle"></i></span>
-            <span class="gp-mode-no">02</span>
-            <strong>AI 扩写</strong><small>AI EXPAND</small>
-            <em>写下大纲，AI 补全剧情与格式。</em>
-          </button>
-          <button id="gpModeEditor" class="gp-mode" type="button" role="radio" data-gp-mode="editor" aria-checked="false">
-            <span class="gp-mode-icon" aria-hidden="true"><i class="gp-shape gp-diamond"></i><i class="gp-shape gp-bars"></i></span>
-            <span class="gp-mode-no">03</span>
-            <strong>编辑器</strong><small>EDITOR</small>
-            <em>逐条制作 Beat，返回后播放。</em>
-          </button>
-          <button id="gpModeChat" class="gp-mode" type="button" role="radio" data-gp-mode="chat" aria-checked="false">
-            <span class="gp-mode-icon" aria-hidden="true"><i class="gp-shape gp-circle"></i><i class="gp-shape gp-square"></i></span>
-            <span class="gp-mode-no">04</span>
-            <strong>闲聊</strong><small>CHAT</small>
-            <em>在家·教室和她说话，直接演出。</em>
-          </button>
+    <div class="gp-shell">
+      <section class="gp-cover" aria-label="选择偶像">
+        <div class="gp-cover-card" id="gpCover" style="--gk-idol:#fad356">
+          <div class="gp-cover-art" id="gpCoverArt"></div>
+          <i class="gp-cover-crest" aria-hidden="true"></i>
+          <span class="gp-cover-tag"><svg aria-hidden="true"><use href="#gpStar"/></svg>PRODUCE</span>
+          <p class="gp-cover-bubble" id="gpCoverLine">今天也一起加油吧。</p>
+          <div class="gp-cover-name">
+            <i class="gp-cover-chip" aria-hidden="true"></i>
+            <div><small>CHAT PARTNER</small><strong id="gpCoverName">藤田琴音</strong></div>
+            <span class="gp-cover-hint">闲聊时的搭档</span>
+          </div>
         </div>
-
-        <div id="gpInputCard" class="gp-card gp-input-card">
-          <header class="gp-card-head">
-            <div><small id="gpInputEnglish">FULL TEXT</small><h3 id="gpInputTitle">全文案</h3></div>
-            <span id="gpInputCount" class="gp-counter">0 字</span>
-          </header>
-          <p id="gpInputSummary" class="gp-card-note">贴入写好的完整文案，AI 只负责整理成 Beat 格式。</p>
-          <textarea id="gpInput" class="gp-textarea" rows="10" maxlength="200000" aria-labelledby="gpInputTitle"></textarea>
-          <footer class="gp-card-foot">
-            <p id="gpComposeStatus" class="gp-status" role="status"></p>
-            <button id="gpGenerateBtn" class="gp-capsule gp-capsule-main" type="button"><span>整理成 Beat 脚本</span><svg aria-hidden="true"><use href="#gpArrow"/></svg></button>
-          </footer>
-        </div>
-
-        <div id="gpEditorCard" class="gp-card gp-editor-card" hidden>
-          <div class="gp-editor-art" aria-hidden="true"><i class="gp-shape gp-diamond"></i><i class="gp-shape gp-circle"></i><svg class="gp-shape gp-star-shape"><use href="#gpStar"/></svg></div>
-          <header class="gp-card-head"><div><small>VISUAL EDITOR</small><h3>可视化编辑器</h3></div></header>
-          <p class="gp-card-note">用列表、属性面板和实时预览逐条制作 Beat。编辑完成后点编辑器里的“返回怪文书”，脚本会回到“Beat 脚本”框，确认后即可播放。</p>
-          <p class="gp-card-note">已经有现成的 Beat 脚本，也可以直接粘贴到“Beat 脚本”框里。</p>
-          <button id="gpOpenEditorBtn" class="gp-capsule gp-capsule-main" type="button"><span>打开可视化编辑器</span><svg aria-hidden="true"><use href="#gpArrow"/></svg></button>
-        </div>
-
-        <div id="gpChatCard" class="gp-card gp-chat-card" hidden>
-          <header class="gp-card-head"><div><small>HOME CHAT</small><h3>闲聊</h3></div></header>
-          <p class="gp-card-note">场景固定在家·教室（午）的主页机位。选一位偶像，输入想对她说的话。世界书只核对这位偶像，回答用播放器的对话框在教室里演出来。</p>
-          <p class="gp-card-note">藤田琴音、花海咲季、月村手毬、花海佑芽、有村麻央、仓本千奈、葛城莉莉娅、紫云清夏、筱泽广、姬崎莉波、十王星南、秦谷美铃、雨夜燕。</p>
-          <button id="gpEnterChatBtn" class="gp-capsule gp-capsule-main" type="button"><span>进入教室</span><svg aria-hidden="true"><use href="#gpArrow"/></svg></button>
-        </div>
+        <div id="gpIdolPicker" class="gp-idol-picker" role="radiogroup" aria-label="选择闲聊偶像"></div>
       </section>
 
-      <section id="gpScriptPanel" class="gp-card gp-script-card" aria-labelledby="gpScriptTitle">
-        <header class="gp-card-head">
-          <div><small>BEAT SCRIPT</small><h3 id="gpScriptTitle">Beat 脚本</h3></div>
-          <span id="gpScriptCount" class="gp-tag">0 Beat</span>
-        </header>
-        <div class="gp-script-tools" role="toolbar" aria-label="脚本操作">
-          <button id="gpCopyBtn" class="gp-tool" type="button"><svg aria-hidden="true"><use href="#gpCopy"/></svg><span>复制</span></button>
-          <button id="gpScriptEditorBtn" class="gp-tool" type="button"><svg aria-hidden="true"><use href="#gpPen"/></svg><span>在编辑器中修改</span></button>
-          <button id="gpClearBtn" class="gp-tool" type="button"><svg aria-hidden="true"><use href="#gpTrash"/></svg><span>清空</span></button>
+      <div class="gp-main">
+        <ol class="gp-steps" aria-label="制作步骤">
+          <li data-step="input"><b>1</b><span>输入</span></li>
+          <li data-step="script"><b>2</b><span>Beat 脚本</span></li>
+          <li data-step="play"><b>3</b><span>播放</span></li>
+        </ol>
+
+        <div class="gp-workspace">
+          <section class="gp-compose" aria-label="输入">
+            <div class="gp-modes" role="radiogroup" aria-label="制作方式">
+              <button id="gpModeFull" class="gp-mode" type="button" role="radio" data-gp-mode="full" aria-checked="true" style="--n:0">
+                <span class="gp-mode-icon" aria-hidden="true"><svg><use href="#gpDoc"/></svg></span>
+                <span class="gp-mode-no">01</span><strong>全文案</strong><small>FULL TEXT</small>
+                <em>贴入完整文案，AI 只整理格式。</em>
+              </button>
+              <button id="gpModeExpand" class="gp-mode" type="button" role="radio" data-gp-mode="expand" aria-checked="false" style="--n:1">
+                <span class="gp-mode-icon" aria-hidden="true"><svg><use href="#gpWand"/></svg></span>
+                <span class="gp-mode-no">02</span><strong>AI 扩写</strong><small>AI EXPAND</small>
+                <em>写下大纲，AI 补全剧情与格式。</em>
+              </button>
+              <button id="gpModeEditor" class="gp-mode" type="button" role="radio" data-gp-mode="editor" aria-checked="false" style="--n:2">
+                <span class="gp-mode-icon" aria-hidden="true"><svg><use href="#gpFilm"/></svg></span>
+                <span class="gp-mode-no">03</span><strong>编辑器</strong><small>EDITOR</small>
+                <em>逐条制作 Beat，返回后播放。</em>
+              </button>
+              <button id="gpModeChat" class="gp-mode" type="button" role="radio" data-gp-mode="chat" aria-checked="false" style="--n:3">
+                <span class="gp-mode-icon" aria-hidden="true"><svg><use href="#gpChat"/></svg></span>
+                <span class="gp-mode-no">04</span><strong>闲聊</strong><small>CHAT</small>
+                <em>在家·教室和她说话，直接演出。</em>
+              </button>
+            </div>
+
+            <div id="gpInputCard" class="gp-card gp-input-card">
+              <header class="gp-card-head">
+                <div><small id="gpInputEnglish">FULL TEXT</small><h3 id="gpInputTitle">全文案</h3></div>
+                <span id="gpInputCount" class="gp-counter">0 字</span>
+              </header>
+              <p id="gpInputSummary" class="gp-card-note">贴入写好的完整文案，AI 只负责整理成 Beat 格式。</p>
+              <textarea id="gpInput" class="gp-textarea" rows="10" maxlength="200000" aria-labelledby="gpInputTitle"></textarea>
+              <footer class="gp-card-foot">
+                <p id="gpComposeStatus" class="gp-status" role="status"></p>
+                <button id="gpGenerateBtn" class="gp-capsule gp-capsule-main" type="button"><span>整理成 Beat 脚本</span><svg aria-hidden="true"><use href="#gpArrow"/></svg></button>
+              </footer>
+            </div>
+
+            <div id="gpEditorCard" class="gp-card gp-editor-card" hidden>
+              <div class="gp-editor-art" aria-hidden="true"><svg><use href="#gpFilm"/></svg></div>
+              <header class="gp-card-head"><div><small>VISUAL EDITOR</small><h3>可视化编辑器</h3></div></header>
+              <p class="gp-card-note">用列表、属性面板和实时预览逐条制作 Beat。编辑完成后点编辑器里的“返回怪文书”，脚本会回到“Beat 脚本”框，确认后即可播放。</p>
+              <p class="gp-card-note">已经有现成的 Beat 脚本，也可以直接粘贴到“Beat 脚本”框里。</p>
+              <button id="gpOpenEditorBtn" class="gp-capsule gp-capsule-main" type="button"><span>打开可视化编辑器</span><svg aria-hidden="true"><use href="#gpArrow"/></svg></button>
+            </div>
+
+            <div id="gpChatCard" class="gp-card gp-chat-card" hidden>
+              <header class="gp-card-head"><div><small>HOME CHAT</small><h3>闲聊</h3></div></header>
+              <p class="gp-chat-now"><img id="gpChatNowImg" src="./assets/ui/avatar/kotone.webp" alt="" width="34" height="34"><span>今天的搭档 <b id="gpChatNowName">藤田琴音</b></span></p>
+              <p class="gp-card-note">场景在家的教室主页机位。晚上7点后换成夜晚。在左侧选一位偶像，输入想对她说的话。世界书只核对这位偶像，回答用播放器的对话框在教室里演出来。</p>
+              <div class="gp-chat-memory-tools">
+                <button id="gpProducerProfileBtn" class="gp-tool" type="button"><svg aria-hidden="true"><use href="#gpPen"/></svg><span>制作人档案</span></button>
+                <button id="gpChatHistoryBtn" class="gp-tool" type="button"><svg aria-hidden="true"><use href="#gpCopy"/></svg><span>历史聊天记忆</span></button>
+              </div>
+              <p class="gp-settings-note">写下你的人设，让她认识你。对话按偶像保存在本机，下次见面可以接着聊。</p>
+              <button id="gpEnterChatBtn" class="gp-capsule gp-capsule-main" type="button"><span>进入教室</span><svg aria-hidden="true"><use href="#gpArrow"/></svg></button>
+            </div>
+          </section>
+
+          <section id="gpScriptPanel" class="gp-card gp-script-card" aria-labelledby="gpScriptTitle">
+            <header class="gp-card-head">
+              <div><small>BEAT SCRIPT</small><h3 id="gpScriptTitle">Beat 脚本</h3></div>
+              <span id="gpScriptCount" class="gp-tag">0 Beat</span>
+            </header>
+            <div class="gp-script-tools" role="toolbar" aria-label="脚本操作">
+              <button id="gpCopyBtn" class="gp-tool" type="button"><svg aria-hidden="true"><use href="#gpCopy"/></svg><span>复制</span></button>
+              <button id="gpScriptEditorBtn" class="gp-tool" type="button"><svg aria-hidden="true"><use href="#gpPen"/></svg><span>在编辑器中修改</span></button>
+              <button id="gpClearBtn" class="gp-tool" type="button"><svg aria-hidden="true"><use href="#gpTrash"/></svg><span>清空</span></button>
+            </div>
+            <textarea id="gpScript" class="gp-textarea gp-script-text" rows="16" spellcheck="false" aria-labelledby="gpScriptTitle" placeholder="生成的 Beat 脚本会出现在这里，可以直接修改，也可以粘贴已有的完整 Beat 脚本。"></textarea>
+            <p id="gpScriptStatus" class="gp-status" role="status">还没有 Beat 脚本。</p>
+            <div class="gp-script-actions">
+              <button id="gpContinueBtn" class="gp-capsule gp-capsule-outline" type="button" hidden><span>继续生成</span><svg aria-hidden="true"><use href="#gpArrow"/></svg></button>
+              <button id="gpPlayBtn" class="gp-capsule gp-capsule-play" type="button" disabled><svg aria-hidden="true"><use href="#gpPlay"/></svg><span>开始播放</span></button>
+            </div>
+          </section>
         </div>
-        <textarea id="gpScript" class="gp-textarea gp-script-text" rows="16" spellcheck="false" aria-labelledby="gpScriptTitle" placeholder="生成的 Beat 脚本会出现在这里，可以直接修改，也可以粘贴已有的完整 Beat 脚本。"></textarea>
-        <p id="gpScriptStatus" class="gp-status" role="status">还没有 Beat 脚本。</p>
-        <div class="gp-script-actions">
-          <button id="gpContinueBtn" class="gp-capsule gp-capsule-outline" type="button" hidden><span>继续生成</span><svg aria-hidden="true"><use href="#gpArrow"/></svg></button>
-          <button id="gpPlayBtn" class="gp-capsule gp-capsule-play" type="button" disabled><svg aria-hidden="true"><use href="#gpPlay"/></svg><span>开始播放</span></button>
-        </div>
-      </section>
+      </div>
     </div>
 
-    <footer class="gp-footer"><p>API 与语音设置只保存在本机。</p></footer>
+    <footer class="gp-footer"><p>API 与语音设置只保存在本机</p></footer>
   </main>
 
   <section id="gpPlayer" class="gp-player" hidden aria-label="Beat 播放">
@@ -175,11 +214,29 @@
         <button id="gpAutoBtn" class="gp-player-button gp-player-auto" type="button" aria-pressed="false"><svg class="gp-auto-play" aria-hidden="true"><use href="#gpPlay"/></svg><svg class="gp-auto-pause" aria-hidden="true"><use href="#gpPause"/></svg><span>自动</span></button>
         <button id="nextBeatBtn" class="gp-player-button" type="button" aria-label="下一段"><svg aria-hidden="true"><use href="#gpNext"/></svg></button>
       </div>
-      <button id="gpPlayerSettingsBtn" class="gp-player-button gp-player-settings" type="button">设置</button>
+      <div class="gp-player-extra-actions">
+        <button id="gpPlayerResourceBtn" class="gp-player-button gp-player-resource" type="button" aria-controls="gpResourceMonitor" aria-expanded="false">GPU</button>
+        <button id="gpPlayerChatMemoryBtn" class="gp-player-button gp-player-chat-memory" type="button">档案与记忆</button>
+        <button id="gpPlayerSettingsBtn" class="gp-player-button gp-player-settings" type="button" aria-label="设置"><svg aria-hidden="true"><use href="#gpGear"/></svg><span>设置</span></button>
+      </div>
     </div>
     </div>
+    <aside id="gpResourceMonitor" class="gp-resource-window" aria-label="GPU 资源诊断" hidden>
+      <header class="gp-resource-head">
+        <div><h3>GPU 资源估算</h3><p id="gpResourceStatus" role="status">等待渲染器</p></div>
+        <button id="gpResourceCloseBtn" class="gp-icon-button" type="button" aria-label="关闭 GPU 资源诊断"><svg aria-hidden="true"><use href="#gpClose"/></svg></button>
+      </header>
+      <div id="gpResourceSummary" class="gp-resource-summary"></div>
+      <div class="gp-resource-table-scroll">
+        <table class="gp-resource-table">
+          <thead><tr><th scope="col">渲染器</th><th scope="col">合计估算</th><th scope="col">模型贴图</th><th scope="col">3D 场景</th><th scope="col">2D 背景</th><th scope="col">后处理缓冲</th><th scope="col">阴影贴图</th><th scope="col">几何体 / 画布</th><th scope="col">贴图 / 几何数</th></tr></thead>
+          <tbody id="gpResourceRows"></tbody>
+        </table>
+      </div>
+      <p class="gp-resource-note">估算按贴图尺寸、渲染目标格式和缓冲尺寸计算；浏览器不提供 NVIDIA 驱动的实际显存读数。计数来自 Three.js renderer.info。</p>
+    </aside>
     <form id="gpChatBar" class="gp-chat-bar" hidden>
-      <label class="gp-chat-idol">偶像
+      <label class="gp-chat-idol"><span>偶像</span>
         <select id="chatIdolSelect" aria-label="选择偶像">
           <option value="kotone">藤田琴音</option>
           <option value="hski">花海咲季</option>
@@ -201,6 +258,42 @@
       <p id="chatStatus" class="gp-chat-status" role="status"></p>
     </form>
   </section>
+
+  <dialog id="gpChatMemory" class="gp-settings gp-memory-dialog" aria-labelledby="gpChatMemoryTitle">
+    <div class="gp-settings-form">
+      <header class="gp-card-head"><div><small>CHAT NOTEBOOK</small><h3 id="gpChatMemoryTitle">闲聊档案</h3></div><button id="gpMemoryCloseBtn" class="gp-icon-button" type="button" aria-label="关闭闲聊档案"><svg aria-hidden="true"><use href="#gpClose"/></svg></button></header>
+      <div class="gp-memory-tabs" role="tablist" aria-label="闲聊档案">
+        <button id="gpProfileTab" type="button" role="tab" data-memory-tab="profile" aria-selected="true" aria-controls="gpProfilePanel">制作人档案</button>
+        <button id="gpHistoryTab" type="button" role="tab" data-memory-tab="history" aria-selected="false" aria-controls="gpHistoryPanel" tabindex="-1">历史聊天记忆</button>
+      </div>
+      <section id="gpProfilePanel" class="gp-memory-panel" role="tabpanel" aria-labelledby="gpProfileTab">
+        <label for="gpProducerProfile">我的制作人设定</label>
+        <p id="gpProducerProfileNote" class="gp-settings-note">自由填写称呼、身份、性格、喜好，以及你与偶像的关系。保存后，闲聊时会作为你的背景资料交给 AI。</p>
+        <textarea id="gpProducerProfile" class="gp-textarea gp-profile-text" rows="9" maxlength="20000" aria-describedby="gpProducerProfileNote" placeholder="在这里写下你希望她了解的自己……"></textarea>
+        <div class="gp-settings-actions"><button id="gpProfileSaveBtn" class="gp-capsule gp-capsule-play" type="button"><span>保存制作人档案</span></button></div>
+      </section>
+      <section id="gpHistoryPanel" class="gp-memory-panel" role="tabpanel" aria-labelledby="gpHistoryTab" hidden>
+        <label class="gp-memory-idol">查看偶像的聊天记忆
+          <select id="gpMemoryIdol">
+            <option>藤田琴音</option><option>花海咲季</option><option>月村手毬</option><option>花海佑芽</option><option>有村麻央</option><option>仓本千奈</option><option>葛城莉莉娅</option><option>紫云清夏</option><option>筱泽广</option><option>姬崎莉波</option><option>十王星南</option><option>秦谷美铃</option><option>雨夜燕</option>
+          </select>
+        </label>
+        <p id="gpMemoryCount" class="gp-memory-count"></p>
+        <div id="gpMemoryList" class="gp-memory-list" aria-label="已保存的闲聊对话"></div>
+        <button id="gpMemoryMoreBtn" class="gp-tool" type="button" hidden>加载更早的对话</button>
+        <div class="gp-memory-actions">
+          <button id="gpMemoryExportBtn" class="gp-tool" type="button" disabled>导出聊天记忆</button>
+          <button id="gpMemoryClearBtn" class="gp-tool gp-memory-clear" type="button" disabled>清空这位偶像的记忆</button>
+        </div>
+        <div id="gpMemoryClearConfirm" class="gp-memory-confirm" hidden>
+          <p id="gpMemoryClearText"></p>
+          <div class="gp-memory-actions"><button id="gpMemoryKeepBtn" class="gp-tool" type="button">保留记忆</button><button id="gpMemoryDeleteBtn" class="gp-tool gp-memory-clear" type="button">确认清空</button></div>
+        </div>
+      </section>
+      <p id="gpMemoryStatus" class="gp-settings-note" role="status" aria-live="polite"></p>
+      <p class="gp-settings-note">档案与对话保存在当前浏览器，不会跨设备同步。闲聊时，档案及相关历史会发送到你配置的 AI 接口；清除网站数据会删除本机记录。</p>
+    </div>
+  </dialog>
 
   <dialog id="gpSettings" class="gp-settings" aria-labelledby="gpSettingsTitle">
     <form method="dialog" class="gp-settings-form">
@@ -247,7 +340,8 @@
   <textarea id="beatScript" hidden></textarea>
   <input id="beatAutoPlay" type="checkbox" checked hidden>
   <span id="beatShot" hidden></span><span id="beatStatus" hidden></span><ul id="beatDiagnostics" hidden></ul>
-  <script src="./fish-tts.js?v=20261106-tts-host-v1"></script>
-  <script type="module" src="./gakumas-player/gakumas-player.js?v=20261106-player-chat-v4"></script>
+  <script src="./fish-tts.js?v=20261107-tts-domain-v1"></script>
+  <script type="module" src="./gakumas-player/gakumas-gakuen.js?v=20261107-gakuen-v1"></script>
+  <script type="module" src="./gakumas-player/gakumas-player.js?v=20261108-resource-monitor-v1"></script>
 </body>
 </html>

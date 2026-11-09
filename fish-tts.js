@@ -16,7 +16,8 @@
   const MAO_REFERENCE_ID = "4199b1062c28461ca822d130138e99d1";
   const RINHA_REFERENCE_ID = "7eee5c0eca834d529902e9bfcd810d7f";
   const ASARI_REFERENCE_ID = "d58dc7b87a554a72a03c6cfd64b53816";
-  const DEFAULT_WORKER_ORIGIN = "https://hatsuboshitest.a1415102876.workers.dev";
+  const DEFAULT_WORKER_ORIGIN = "https://tts.sawadaz.xyz";
+  const LEGACY_PROXY_URL = "https://hatsuboshitest.a1415102876.workers.dev/api/fish-tts";
   const DEFAULT_MODEL = "s2.1-pro-free";
   const PRONUNCIATION_VERSION = "20261103-krnh-nasr-tts-v1";
   // User-supplied kana readings; generated offline with tools/generate-fish-pronunciation.py.
@@ -209,7 +210,7 @@
 
   function normalizeProxyUrl(value) {
     const candidate = String(value || "").replace(/\s+/g, "");
-    if (!candidate || /^\/api\/fish-tts\/?$/i.test(candidate)) return `${DEFAULT_WORKER_ORIGIN}/api/fish-tts`;
+    if (!candidate || /^\/api\/fish-tts\/?$/i.test(candidate) || candidate.replace(/\/+$/, "") === LEGACY_PROXY_URL) return `${DEFAULT_WORKER_ORIGIN}/api/fish-tts`;
     return candidate;
   }
 

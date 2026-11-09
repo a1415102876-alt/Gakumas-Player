@@ -1,5 +1,6 @@
 export const FISH_TTS_STORAGE_KEY = 'hatsuProduceTtsPreferences';
-export const DEFAULT_FISH_TTS_PROXY = 'https://hatsuboshitest.a1415102876.workers.dev/api/fish-tts';
+export const DEFAULT_FISH_TTS_PROXY = 'https://tts.sawadaz.xyz/api/fish-tts';
+const LEGACY_FISH_TTS_PROXY = 'https://hatsuboshitest.a1415102876.workers.dev/api/fish-tts';
 export const DEFAULT_FISH_TTS_MODEL = 's2.1-pro-free';
 
 export function readFishTtsPreferences(storage = globalThis.localStorage) {
@@ -13,7 +14,8 @@ export function readFishTtsPreferences(storage = globalThis.localStorage) {
 
 export function resolveFishTtsSettings(input = {}, storage = globalThis.localStorage) {
     const saved = readFishTtsPreferences(storage);
-    const proxyUrl = String(input.proxyUrl ?? saved.proxyUrl ?? DEFAULT_FISH_TTS_PROXY).replace(/\s+/g, "") || DEFAULT_FISH_TTS_PROXY;
+    const configuredProxy = String(input.proxyUrl ?? saved.proxyUrl ?? DEFAULT_FISH_TTS_PROXY).replace(/\s+/g, "") || DEFAULT_FISH_TTS_PROXY;
+    const proxyUrl = configuredProxy.replace(/\/+$/, '') === LEGACY_FISH_TTS_PROXY ? DEFAULT_FISH_TTS_PROXY : configuredProxy;
     const model = String(input.model ?? saved.model ?? DEFAULT_FISH_TTS_MODEL).trim() || DEFAULT_FISH_TTS_MODEL;
     const apiKey = String(input.apiKey ?? saved.apiKey ?? '').trim();
     const enabled = input.enabled == null ? Boolean(saved.enabled) : Boolean(input.enabled);

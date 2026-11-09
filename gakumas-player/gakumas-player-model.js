@@ -30,7 +30,7 @@ const MODE_COPY = Object.freeze({
   [GP_MODE.CHAT]: Object.freeze({
     title: '闲聊',
     english: 'CHAT',
-    summary: '在家·教室（午）的主页机位和她说话。世界书只核对这位偶像，回答直接在教室里演出。',
+    summary: '在家的教室主页机位和她说话。晚上7点后换成夜晚，她知道你的本地时间。世界书只核对这位偶像，回答直接在教室里演出。',
     placeholder: '',
     action: '进入教室',
     busy: '正在读取世界书……',

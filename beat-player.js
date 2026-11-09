@@ -1,14 +1,14 @@
-import { createSceneDirector } from './live-portrait.js?v=20261105-floor-ssr-v1';
+import { createSceneDirector } from './live-portrait.js?v=20261108-resource-monitor-v1';
 import { performanceRecommendations } from './performance-monitor-core.js?v=20261030-perf-diagnostic-v2';
 import { sceneIdolId } from './scene-protocol.js?v=20261102-krnh-3d-v1';
 import { buildStageSlides, cameraWalkOffset, parseBeatScript, resolveActorPoses, resolveBeatCue } from './beat-protocol.js?v=20261104-clock-transition-v1';
 import { applyActorPose, applyCameraPose } from './scene-free-look.js?v=20261103-camera-lens-v1';
-import { BeatScenePool } from './beat-scene-pool.js?v=20261105-floor-ssr-v1';
-import { isBeatScene } from './beat-background-assets.js?v=20261029-bg-filename-v1';
+import { BeatScenePool } from './beat-scene-pool.js?v=20261108-resource-monitor-v1';
+import { isBeatScene } from './beat-background-assets.js?v=20261108-chat-clock-v1';
 import { beatSpeakerStyle } from './beat-speaker-theme.js?v=20261007-speaker-colors-v1';
 import { BEAT_ACTOR_NAMES, BEAT_CUES, BEAT_EFFECTS, BEAT_FACES, BEAT_OVERLAYS, BEAT_POSITIONS, BEAT_SHOTS, BEAT_SPEAKER_NAMES, backgroundDepthBlur, backgroundPanAmount, backgroundPanPosition, beatActorId, beatBackgroundChanged, buildBackgroundPlan, estimateBeatHold, getShotPreset, plateCoverToBackground, preparedStageCovers, resolveBeatCameraPreset, resolveBeatShot, stagePlateCover, stagePositionOffset, zoomPlateCover } from './beat-player-core.js?v=20261103-camera-walk-v3';
 import { BEAT_BACKGROUND_NAMES, backgroundAssetUrl, preloadBackgrounds } from './beat-backgrounds.js?v=20261017-browser-cache-v1';
-import { TtsLipSyncAnalyzer } from './tts-lip-sync.js?v=20261013-audio-talk-v3';
+import { TtsLipSyncAnalyzer } from './tts-lip-sync.js?v=20261107-surprise-mouth-v1';
 import { loadResourceLibrary, ResourceSession } from './asset-runtime.js?v=20261104-krnh-motion-index-v1';
 import { buildDialogueAssetPlan } from './dialogue-asset-plan.js?v=20261103-paired-face-v1';
 import { createResourceLoading } from './resource-loading.js';
@@ -379,6 +379,24 @@ export class BeatPlayerApp {
         return snapshot;
     }
 
+    getResourceSnapshot() {
+        const loadedScenes = [...(this.scenePool?.entries?.values?.() || [])].filter(entry => entry?.loaded);
+        const sceneTextureBytes = loadedScenes.reduce((total, entry) => total
+            + (Number(entry.textureBudget?.estimatedBytesAfter) || 0), 0);
+        return {
+            timestamp: Date.now(),
+            renderers: [
+                ...(this.director?.getResourceSnapshots?.({ sceneTextureBytes }) || []),
+                ...(this.scenePool?.getResourceSnapshots?.() || []),
+            ],
+            loadedScenes: loadedScenes.map(entry => ({
+                name: entry.asset?.name || entry.asset?.id || '3D 场景',
+                estimatedTextureBytes: Number(entry.textureBudget?.estimatedBytesAfter) || 0,
+                estimatedTextureBytesSaved: Number(entry.textureBudget?.estimatedBytesSaved) || 0,
+            })),
+        };
+    }
+
     setModeUi(chatActive) {
         if (this.elements.chatComposer) this.elements.chatComposer.hidden = !chatActive;
         if (this.elements.beatEditorPanel) this.elements.beatEditorPanel.hidden = chatActive;
@@ -432,6 +450,11 @@ export class BeatPlayerApp {
         log.scrollTop = log.scrollHeight;
     }
 
+    resolveChatBackground() {
+        const value = typeof this.chatBackground === 'function' ? this.chatBackground() : this.chatBackground;
+        return String(value || CHAT_BACKGROUND).trim() || CHAT_BACKGROUND;
+    }
+
     selectedChatIdol() {
         const key = String(this.chatState.idolKey || this.elements.chatIdol?.value || 'kotone');
         return CHAT_IDOL_OPTIONS.find(option => option.id === key) || CHAT_IDOL_OPTIONS[0];
@@ -461,7 +484,7 @@ export class BeatPlayerApp {
         this.appendChatLine('system', `已进入${option.name}的闲聊场景。`, '系统');
         const idolReady = Boolean(this.director?.entries?.get(beatActorId(option.id))?.player?.ready);
         this.setChatStatus(idolReady ? '正在准备闲聊。' : '正在加载家·教室，并准备制作察觉动作…', 'busy');
-        this.elements.script.value = `<beat id="chat-intro" speaker="${option.id}" cue="idle" face="neutral" look="camera" position="center" background="${CHAT_BACKGROUND}" shot="medium" wait="none">……</beat>`;
+        this.elements.script.value = `<beat id="chat-intro" speaker="${option.id}" cue="idle" face="neutral" look="camera" position="center" background="${this.resolveChatBackground()}" shot="medium" wait="none">……</beat>`;
         this.compile();
         this.chatBridge.requestContext?.()
             .then(context => {
@@ -551,7 +574,7 @@ export class BeatPlayerApp {
         if (this.state.playing && !inline) return false;
         if (inline) this.stop();
         const option = this.selectedChatIdol();
-        const background = String(this.chatBackground || CHAT_BACKGROUND).trim() || CHAT_BACKGROUND;
+        const background = this.resolveChatBackground();
         const idolHere = typeof this.idolPresent === 'function' ? this.idolPresent() !== false : true;
         const company = typeof this.companyPresent === 'function' && this.companyPresent() === true;
         let prompt;
@@ -599,7 +622,7 @@ export class BeatPlayerApp {
             this.chatState.active = true;
             this.chatState.introPending = false;
         }
-        const background = String(this.chatBackground || CHAT_BACKGROUND).trim() || CHAT_BACKGROUND;
+        const background = this.resolveChatBackground();
         let source = payload?.text || payload?.rawText || '';
         if (this.chatState.idolPresent === false && typeof this.rewriteAbsentScript === 'function') {
             source = this.rewriteAbsentScript(source);
@@ -625,7 +648,9 @@ export class BeatPlayerApp {
         this.chatState.introPending = false;
         this.elements.script.value = result.script;
         if (this.inlineChat) this.prepareInlineChatStage?.();
-        this.compile();
+        // The classroom and idol are already on stage. Recompiling the reply
+        // must not cover them with the full-screen resource clock.
+        this.compile({ silent: true });
         return true;
     }
 
@@ -1200,11 +1225,13 @@ export class BeatPlayerApp {
         const keepStage = reuse && this.resources && !this.resources.disposed;
         // A visual-only editor change can reuse the prepared stage. Keep the
         // barrier and compiled beats in sync, but do not flash the full-screen
-        // loading layer while no new asset is expected.
-        const quietReuse = Boolean(silent && keepStage);
+        // loading layer while no new asset is expected. Chat replies are the
+        // same: the classroom is already showing, so the clock must stay hidden.
+        const chatReply = Boolean(this.chatState?.active && !this.chatState?.introPending);
+        const quietReuse = Boolean(silent && keepStage) || chatReply;
         this.resourceLoadingActive = !quietReuse;
         try {
-            if (!keepStage || !silent) this.resourceLoading.update({ phase: 'checking' });
+            if (!quietReuse) this.resourceLoading.update({ phase: 'checking' });
             const library = await loadResourceLibrary();
             if (generation !== this.resourceGeneration) return false;
             const chatIdolId = this.chatState.active ? beatActorId(this.chatState.idolKey) : '';
@@ -1212,11 +1239,11 @@ export class BeatPlayerApp {
                 preloadFamiliesById: chatIdolId ? { [chatIdolId]: ['kiduku'] } : {},
             });
             const resources = keepStage ? this.resources : (this.resources = new ResourceSession(library, { onProgress: progress => {
-                if (generation === this.resourceGeneration) this.resourceLoading.update(progress);
+                if (generation === this.resourceGeneration && !chatReply) this.resourceLoading.update(progress);
             }}));
             if (keepStage) {
                 resources.onProgress = progress => {
-                    if (generation === this.resourceGeneration && !silent && progress?.downloadBytes > 0) this.resourceLoading.update(progress);
+                    if (generation === this.resourceGeneration && !silent && !chatReply && progress?.downloadBytes > 0) this.resourceLoading.update(progress);
                 };
             }
             await resources.prepare(selected.keys, { extend: keepStage });
@@ -1227,6 +1254,7 @@ export class BeatPlayerApp {
             const [ready, backgrounds, scenesReady, portraitsReady] = await Promise.all([
                 director.preload(plan.cast, {
                 prewarm: true,
+                focusedId: beatActorId(compiled.beats[0]?.speaker),
                 cuesById: plan.cuesById,
                 costumesById: plan.costumesById,
                 resources,

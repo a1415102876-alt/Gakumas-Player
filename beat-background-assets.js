@@ -1,4 +1,4 @@
-import './beat-background-routing.js?v=20261014-idol-bond-v1';
+import './beat-background-routing.js?v=20261108-chat-clock-v1';
 import { resolveBeatBackground, BEAT_3D_SCENE_RULES } from './beat-background-catalog.js?v=20261029-bg-filename-v1';
 import { BEAT_SCENE_ASSETS } from './beat-scene-assets.js?v=20261007-beat-scenes-v1';
 

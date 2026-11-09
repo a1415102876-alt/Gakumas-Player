@@ -1,13 +1,15 @@
-import { BeatPlayerApp } from '../beat-player.js?v=20261105-floor-ssr-v1';
-import { setLivePictureOptions } from '../live-portrait.js?v=20261105-floor-ssr-v1';
-import { createLocalChatBridge, normalizeChatReply } from '../beat-chat.js?v=20261103-weird-no-default-idol-v1';
+import { BeatPlayerApp } from '../beat-player.js?v=20261108-resource-monitor-v1';
+import { setLivePictureOptions } from '../live-portrait.js?v=20261108-resource-monitor-v1';
+import { createLocalChatBridge, normalizeChatReply, playerChatScene } from '../beat-chat.js?v=20261108-chat-clock-v1';
+import { createChatMemoryPanel } from './chat-memory-panel.js?v=20261107-chat-memory-v1';
+import { mountResourceMonitor } from '../resource-monitor.js?v=20261108-resource-monitor-v1';
 import { loadTavernWorldbook } from '../worldbook-scan.js?v=20261024-worldbook-v1';
-import { applyFishTtsSettings, fishTtsStatus, resolveFishTtsSettings } from '../free-chat-tts.js?v=20261106-tts-host-v1';
+import { applyFishTtsSettings, fishTtsStatus, resolveFishTtsSettings } from '../free-chat-tts.js?v=20261107-tts-domain-v1';
 import { SANDBOX_CHAT_SETTINGS_KEY, buildSandboxChatSettings, mergeStoredChatSettings, readStoredFreeChatSettings } from '../sandbox/sandbox-chat.js?v=20261106-player-chat-v1';
 import { aaLevel } from '../gakumas-aa.js?v=20261105-aa-level-v1';
 import { SANDBOX_PICTURE_KEY, normalizeSandboxPicture } from '../sandbox/sandbox-picture.js?v=20261105-floor-ssr-v1';
 import { buildWeirdContinuationPrompt, buildWeirdScriptPrompt, extractClosedBeatScript, prepareDirectBeatScript, WEIRD_SCRIPT_MODE } from '../sandbox/sandbox-weird-script.js?v=20261106-expand-style-v1';
-import { appendBeatScript, GP_MODE, gpModeCopy, gpModeUsesAi, normalizeGpMode, readGpDraft, summarizeBeatScript, writeGpDraft } from './gakumas-player-model.js?v=20261106-player-chat-v1';
+import { appendBeatScript, GP_MODE, gpModeCopy, gpModeUsesAi, normalizeGpMode, readGpDraft, summarizeBeatScript, writeGpDraft } from './gakumas-player-model.js?v=20261108-chat-clock-v1';
 
 const field = id => document.getElementById(id);
 const EDITOR_RESULT_KEY = 'hatsuBeatEditorResult';
@@ -22,10 +24,20 @@ function selectedChatIdolName() {
 }
 
 const bridge = createLocalChatBridge({
-  getSettings: () => buildSandboxChatSettings(readStoredFreeChatSettings(), {
+  getSettings: () => ({ ...buildSandboxChatSettings(readStoredFreeChatSettings(), {
     idolName: selectedChatIdolName(),
     worldbookEntries: worldbook,
-  }),
+  }), producerProfile: chatMemory.profile() }),
+  loadHistory: (idol, query) => chatMemory.context(idol, query),
+  onExchange: (idol, exchange) => chatMemory.remember(idol, exchange),
+  onHistoryError: (error, action) => chatMemory.reportError(error, action),
+});
+
+const chatMemory = createChatMemoryPanel({
+  selectedIdol: selectedChatIdolName,
+  isBusy: () => Boolean(app.chatState?.pending),
+  onClear: idol => bridge.clear(idol),
+  onError: message => showToast(message),
 });
 
 function readPicture() {
@@ -44,6 +56,19 @@ applyFishTtsSettings(resolveFishTtsSettings(), {
 });
 
 const app = new BeatPlayerApp(document, { loadSample: false, chatBridge: bridge });
+app.chatBackground = () => playerChatScene().background;
+app.chatContext = () => playerChatScene().context;
+const resourceMonitor = mountResourceMonitor({
+  app,
+  button: field('gpPlayerResourceBtn'),
+  panel: field('gpResourceMonitor'),
+  closeButton: field('gpResourceCloseBtn'),
+  summary: field('gpResourceSummary'),
+  rows: field('gpResourceRows'),
+  status: field('gpResourceStatus'),
+});
+app.resourceMonitor = resourceMonitor;
+if (new URLSearchParams(location.search).get('gpu-debug') === '1') resourceMonitor.open();
 const updateBeatPlayButton = app.updatePlayButton.bind(app);
 app.updatePlayButton = () => {
   updateBeatPlayButton();
@@ -639,7 +664,7 @@ field('gpInput')?.addEventListener('keydown', (event) => {
   }
 });
 document.addEventListener('keydown', (event) => {
-  if (event.key !== 'Escape' || !stageOpen()) return;
+  if (event.key !== 'Escape' || !stageOpen() || document.querySelector('dialog[open]')) return;
   event.preventDefault();
   leavePlayer();
 });
@@ -647,6 +672,7 @@ window.addEventListener('resize', resizeStage, { passive: true });
 window.addEventListener('pagehide', () => {
   flushDraft();
   view.controller?.abort();
+  resourceMonitor.dispose();
 });
 
 const draft = readGpDraft();
@@ -661,6 +687,10 @@ if (loadedFromEditor) {
   flushDraft();
   revealScriptPanel();
 }
+
+field('gpProducerProfileBtn')?.addEventListener('click', () => chatMemory.open('profile'));
+field('gpChatHistoryBtn')?.addEventListener('click', () => chatMemory.open('history'));
+field('gpPlayerChatMemoryBtn')?.addEventListener('click', () => chatMemory.open('history'));
 
 window.gakumasPlayer = Object.freeze({
   app,

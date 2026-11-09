@@ -52,11 +52,15 @@ function profileAvailable(profile, dictionary) {
     return [...profile.anchor, ...profile.driver].some(name => findDictionaryIndex(dictionary, name) >= 0);
 }
 
-function profileScore(profile, dictionary, influences) {
-    return profile.anchor.reduce((score, name) => {
+function sideWeight(names, dictionary, influences) {
+    return names.reduce((score, name) => {
         const index = findDictionaryIndex(dictionary, name);
         return score + (index >= 0 ? Math.max(0, Number(influences?.[index]) || 0) : 0);
     }, 0);
+}
+
+function profileScore(profile, dictionary, influences) {
+    return sideWeight(profile.anchor, dictionary, influences);
 }
 
 function orientProfile(profile, dictionary, influences) {
@@ -88,9 +92,16 @@ export function selectTalkMouthProfile({ dictionary = {}, influences = [], hint 
     let bestScore = 0.05;
     for (const profile of TALK_MOUTH_PROFILES) {
         if (!profileAvailable(profile, dictionary)) continue;
-        const score = profileScore(profile, dictionary, influences);
+        const anchorWeight = profileScore(profile, dictionary, influences);
+        const driverWeight = sideWeight(profile.driver, dictionary, influences);
+        const score = Math.max(anchorWeight, driverWeight);
         if (score > bestScore) {
-            best = orientProfile(profile, dictionary, influences);
+            // An open surprise mouth such as mouth_008 has no closed anchor
+            // weight. Keep that open morph as the talk driver instead of
+            // falling through to the first pair, which is the small smile.
+            best = driverWeight > Math.max(0.05, anchorWeight)
+                ? profile
+                : orientProfile(profile, dictionary, influences);
             bestScore = score;
         }
     }

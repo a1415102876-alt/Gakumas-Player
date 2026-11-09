@@ -2,6 +2,20 @@ import { parseBeatScript } from './beat-protocol.js?v=20261026-cue-words-v1';
 import { activateTavernWorldbook, importTavernWorldbook } from './worldbook-scan.js';
 
 const DEFAULT_BACKGROUND = '家·教室（午）';
+const PLAYER_CHAT_NIGHT = '家·教室（夜）';
+
+/** Player chat uses the noon classroom until 19:00, then the night variant through 04:59. */
+export function playerChatScene(date = new Date()) {
+    const hour = date.getHours();
+    const night = hour >= 19 || hour < 5;
+    const pad = value => String(value).padStart(2, '0');
+    const clock = `${date.getFullYear()}年${date.getMonth() + 1}月${date.getDate()}日 ${pad(hour)}:${pad(date.getMinutes())}`;
+    return {
+        night,
+        background: night ? PLAYER_CHAT_NIGHT : DEFAULT_BACKGROUND,
+        context: `用户现在的本地时间是${clock}。${night ? '已经过了晚上7点，教室是夜晚。' : '现在还没到晚上7点，教室是白天。'}回复时要知道这个时间，可以自然提到此刻的光线和作息。不要因此改课程、训练或演出日程。`,
+    };
+}
 const DEFAULT_TIMEOUT = 120000;
 const BUILTIN_SPEAKERS = new Set(['producer', '制作人', 'narrator', '旁白']);
 
@@ -469,9 +483,14 @@ export function extractChatPlayerLine(prompt) {
     return (String(prompt || '').match(/玩家说：([\s\S]*)$/) || [])[1]?.trim() || '';
 }
 
-export function assembleLocalChatMessages({ systemPrompt = '', worldEntries = [], history = [], userPrompt = '' } = {}) {
+export function assembleLocalChatMessages({ systemPrompt = '', worldEntries = [], history = [], userPrompt = '', producerProfile = '', memories = '' } = {}) {
     const lore = worldEntries.map(entry => entry.content.trim()).filter(Boolean).join('\n\n');
-    const system = [String(systemPrompt || '').trim(), lore ? `【世界书】\n${lore}` : ''].filter(Boolean).join('\n\n');
+    const system = [
+        String(systemPrompt || '').trim(),
+        lore ? `【世界书】\n${lore}` : '',
+        String(producerProfile || '').trim() ? `【制作人档案】\n以下是与你交谈的制作人的自我设定。请据此理解对方的身份、称呼和背景，不要把制作人的资料当作偶像的设定，也不要代替制作人说话。\n${String(producerProfile).trim()}` : '',
+        String(memories || '').trim() ? `【与当前偶像的历史聊天记忆】\n以下是较早的对话摘录，仅用于回忆已经聊过的事情；与近期对话冲突时以近期对话为准。\n${String(memories).trim()}` : '',
+    ].filter(Boolean).join('\n\n');
     const messages = [];
     if (system) messages.push({ role: 'system', content: system });
     for (const item of history) {
@@ -526,7 +545,7 @@ function chatWorldbookEntries(settings, scanMessages, idol) {
  * Browser chat-completion bridge. It keeps the Beat player's send/requestContext
  * shape, and supplies the worldbook plus recent turns that SillyTavern used to inject.
  */
-export function createLocalChatBridge({ fetchImpl = globalThis.fetch, getSettings, timeoutMs = DEFAULT_TIMEOUT, historyLimit = 8, currentDay, onRemember } = {}) {
+export function createLocalChatBridge({ fetchImpl = globalThis.fetch, getSettings, timeoutMs = DEFAULT_TIMEOUT, historyLimit = 8, currentDay, onRemember, loadHistory, onExchange, onHistoryError } = {}) {
     const histories = new Map();
     let disposed = false;
 
@@ -603,7 +622,20 @@ export function createLocalChatBridge({ fetchImpl = globalThis.fetch, getSetting
             const bookSettings = worldbookOverride == null ? settings : { ...settings, worldbookEntries: worldbookOverride };
             const playerLine = extractChatPlayerLine(text);
             const active = dayOf();
-            const history = useHistory ? turnsFor(idol).filter(turn => !active || Number(turn.day) === active) : [];
+            let history = useHistory ? turnsFor(idol).filter(turn => !active || Number(turn.day) === active) : [];
+            let memories = '';
+            if (useHistory && typeof loadHistory === 'function') {
+                try {
+                    const saved = await loadHistory(idol, playerLine || text);
+                    if (Array.isArray(saved?.history) && saved.history.length) {
+                        // A failed archive write must not hide this page's newer turns.
+                        const lastSaved = saved.history.at(-1);
+                        const overlap = lastSaved?.id ? history.findLastIndex(turn => turn.id === lastSaved.id) : -1;
+                        history = [...saved.history, ...(overlap >= 0 ? history.slice(overlap + 1) : [])];
+                    }
+                    memories = String(saved?.memories || '');
+                } catch (error) { onHistoryError?.(error, 'read'); }
+            }
             const scanMessages = [text, ...[...history].reverse().map(turn => turn.content)];
             const messages = assembleLocalChatMessages({
                 systemPrompt: applyChatPreset(
@@ -613,6 +645,8 @@ export function createLocalChatBridge({ fetchImpl = globalThis.fetch, getSetting
                 worldEntries: useWorldbook ? chatWorldbookEntries(bookSettings, scanMessages, idol) : [],
                 history: history.map(turn => ({ role: turn.role, content: turn.content })),
                 userPrompt: text,
+                producerProfile: useHistory ? settings.producerProfile : '',
+                memories,
             });
             const controller = new AbortController();
             const onExternalAbort = () => controller.abort();
@@ -693,8 +727,19 @@ export function createLocalChatBridge({ fetchImpl = globalThis.fetch, getSetting
                     error.closedBeatCount = (reply.match(/<beat\b[^>]*>[\s\S]*?<\/beat>/gi) || []).length;
                     throw error;
                 }
-                if (useHistory && playerLine) remember(idol, { role: 'user', content: `玩家说：${playerLine}`, text: playerLine, label: '你' });
-                if (useHistory) remember(idol, { role: 'assistant', content: normalized.script, text: chatDisplayText(normalized.beats), label: idol || '偶像' });
+                if (controller.signal.aborted) {
+                    const aborted = new Error('请求已取消');
+                    aborted.name = 'AbortError';
+                    throw aborted;
+                }
+                const user = playerLine ? { id: `${requestId}-user`, role: 'user', content: `玩家说：${playerLine}`, text: playerLine, label: '你' } : null;
+                const assistant = { id: `${requestId}-assistant`, role: 'assistant', content: normalized.script, text: chatDisplayText(normalized.beats), label: idol || '偶像' };
+                if (useHistory && user) remember(idol, user);
+                if (useHistory) remember(idol, assistant);
+                if (useHistory && user && typeof onExchange === 'function') {
+                    try { await onExchange(idol, { user, assistant, requestId }); }
+                    catch (error) { onHistoryError?.(error, 'write'); }
+                }
                 return {
                     requestId,
                     channelLeaseId: 'local',
