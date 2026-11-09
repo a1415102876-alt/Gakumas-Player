@@ -1,0 +1,20 @@
+.gp-notices-button { position: relative; }
+.gp-notices-badge {
+  position: absolute; top: -6px; right: -6px; display: grid; place-items: center;
+  min-width: 20px; height: 20px; padding: 0 4px; border: 2px solid #fff; border-radius: 10px;
+  background: #c72d45; color: #fff; font: 800 11px/1 var(--gk-font-en);
+}
+.gp-notices .gp-settings-form { gap: 12px; }
+.gp-notices-status { color: var(--gk-ink-3); font-size: 14px; }
+.gp-notices-list { display: grid; }
+.gp-notice { padding: 18px 0; border-top: 1px solid #eadfcf; overflow-wrap: anywhere; }
+.gp-notice:first-child { border-top: 0; padding-top: 8px; }
+.gp-notice time { display: block; color: #966225; font: 700 12px/1.4 var(--gk-font-en); }
+.gp-notice h4 { margin: 4px 0 8px; color: var(--gk-ink); font-size: 16px; line-height: 1.5; }
+.gp-notice p { color: var(--gk-ink-2); font-size: 14px; line-height: 1.8; white-space: pre-wrap; }
+.gp-notices-retry { justify-self: start; }
+@media (max-width: 520px) {
+  .gp-header-actions { gap: 6px; }
+  .gp-header-actions .gp-pill { width: 42px; padding: 0; }
+  .gp-header-actions .gp-pill span { display: none; }
+}

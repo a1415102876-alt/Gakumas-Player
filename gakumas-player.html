@@ -10,6 +10,7 @@
   <link rel="stylesheet" href="./gakumas-gakuen.css?v=20261107-gakuen-v2">
   <link rel="stylesheet" href="./gakumas-gakuen-player.css?v=20261108-resource-monitor-v1">
   <link rel="stylesheet" href="./gakumas-opening.css?v=20261107-gakuen-v2">
+  <link rel="stylesheet" href="./gakumas-player/notices.css?v=1">
   <script type="importmap">
     {
       "imports": {
@@ -50,6 +51,7 @@
       <symbol id="gpNext" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
       <symbol id="gpBack" viewBox="0 0 24 24"><path d="M10 6l-6 6 6 6M4.5 12H20" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
       <symbol id="gpClose" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></symbol>
+      <symbol id="gpBell" viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
     </defs>
   </svg>
 
@@ -76,8 +78,9 @@
       <div class="gp-header-inner">
         <a class="gp-brand" href="./gakumas-player.html" aria-label="Gakuen Idolmaster Player"><img src="./assets/logo.png" alt=""></a>
         <div class="gp-header-actions">
-          <button id="gpHeaderChatBtn" class="gp-pill gp-pill-mint" type="button"><svg aria-hidden="true"><use href="#gpChat"/></svg><span>闲聊</span></button>
-          <button id="gpSettingsBtn" class="gp-pill" type="button"><svg aria-hidden="true"><use href="#gpGear"/></svg><span>设置</span></button>
+          <button id="gpNoticesBtn" class="gp-pill gp-notices-button" type="button" aria-label="通知" title="通知"><svg aria-hidden="true"><use href="#gpBell"/></svg><span>通知</span><b id="gpNoticesBadge" class="gp-notices-badge" hidden></b></button>
+          <button id="gpHeaderChatBtn" class="gp-pill gp-pill-mint" type="button" aria-label="闲聊" title="闲聊"><svg aria-hidden="true"><use href="#gpChat"/></svg><span>闲聊</span></button>
+          <button id="gpSettingsBtn" class="gp-pill" type="button" aria-label="设置" title="设置"><svg aria-hidden="true"><use href="#gpGear"/></svg><span>设置</span></button>
         </div>
       </div>
     </header>
@@ -295,6 +298,15 @@
     </div>
   </dialog>
 
+  <dialog id="gpNotices" class="gp-settings gp-notices" aria-labelledby="gpNoticesTitle">
+    <div class="gp-settings-form">
+      <header class="gp-card-head"><div><small>NOTICES</small><h3 id="gpNoticesTitle">通知</h3></div><form method="dialog"><button class="gp-icon-button" type="submit" aria-label="关闭通知"><svg aria-hidden="true"><use href="#gpClose"/></svg></button></form></header>
+      <p id="gpNoticesStatus" class="gp-notices-status" role="status">正在加载通知…</p>
+      <div id="gpNoticesList" class="gp-notices-list"></div>
+      <button id="gpNoticesRetry" class="gp-tool gp-notices-retry" type="button" hidden>重新加载</button>
+    </div>
+  </dialog>
+
   <dialog id="gpSettings" class="gp-settings" aria-labelledby="gpSettingsTitle">
     <form method="dialog" class="gp-settings-form">
       <header class="gp-card-head"><div><small>SETTINGS</small><h3 id="gpSettingsTitle">设置</h3></div><button class="gp-icon-button" value="cancel" type="submit" aria-label="关闭设置"><svg><use href="#gpClose"/></svg></button></header>
@@ -341,6 +353,7 @@
   <input id="beatAutoPlay" type="checkbox" checked hidden>
   <span id="beatShot" hidden></span><span id="beatStatus" hidden></span><ul id="beatDiagnostics" hidden></ul>
   <script src="./fish-tts.js?v=20261107-tts-domain-v1"></script>
+  <script type="module" src="./gakumas-player/notices.js?v=1"></script>
   <script type="module" src="./gakumas-player/gakumas-gakuen.js?v=20261107-gakuen-v1"></script>
   <script type="module" src="./gakumas-player/gakumas-player.js?v=20261109-ssmk-collision-restore-v1"></script>
 </body>
