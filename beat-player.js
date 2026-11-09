@@ -1,9 +1,9 @@
-import { createSceneDirector } from './live-portrait.js?v=20261109-ssmk-collision-restore-v1';
+import { createSceneDirector } from './live-portrait.js?v=20261109-actor-light-v3';
 import { performanceRecommendations } from './performance-monitor-core.js?v=20261030-perf-diagnostic-v2';
 import { sceneIdolId } from './scene-protocol.js?v=20261102-krnh-3d-v1';
 import { buildStageSlides, cameraWalkOffset, parseBeatScript, resolveActorPoses, resolveBeatCue } from './beat-protocol.js?v=20261104-clock-transition-v1';
 import { applyActorPose, applyCameraPose } from './scene-free-look.js?v=20261103-camera-lens-v1';
-import { BeatScenePool } from './beat-scene-pool.js?v=20261108-resource-monitor-v1';
+import { BeatScenePool } from './beat-scene-pool.js?v=20261109-actor-light-v3';
 import { isBeatScene } from './beat-background-assets.js?v=20261108-chat-clock-v1';
 import { beatSpeakerStyle } from './beat-speaker-theme.js?v=20261007-speaker-colors-v1';
 import { BEAT_ACTOR_NAMES, BEAT_CUES, BEAT_EFFECTS, BEAT_FACES, BEAT_OVERLAYS, BEAT_POSITIONS, BEAT_SHOTS, BEAT_SPEAKER_NAMES, backgroundDepthBlur, backgroundPanAmount, backgroundPanPosition, beatActorId, beatBackgroundChanged, buildBackgroundPlan, estimateBeatHold, getShotPreset, plateCoverToBackground, preparedStageCovers, resolveBeatCameraPreset, resolveBeatShot, stagePlateCover, stagePositionOffset, zoomPlateCover } from './beat-player-core.js?v=20261103-camera-walk-v3';

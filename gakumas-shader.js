@@ -312,8 +312,7 @@ if (gkHasRampAdd > 0.5) {
     reflectedLight.indirectSpecular = mix(reflectedLight.indirectSpecular, reflectedLight.indirectSpecular * gkRampAddTint, gkRampAddSample.a);
 }
 vec3 gkAdditional = vec3(0.0);
-vec3 gkRoomLight = vec3(0.0);
-if (gkAddLightCount > 0) {
+if (gkAddLightCount > 0 && gkAddLightScale > 0.0) {
     vec3 gkLit = reflectedLight.directDiffuse + reflectedLight.directSpecular + reflectedLight.indirectSpecular;
     for (int i = 0; i < 8; i++) {
         if (i >= gkAddLightCount) break;
@@ -343,9 +342,6 @@ if (gkAddLightCount > 0) {
             float gkAddMask = gkAddChannel == 0 ? gkProbeOcclusion.r : gkAddChannel == 1 ? gkProbeOcclusion.g : gkAddChannel == 2 ? gkProbeOcclusion.b : gkProbeOcclusion.a;
             gkAttenuation *= clamp(gkAddMask, 0.0, 1.0);
         }
-        float gkWrap = clamp(dot(gkSceneNormal, gkAddL) * 0.5 + 0.5, 0.0, 1.0);
-        gkRoomLight += gkAttenuation * gkAddLightColor[i] * gkWrap;
-        if (gkAddLightScale <= 0.0) continue;
         float gkRadiance = max(dot(gkSceneNormal, gkAddL), 0.0);
         gkRadiance = (gkRadiance * 0.5 + 0.5) * 2.356194;
         gkRadiance = smoothstep(gkMatCapOffset - 0.000488, gkMatCapOffset + 0.001464, gkRadiance);
@@ -362,7 +358,7 @@ if (gkAddLightCount > 0) {
         gkAdditional += gkRadiance * gkAddLightColor[i] * (gkLit + gkAddSpecular);
     }
 }
-reflectedLight.directDiffuse += gkAdditional * gkAddLightScale + gkRoomLight * gkActorColor * 0.02;
+reflectedLight.directDiffuse += gkAdditional * gkAddLightScale;
 vec3 gkRimDir = gkRimDirection / max(length(gkRimDirection), 0.0001);
 float gkRim = pow(max(1.0 - dot(normalize(normal), gkRimDir), 0.0), max(gkRimPower, 0.0));
 gkRim = min(gkRim, 1.0) * min(gkDef.r * gkDef.r, 1.0) * gkRimMask;

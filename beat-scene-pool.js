@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { GakumasSceneStage } from './gakumas-scene.js?v=20261105-light-range-v1';
+import { GakumasSceneStage } from './gakumas-scene.js?v=20261109-actor-light-v3';
 import { GakumasPostPass } from './gakumas-post.js?v=20261105-floor-ssr-v1';
 import { isBeatScene, resolveBeatBackgroundAsset, sceneAssetUrl } from './beat-background-assets.js?v=20261108-chat-clock-v1';
 import { applyCameraFocal, applyCameraPose, SceneFreeLook } from './scene-free-look.js?v=20261103-camera-lens-v1';

@@ -19,10 +19,10 @@ import {
 import { idolAssetUrls, motionAssetUrls, motionAvailability } from './library-client.js?v=20261017-browser-cache-v1';
 import { idolCostumeVariant, resolveBeatCostume } from './beat-costumes.js?v=20261013-all-idol-solo1-v1';
 import { GAKUMAS_TEXTURE_KINDS, GAKUMAS_ACTIVE_TEXTURE_KINDS, selectMaterialTextures, setTextureColorSpace, textureDescriptor, textureUsesColorSpace } from './gakumas-materials.js?v=20261105-face-layer-off-v1';
-import { injectActorShader } from './gakumas-shader.js?v=20261105-face-layer-off-v1';
+import { injectActorShader } from './gakumas-shader.js?v=20261109-actor-light-v3';
 import { actorStencilState, classifyActorPass, placeCharacterShadowLight, shouldCastCharacterShadow, shouldReceiveCharacterShadow } from './gakumas-passes.js?v=20261024-crowd-budget-v1';
-import { HairCoverStage } from './gakumas-hair-cover.js?v=20261105-face-layer-off-v1';
-import { ACTOR_ADDITIONAL_LIGHTS, GAKUMAS_LOOK, GakumasLookPass, actorEnvironmentSample, actorScenePoint, applyGakumasLookUniforms, applySceneActorUniforms, createActorRoomUniforms, createGakumasLookUniformValues, matcapKeyDirection } from './gakumas-look.js?v=20261105-capture-gap-v1';
+import { HairCoverStage } from './gakumas-hair-cover.js?v=20261109-actor-light-v3';
+import { ACTOR_ADDITIONAL_LIGHTS, GAKUMAS_LOOK, GakumasLookPass, actorEnvironmentSample, actorScenePoint, applyGakumasLookUniforms, applySceneActorUniforms, createActorRoomUniforms, createGakumasLookUniformValues, matcapKeyDirection } from './gakumas-look.js?v=20261109-actor-light-v3';
 import { aaLevel } from './gakumas-aa.js?v=20261105-aa-level-v1';
 import { GakumasPostPass, setCaptureMotionBlur } from './gakumas-post.js?v=20261105-floor-ssr-v1';
 import { motionFromPositions } from './gakumas-taa-motion.js?v=20261027-motion-aware-taa-v1';

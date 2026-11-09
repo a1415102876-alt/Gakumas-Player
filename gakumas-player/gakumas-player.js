@@ -1,5 +1,5 @@
-import { BeatPlayerApp } from '../beat-player.js?v=20261109-ssmk-collision-restore-v1';
-import { setLivePictureOptions } from '../live-portrait.js?v=20261109-ssmk-collision-restore-v1';
+import { BeatPlayerApp } from '../beat-player.js?v=20261109-actor-light-v3';
+import { setLivePictureOptions } from '../live-portrait.js?v=20261109-actor-light-v3';
 import { createLocalChatBridge, normalizeChatReply, playerChatScene } from '../beat-chat.js?v=20261108-chat-clock-v1';
 import { createChatMemoryPanel } from './chat-memory-panel.js?v=20261107-chat-memory-v1';
 import { mountResourceMonitor } from '../resource-monitor.js?v=20261108-resource-monitor-v1';

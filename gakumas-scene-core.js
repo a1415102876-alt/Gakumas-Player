@@ -304,6 +304,10 @@ export function sceneActorLight(stack = {}) {
     const angle = actor.mainLightAngle || campus.mainLightAngle || null;
     const colorSource = actor.lightColor || campus.lightColor || null;
     const shadeApply = actor.shadeApplyRatio ?? campus.shadeApplyRatio;
+    const rimAngle = actor.rimAngle ?? campus.rimAngle;
+    const rimColor = actor.rimColor ?? campus.rimColor;
+    const shadeMultiply = actor.shadeColorMultiply ?? campus.shadeColorMultiply;
+    const optionalNumber = value => value != null && Number.isFinite(Number(value)) ? Number(value) : null;
     return {
         hasMainLight: Boolean(angle || colorSource),
         mainLightSpace: Number(actor.mainLightSpace ?? campus.mainLightSpace) || 0,
@@ -313,7 +317,12 @@ export function sceneActorLight(stack = {}) {
         additiveScale: Number(actor.additiveLightScale) || 0,
         additiveSpecularScale: Number.isFinite(Number(actor.additiveLightSpecularScale)) ? Number(actor.additiveLightSpecularScale) : 1,
         shadeApply: Number.isFinite(Number(shadeApply)) ? Number(shadeApply) : 1,
-        matCapOffset: Number.isFinite(Number(actor.matCapOffset)) ? Number(actor.matCapOffset) : 0.3,
+        matCapOffset: optionalNumber(actor.matCapOffset ?? campus.matCapOffset),
+        shadeMultiply: shadeMultiply ? linearColor(colorArray(shadeMultiply)) : null,
+        rimAngle: rimAngle ? [Number(rimAngle.x ?? rimAngle[0]) || 0, Number(rimAngle.y ?? rimAngle[1]) || 0] : null,
+        rimColor: rimColor ? linearColor(colorArray(rimColor)) : null,
+        rimPower: optionalNumber(actor.rimPower ?? campus.rimPower),
+        rimBaseColorRatio: optionalNumber(actor.rimBaseColorRatio ?? campus.rimBaseColorRatio),
         eyeHighlightColor: linearColor(colorArray(actor.eyeHighlightColor)),
         eyeReflectionColor: linearColor(colorArray(actor.eyeReflectionColor)),
         giScale: Number(actor.giScale ?? campus.giScale) || 0,

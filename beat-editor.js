@@ -1,5 +1,5 @@
 import { actorPoseFromObject, cameraPoseFromObject } from './scene-free-look.js?v=20261102-actor-pose-v1';
-import { BeatPlayerApp } from './beat-player.js?v=20261109-ssmk-collision-restore-v1';
+import { BeatPlayerApp } from './beat-player.js?v=20261109-actor-light-v3';
 import { BEAT_BACKGROUND_NAMES } from './beat-backgrounds.js?v=20261017-browser-cache-v1';
 import { BEAT_SCENE_ASSETS } from './beat-scene-assets.js?v=20261027-scene-library-v1';
 import { BEAT_CUES, BEAT_EFFECTS, BEAT_FACES, BEAT_OVERLAYS, BEAT_POSITIONS, BEAT_SHOTS, BEAT_CAMERA_PRESETS, BEAT_SPEAKER_NAMES, beatActorId } from './beat-player-core.js?v=20261102-krnh-3d-v1';

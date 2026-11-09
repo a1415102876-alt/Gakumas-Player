@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-import { applyRootTransform, beatUsesStageDefaultPlacement, decalUv, layoutCameraView, linearColor, pickLayoutActor, reflectionProbeBox, resolveBeatSceneCameraOptions, resolveVolumeStack, retreatCameraView, sceneEffectProfile, sceneFogWithOverride, sceneGrade, sceneLayoutOptions, scenePost, sceneSphereFog, sceneActorLight, sceneLightData, sceneRootTransform, selectReflectionProbe, shCoefficients, validateSceneSidecar } from './gakumas-scene-core.js?v=20261105-light-range-v1';
+import { applyRootTransform, beatUsesStageDefaultPlacement, decalUv, layoutCameraView, linearColor, pickLayoutActor, reflectionProbeBox, resolveBeatSceneCameraOptions, resolveVolumeStack, retreatCameraView, sceneEffectProfile, sceneFogWithOverride, sceneGrade, sceneLayoutOptions, scenePost, sceneSphereFog, sceneActorLight, sceneLightData, sceneRootTransform, selectReflectionProbe, shCoefficients, validateSceneSidecar } from './gakumas-scene-core.js?v=20261109-actor-light-v3';
 import { calibratedBeatLayout, defaultSceneLayoutId, withScenePlacementOverrides } from './scene-placement-overrides.js?v=20261027-calibrated-beat-v1';
 import { activityForScene, checkAnchorPlan, nearestSafePoint, pathIsClear, validateActivity } from './scene-activity.js?v=20261028-block-boxes-v1';
 import { createSceneEffects } from './gakumas-scene-effects.js?v=20261028-hot-spring-v1';
