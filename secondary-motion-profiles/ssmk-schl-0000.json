@@ -21647,14 +21647,7 @@
         "LeftSideHair4_S",
         "LeftSideHair5_S",
         "LeftSideHair6_S",
-        "LeftSideHair7_S_End"
-      ],
-      "colliders": [
-        "Spine2"
-      ]
-    },
-    {
-      "particles": [
+        "LeftSideHair7_S_End",
         "LeftSideSubHair1_S",
         "LeftSideSubHair2_S",
         "LeftSideSubHair3_S",
@@ -21674,14 +21667,7 @@
         "RightSideHair4_S",
         "RightSideHair5_S",
         "RightSideHair6_S",
-        "RightSideHair7_S_End"
-      ],
-      "colliders": [
-        "Spine2"
-      ]
-    },
-    {
-      "particles": [
+        "RightSideHair7_S_End",
         "RightSideSubHair1_S",
         "RightSideSubHair2_S",
         "RightSideSubHair3_S",
@@ -21722,8 +21708,8 @@
     }
   ],
   "stageAdaptationNotes": [
-    "The previous stage-only adaptation was replayed with the matching GLB and mot_all_chr_ssmk_glad-001_in_b.vmd over 900 fixed 1/60 steps, before restoring SideHair shoulder contacts.",
-    "That replay changed rear-hair rotations over 15 degrees per step from 5145 to 39; all configured springs resolved and the replay had no resets. The updated shoulder contacts require visual verification.",
+    "Stage-only adaptation verified with the matching GLB and mot_all_chr_ssmk_glad-001_in_b.vmd replay over 900 fixed 1/60 steps.",
+    "Rear-hair rotations over 15 degrees per step changed from 5145 to 39 with this profile configuration; all configured springs resolved and the replay had no resets.",
     "The pair-specific arm exclusions target measured excessive contacts only. Other hand and forearm contacts remain active.",
     "This profile adaptation does not claim equivalence to the native Unity secondary-motion solver.",
     "Replay GLB: E:/gakumas-pmx-workflow/output/ssmk-schl-0000/ssmk-schl-0000.glb"

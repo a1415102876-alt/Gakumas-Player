@@ -16466,7 +16466,7 @@
     "Unsupported driver components retain their animation/bind transforms; no guessed formula.",
     "Authored chain child names bind to their actual GLB parent spring tails; original names are retained per layer.",
     "Runtime-initialized collider and chain differences require a matching outfit capture for native parity.",
-    "Solo1 high-glad replay adaptation: back-hair root particles bypass same-side Shoulder and Spine2 shells; right SideHair/SubHair bypasses Spine2 and right SideSubHair also bypasses RightShoulder. SideHair shoulder contacts were restored after the original replay; this is Stage-specific and not native solver parity."
+    "Solo1 high-glad replay adaptation: back-hair root particles bypass same-side Shoulder and Spine2 shells; right SideHair/SubHair chain bypasses Spine2 and RightShoulder shells after repeated large corrections caused frame-to-frame pops. Hands and forearms remain active; this is Stage-specific and not native solver parity."
   ],
   "hairRootColliderSkip": [
     {
@@ -16493,24 +16493,17 @@
     },
     {
       "particles": [
+        "RightSideSubHair1_S",
         "RightSideHair4_S",
+        "RightSideSubHair2_S",
         "RightSideHair7_S_End",
+        "RightSideSubHair4_S_End",
         "RightSideHair2_S",
+        "RightSideSubHair3_S",
         "RightSideHair5_S",
         "RightSideHair1_S",
         "RightSideHair3_S",
         "RightSideHair6_S"
-      ],
-      "colliders": [
-        "Spine2"
-      ]
-    },
-    {
-      "particles": [
-        "RightSideSubHair1_S",
-        "RightSideSubHair2_S",
-        "RightSideSubHair3_S",
-        "RightSideSubHair4_S_End"
       ],
       "colliders": [
         "Spine2",
