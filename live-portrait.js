@@ -47,7 +47,7 @@ import { bindGlbMorphTracks } from './glb-morph-tracks.js?v=20260929-face-primit
 import { SecondaryMotion, applyHairRestRotationRebase, rebaseHairAnimationTracks, refreshRestInverseBinds } from './gakumas-secondary-motion.js?v=20261102-krnh-sleeve-gravity-v1';
 import { SecondaryMotionProxy, physicsLead, physicsWorkerSupported } from './secondary-motion-proxy.js?v=20261106-physics-worker-v1';
 import { FacialEffectsStage } from './facial-effects-stage.js?v=20261017-browser-cache-v1';
-import { loadResourceLibrary } from './asset-runtime.js?v=20261104-krnh-motion-index-v1';
+import { loadResourceLibrary } from './asset-runtime.js?v=20261109-ssmk-sidehair-shoulders-v1';
 import { filterPreferredSitItems } from './seated-posture.js?v=20261027-seated-rollback-v1';
 import { createPerformanceBucket, recordPerformanceSample, snapshotPerformanceBucket } from './performance-monitor-core.js?v=20261030-perf-diagnostic-v2';
 import { phonePropForIdol, propVisibilityForCue, resolvePropAnchorName } from './stage-props.js';
@@ -82,7 +82,7 @@ const GPU_TEXTURE_RELEASE_DELAY_MS = 20000;
 const STAGE_ASSET_ROOT = new URL('./', import.meta.url);
 const SECONDARY_MOTION_JSON = new URL('gakumas-secondary-motion.json?v=20261002-secondary-motion-v25-kcna-native-skirt', STAGE_ASSET_ROOT).href;
 const SECONDARY_MOTION_MANIFEST = new URL('secondary-motion-manifest.json?v=20261026-hair-contact-v1', STAGE_ASSET_ROOT).href;
-const SECONDARY_PROFILE_VERSION = '20261102-krnh-sleeve-gravity-v1';
+const SECONDARY_PROFILE_VERSION = '20261109-ssmk-sidehair-shoulders-v1';
 const secondaryMotionTables = new Map();
 
 // One worker per actor. Module workers must be same-origin, so when the stage
