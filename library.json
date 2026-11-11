@@ -416,6 +416,10 @@
       "root": "G:\\SillyTavern\\SillyTavern\\tools\\gakumas-motion-workbench\\generated\\dedicated-vmd\\fktn",
       "r2Prefix": "motions/fktn-dedicated-body"
     },
+    "motions/hkne-dedicated-body": {
+      "root": "E:/gakumas-motion-batches/hkne-20261111/vmd",
+      "r2Prefix": "motions/hkne-dedicated-body"
+    },
     "scenes/gakumas": {
       "root": "G:\\SillyTavern\\SillyTavern\\public\\mmd-dialogue-stage\\scenes",
       "r2Prefix": "scenes"

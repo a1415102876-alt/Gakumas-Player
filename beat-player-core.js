@@ -1,6 +1,6 @@
 import { BEAT_CUE_IDS, BEAT_EFFECT_IDS, BEAT_FACE_IDS, BEAT_OVERLAY_CUE_IDS } from './beat-cues.js?v=20261011-stage-cue-rules-v4';
 import { BEAT_NPC_SPEAKER_NAMES } from './beat-npc-portraits.js?v=20261110-hkne-3d-v1';
-import { sceneIdolId } from './scene-protocol.js?v=20261110-hkne-3d-v1';
+import { sceneIdolId } from './scene-protocol.js?v=20261111-hkne-motions-v1';
 
 export const BEAT_ACTOR_NAMES = Object.freeze({
     kotone: '藤田琴音',

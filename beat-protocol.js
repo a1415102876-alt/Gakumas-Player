@@ -1,5 +1,5 @@
 import { resolveNpcPortrait } from './beat-npc-portraits.js?v=20261110-hkne-3d-v1';
-import { sceneIdolId, SCENE_IDOLS, STAR_EYE_IDOLS } from './scene-protocol.js?v=20261110-hkne-3d-v1';
+import { sceneIdolId, SCENE_IDOLS, STAR_EYE_IDOLS } from './scene-protocol.js?v=20261111-hkne-motions-v1';
 import { BEAT_CUE_IDS, BEAT_BODY_CUE_SPECS, BEAT_EFFECT_ALIASES, BEAT_EFFECT_IDS, BEAT_FACE_ALIASES, BEAT_FACE_IDS, BEAT_OVERLAY_CUE_IDS, isBeatMotionFile, resolveBeatCueAlias } from './beat-cues.js?v=20261103-paired-face-v1';
 import { normalizeFaceCue, normalizeGestureCue } from './dialogue-intent.js?v=20261026-cue-words-v1';
 import { resolveBeatBackgroundAsset } from './beat-background-assets.js?v=20261029-bg-filename-v1';
@@ -328,7 +328,8 @@ export function parseBeatScript(source, options = {}) {
             addError(errors, 'deprecated-camera-motion', 'camera-motion/camera-ease/camera-duration 已停用；camera 直接作用于 2D 和 3D 景别。', openIndex, beatId);
         }
 
-        const look = attributes.look || previousLook;
+        const requestedLook = String(attributes.look || previousLook || 'auto').trim();
+        const look = ['producer', '制作人'].includes(requestedLook.toLowerCase()) ? 'camera' : requestedLook;
         let position = String(attributes.position || '').trim().toLowerCase();
         if (position === 'middle') position = 'center';
         if (position && !positions.has(position)) {

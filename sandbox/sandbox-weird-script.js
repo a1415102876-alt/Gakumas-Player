@@ -40,7 +40,7 @@ function beatOutputRules() {
     'speaker 和 look 只能使用这些登记 id，不要用罗马音，也不要自造英文名。',
     'kotone=藤田琴音；mao=有村麻央；rinami=姬崎莉波；hski=花海咲季；hume=花海佑芽；ssmk=紫云清夏；kllj=葛城莉莉娅；jsna=十王星南；hmsz=秦谷美铃；atbm=雨夜燕；ttmr=月村手毬；kcna=仓本千奈；shro=筱泽广；krnh=贺阳燐羽；nasr=亚纱里老师；hkne=冰渡香名江。',
     '制作人用 producer，旁白用 narrator。美铃必须写 hmsz，不要写 misuzu。燐羽必须写 krnh，不要写 rinpa 或 rinha。手毬必须写 ttmr，不要写 temari。',
-    'look 写 camera，或写在场角色的同一个登记 id。不要把 left、right 写进 look。',
+    '偶像对制作人说话或面向制作人交流时必须写 look="camera"，不要把 producer 或 制作人 写进 look；如果看到旧脚本中的 look="producer" 或 look="制作人"，改为 camera。其他情况 look 写 camera 或在场角色的登记 id，不要把 left、right 写进 look。',
     '没有 3D 模型、只用头像的角色：andk=蓝井抚子；fobr=胧；mska=村雨愁佳；msrn=芹菜；myu0=真城优；sgka=白草月花；sson=白草四音。',
     '样例只说明标签格式。speaker="角色"是占位，必须换成上面的登记 id，不要原样输出，也不要写成“担当偶像”：<beat id="b001" speaker="角色" cue="说话" face="高兴" look="camera" position="center" background="宿舍走廊-午" shot="medium" wait="text"><display lang="zh">今天从这里开始。</display><tts lang="ja">今日はここから始めよう。</tts></beat>',
   ].join('\n');

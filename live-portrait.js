@@ -40,14 +40,14 @@ import { parsePortraitCue, selectPortraitPerformance, portraitPerformanceCandida
 import { StageAttentionController } from './stage-attention.js?v=20261103-adopt-base-v1';
 import { bindVisemeMorphs } from './dialogue-intent.js?v=20261011-emotion-cue-labels-v2';
 import { applyTalkMouthProfile, selectTalkMouthProfile, talkArticulationFromPhase } from './tts-lip-sync.js?v=20261107-surprise-mouth-v1';
-import { SceneDirector } from './scene-director.js?v=20261110-hkne-3d-v1';
+import { SceneDirector } from './scene-director.js?v=20261111-hkne-motions-v1';
 import { portraitCrowdBudget } from './portrait-crowd-budget.js?v=20261024-crowd-budget-v1';
 import { configureGlbAnimationTarget, detectLivePortraitFormat } from './live-portrait-model.js';
 import { bindGlbMorphTracks } from './glb-morph-tracks.js?v=20260929-face-primitives-v1';
 import { SecondaryMotion, applyHairRestRotationRebase, rebaseHairAnimationTracks, refreshRestInverseBinds } from './gakumas-secondary-motion.js?v=20261102-krnh-sleeve-gravity-v1';
 import { SecondaryMotionProxy, physicsLead, physicsWorkerSupported } from './secondary-motion-proxy.js?v=20261106-physics-worker-v1';
 import { FacialEffectsStage } from './facial-effects-stage.js?v=20261017-browser-cache-v1';
-import { loadResourceLibrary } from './asset-runtime.js?v=20261110-hkne-3d-v1';
+import { loadResourceLibrary } from './asset-runtime.js?v=20261111-hkne-motions-v1';
 import { filterPreferredSitItems } from './seated-posture.js?v=20261027-seated-rollback-v1';
 import { createPerformanceBucket, recordPerformanceSample, snapshotPerformanceBucket } from './performance-monitor-core.js?v=20261030-perf-diagnostic-v2';
 import { phonePropForIdol, propVisibilityForCue, resolvePropAnchorName } from './stage-props.js';
@@ -75,13 +75,13 @@ export {
     shouldShowLivePortrait,
 };
 
-const LIBRARY_JSON = './library.json?v=20261110-hkne-3d-v1';
-const MOTION_MAP_JSON = './gakumas-motion-map.json?v=20261010-story-actions-v1';
+const LIBRARY_JSON = './library.json?v=20261111-hkne-motions-v1';
+const MOTION_MAP_JSON = './gakumas-motion-map.json?v=20261111-hkne-motions-v1';
 const PRESENTATION_BUFFER_RELEASE_DELAY_MS = 8000;
 const GPU_TEXTURE_RELEASE_DELAY_MS = 20000;
 const STAGE_ASSET_ROOT = new URL('./', import.meta.url);
 const SECONDARY_MOTION_JSON = new URL('gakumas-secondary-motion.json?v=20261002-secondary-motion-v25-kcna-native-skirt', STAGE_ASSET_ROOT).href;
-const SECONDARY_MOTION_MANIFEST = new URL('secondary-motion-manifest.json?v=20261110-hkne-3d-v1', STAGE_ASSET_ROOT).href;
+const SECONDARY_MOTION_MANIFEST = new URL('secondary-motion-manifest.json?v=20261111-hkne-motions-v1', STAGE_ASSET_ROOT).href;
 const SECONDARY_PROFILE_VERSION = '20261109-ssmk-collision-restore-v1';
 const secondaryMotionTables = new Map();
 

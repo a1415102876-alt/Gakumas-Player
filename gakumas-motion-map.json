@@ -1,17 +1,17 @@
 {
   "version": 1,
-  "generatedFrom": "clip names and _b/_f pairing; Nasr dedicated body supplement nasr-003; story all-scope supplement all-story-20261010; audition30 paired supplement 20261015",
+  "generatedFrom": "clip names and _b/_f pairing; Nasr dedicated body supplement nasr-003; story all-scope supplement all-story-20261010; audition30 paired supplement 20261015; hkne dedicated body and face supplement 2026-11-11",
   "counts": {
-    "total": 988,
-    "paired": 581,
+    "total": 997,
+    "paired": 584,
     "bodyOnly": 96,
-    "faceOnly": 311
+    "faceOnly": 317
   },
   "buckets": [
     {
       "id": "emotion",
       "label": "情绪反应",
-      "count": 205,
+      "count": 206,
       "families": [
         {
           "id": "anshin",
@@ -3846,6 +3846,30 @@
               "variant": "",
               "index": "001",
               "extra": "story-supplement",
+              "phase": "in",
+              "additive": false,
+              "brow": "",
+              "mouth": ""
+            }
+          ]
+        },
+        {
+          "id": "odoroku",
+          "label": "吃惊",
+          "items": [
+            {
+              "stem": "mot-all-chr-hkne-odoroku-001-in",
+              "title": "香名江 吃惊 001 进入",
+              "label": "mot_all_chr_hkne_odoroku-001_in",
+              "body": "mot-all-chr-hkne-odoroku-001-in-b",
+              "face": "mot-all-chr-hkne-odoroku-001-in-f",
+              "other": "",
+              "pairing": "paired",
+              "scope": "all",
+              "character": "hkne",
+              "variant": "",
+              "index": "001",
+              "extra": "",
               "phase": "in",
               "additive": false,
               "brow": "",
@@ -12053,7 +12077,7 @@
     {
       "id": "faceOnly",
       "label": "仅表情（无配套动作）",
-      "count": 311,
+      "count": 317,
       "families": [
         {
           "id": "facial:toji1-ikari1",
@@ -18864,13 +18888,157 @@
               "mouth": "kowaikao1"
             }
           ]
+        },
+        {
+          "id": "facial:-default",
+          "label": "默认表情",
+          "items": [
+            {
+              "stem": "mot-all-chr-hkne-facial-all-default-in",
+              "title": "香名江 默认表情",
+              "label": "mot_all_chr_hkne_facial-all-default_in_f",
+              "body": "",
+              "face": "mot-all-chr-hkne-facial-all-default-in-f",
+              "other": "",
+              "pairing": "faceOnly",
+              "scope": "all",
+              "character": "hkne",
+              "variant": "",
+              "index": "",
+              "extra": "",
+              "phase": "in",
+              "additive": false,
+              "brow": "",
+              "mouth": "default"
+            }
+          ]
+        },
+        {
+          "id": "facial:unique-egao1",
+          "label": "专属笑脸",
+          "items": [
+            {
+              "stem": "mot-all-chr-hkne-facial-all-unique-egao1-in",
+              "title": "香名江 专属笑脸",
+              "label": "mot_all_chr_hkne_facial-all-unique-egao1_in_f",
+              "body": "",
+              "face": "mot-all-chr-hkne-facial-all-unique-egao1-in-f",
+              "other": "",
+              "pairing": "faceOnly",
+              "scope": "all",
+              "character": "hkne",
+              "variant": "",
+              "index": "",
+              "extra": "",
+              "phase": "in",
+              "additive": false,
+              "brow": "unique",
+              "mouth": "egao1"
+            }
+          ]
+        },
+        {
+          "id": "facial:unique-kiran1",
+          "label": "专属闪亮表情",
+          "items": [
+            {
+              "stem": "mot-all-chr-hkne-facial-all-unique-kiran1-in",
+              "title": "香名江 专属闪亮表情",
+              "label": "mot_all_chr_hkne_facial-all-unique-kiran1_in_f",
+              "body": "",
+              "face": "mot-all-chr-hkne-facial-all-unique-kiran1-in-f",
+              "other": "",
+              "pairing": "faceOnly",
+              "scope": "all",
+              "character": "hkne",
+              "variant": "",
+              "index": "",
+              "extra": "",
+              "phase": "in",
+              "additive": false,
+              "brow": "unique",
+              "mouth": "kiran1"
+            }
+          ]
+        },
+        {
+          "id": "facial:unique-no1",
+          "label": "专属无表情",
+          "items": [
+            {
+              "stem": "mot-all-chr-hkne-facial-all-unique-no1-in",
+              "title": "香名江 专属无表情",
+              "label": "mot_all_chr_hkne_facial-all-unique-no1_in_f",
+              "body": "",
+              "face": "mot-all-chr-hkne-facial-all-unique-no1-in-f",
+              "other": "",
+              "pairing": "faceOnly",
+              "scope": "all",
+              "character": "hkne",
+              "variant": "",
+              "index": "",
+              "extra": "",
+              "phase": "in",
+              "additive": false,
+              "brow": "unique",
+              "mouth": "no1"
+            }
+          ]
+        },
+        {
+          "id": "facial:unique-nohighlight1",
+          "label": "专属无高光",
+          "items": [
+            {
+              "stem": "mot-all-chr-hkne-facial-all-unique-nohighlight1-in",
+              "title": "香名江 专属无高光",
+              "label": "mot_all_chr_hkne_facial-all-unique-nohighlight1_in_f",
+              "body": "",
+              "face": "mot-all-chr-hkne-facial-all-unique-nohighlight1-in-f",
+              "other": "",
+              "pairing": "faceOnly",
+              "scope": "all",
+              "character": "hkne",
+              "variant": "",
+              "index": "",
+              "extra": "",
+              "phase": "in",
+              "additive": false,
+              "brow": "unique",
+              "mouth": "nohighlight1"
+            }
+          ]
+        },
+        {
+          "id": "facial:unique-uruuru1",
+          "label": "专属泪眼",
+          "items": [
+            {
+              "stem": "mot-all-chr-hkne-facial-all-unique-uruuru1-in",
+              "title": "香名江 专属泪眼",
+              "label": "mot_all_chr_hkne_facial-all-unique-uruuru1_in_f",
+              "body": "",
+              "face": "mot-all-chr-hkne-facial-all-unique-uruuru1-in-f",
+              "other": "",
+              "pairing": "faceOnly",
+              "scope": "all",
+              "character": "hkne",
+              "variant": "",
+              "index": "",
+              "extra": "",
+              "phase": "in",
+              "additive": false,
+              "brow": "unique",
+              "mouth": "uruuru1"
+            }
+          ]
         }
       ]
     },
     {
       "id": "other",
       "label": "未分类",
-      "count": 17,
+      "count": 19,
       "families": [
         {
           "id": "hug",
@@ -19189,6 +19357,54 @@
               "variant": "",
               "index": "001",
               "extra": "story-supplement",
+              "phase": "in",
+              "additive": false,
+              "brow": "",
+              "mouth": ""
+            }
+          ]
+        },
+        {
+          "id": "teapot",
+          "label": "捧茶定格",
+          "items": [
+            {
+              "stem": "mot-all-chr-hkne-teapot-001-pose",
+              "title": "香名江 捧茶定格",
+              "label": "mot_all_chr_hkne_teapot-001_pose",
+              "body": "mot-all-chr-hkne-teapot-001-pose-b",
+              "face": "mot-all-chr-hkne-teapot-001-pose-f",
+              "other": "",
+              "pairing": "paired",
+              "scope": "all",
+              "character": "hkne",
+              "variant": "",
+              "index": "001",
+              "extra": "",
+              "phase": "pose",
+              "additive": false,
+              "brow": "",
+              "mouth": ""
+            }
+          ]
+        },
+        {
+          "id": "uttori",
+          "label": "陶醉",
+          "items": [
+            {
+              "stem": "mot-all-chr-hkne-uttori-001-in",
+              "title": "香名江 陶醉 001 进入",
+              "label": "mot_all_chr_hkne_uttori-001_in",
+              "body": "mot-all-chr-hkne-uttori-001-in-b",
+              "face": "mot-all-chr-hkne-uttori-001-in-f",
+              "other": "",
+              "pairing": "paired",
+              "scope": "all",
+              "character": "hkne",
+              "variant": "",
+              "index": "001",
+              "extra": "",
               "phase": "in",
               "additive": false,
               "brow": "",

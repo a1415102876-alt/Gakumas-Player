@@ -1,6 +1,6 @@
-import { BeatPlayerApp } from '../beat-player.js?v=20261110-hkne-3d-v1';
-import { setLivePictureOptions } from '../live-portrait.js?v=20261110-hkne-3d-v1';
-import { createLocalChatBridge, normalizeChatReply, playerChatScene } from '../beat-chat.js?v=20261110-hkne-3d-v1';
+import { BeatPlayerApp } from '../beat-player.js?v=20261111-hkne-motions-v1';
+import { setLivePictureOptions } from '../live-portrait.js?v=20261111-hkne-motions-v1';
+import { createLocalChatBridge, normalizeChatReply, playerChatScene } from '../beat-chat.js?v=20261111-hkne-motions-v1';
 import { createChatMemoryPanel } from './chat-memory-panel.js?v=20261107-chat-memory-v1';
 import { mountResourceMonitor } from '../resource-monitor.js?v=20261108-resource-monitor-v1';
 import { loadTavernWorldbook } from '../worldbook-scan.js?v=20261024-worldbook-v1';

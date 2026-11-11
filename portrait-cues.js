@@ -1,9 +1,9 @@
 import { PAIRED_CUES, BODY_ONLY_CUES, FACE_ONLY_CUES } from './dialogue-intent.js?v=20261011-emotion-cue-labels-v2';
 import { DEFAULT_MOTION_VARIANTS, findFacePlaylistIndex, findGesturePlaylistIndex, gesturePlaylistCandidateIndices } from './core.js?v=20261011-weighted-cues-v2';
 import { isLivePortraitSpeaker } from './live-portrait-policy.js';
-import { sceneIdolId, buildStageRules } from './scene-protocol.js';
+import { sceneIdolId, buildStageRules } from './scene-protocol.js?v=20261111-hkne-motions-v1';
 import { beatMotionFileKey, isBeatMotionCandidate, isBeatMotionEligible, isBeatPairedCue, parseBeatCueToken } from './beat-cues.js?v=20261103-paired-face-v1';
-export { sceneIdolId, buildStageRules, splitStageStory, parseStageTag, stageSnapshot, detectSceneCast } from './scene-protocol.js';
+export { sceneIdolId, buildStageRules, splitStageStory, parseStageTag, stageSnapshot, detectSceneCast } from './scene-protocol.js?v=20261111-hkne-motions-v1';
 
 function canonicalWords(table) {
     const seen = new Set();
@@ -226,7 +226,7 @@ export function buildIdol3dRules(idolName = '偶像', availableTags = []) {
         `功能词只允许使用实际动作库白名单：${tags}。同语义的本角色专属组与通用组均可用时，前端按60%/40%选组，再在组内选择候选；有配套身体与表情时使用成套动作，否则才组合独立动作和表情。不得输出文件名、内部ID或不存在的动作。`,
         '情绪区分：琴音的害羞或tereru-happy在高兴害羞专属001（60%）与通用B-001/B-002（合计40%）之间选择；tereru-unhappy只调用不高兴害羞专属002，不混入高兴害羞。普通 happy 使用一般笑脸，very-happy 才调用角色 unique-egao。普通哭泣的通用组仅包含cry-001/cry-002，不包含哭后笑容或手舞足蹈式大哭。通用无类型yaruki-001/002暂不作为候选，A/B/C/D通用干劲和角色专属干劲仍可用。',
         '动作应服务于剧情：普通说话保持说话，倾听使用待机或应答，明确点头、摇头、递交、鞠躬、坐下、起身或转身时才调用对应动作。相邻两段如果能自然表达出不同动作或表情，尽量避免同一说话人的动作与表情组合完全重复；必须保持同一语义时沿用当前功能词，播放器会在同一功能词存在多个候选资源时避开上一候选。',
-        '多人对话时，当前说话者看向实际听话者；听话者看向说话者并用待机、应答、点头或情绪动作做轻微回应。向制作人、观众、舞台或直播镜头表达时才看向camera。',
+        '多人对话时，当前说话者看向实际听话者；听话者看向说话者并用待机、应答、点头或情绪动作做轻微回应。偶像对制作人说话时必须看向camera，不要把producer当作stage-look目标；向观众、舞台或直播镜头表达时也看向camera。',
         '注意方向变化使用独立舞台标签 <stage-look idol="偶像全名" target="偶像全名|camera|none"/>；在场但未发言者的明确反应使用 <stage-action idol="偶像全名" cue="功能词"/>。标签只在目标或动作变化时输出，不要每句重复。',
         '模型由前端扫描回复中的偶像姓名并预加载；不要输出stage-preload。角色只有真实出现时才stage-enter，真实离开时才stage-exit；被提及、回忆、电话或画外音不进场。',
         buildStageRules(),

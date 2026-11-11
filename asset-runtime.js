@@ -9,7 +9,7 @@ async function json(url) {
     return response.json();
 }
 export function loadResourceLibrary() {
-    libraryPromise ||= Promise.all(['library.json?v=20261110-hkne-3d-v1', 'gakumas-motion-map.json?v=20261016-cache', 'resource-manifest.json?v=20261110-hkne-3d-v1']
+    libraryPromise ||= Promise.all(['library.json?v=20261111-hkne-motions-v1', 'gakumas-motion-map.json?v=20261111-hkne-motions-v1', 'resource-manifest.json?v=20261111-hkne-motions-v1']
         .map(name => json(new URL(name, ROOT)))).then(([config, map, manifest]) => ({ config, map, manifest, status: manifest.status }))
         .catch(error => { libraryPromise = null; throw error; });
     return libraryPromise;
