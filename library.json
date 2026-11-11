@@ -284,6 +284,15 @@
       "textureDir": "Texture2D",
       "note": "已导出CASL；Gakumas Shader补充贴图已接入；GLB 专用 krnh-casl 二次运动 profile 已接入（本次 capture 未验证原生算法执行与 Transform 写回）",
       "secondaryMotionProfile": false
+    },
+    {
+      "id": "hkne",
+      "name": "冰渡香名江",
+      "outfit": "OTHR-0004",
+      "pack": "idols/hkne-othr-0004",
+      "model": "hkne-othr-0004.glb",
+      "textureDir": "Texture2D",
+      "secondaryMotionProfile": "hkne-othr-0004"
     }
   ],
   "packs": {
@@ -418,6 +427,10 @@
     "idols/krnh": {
       "root": "G:/SillyTavern/SillyTavern/public/mmd-dialogue-stage/library/file/idols/krnh",
       "r2Prefix": "idols/krnh"
+    },
+    "idols/hkne-othr-0004": {
+      "root": "E:/gakumas-pmx-workflow/output/hkne-othr-0004",
+      "r2Prefix": "idols/hkne-othr-0004"
     },
     "idols/fktn-solo1": {
       "root": "G:\\SillyTavern\\SillyTavern\\public\\mmd-dialogue-stage\\library\\file\\idols\\fktn-solo1",

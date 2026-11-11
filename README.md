@@ -98,4 +98,6 @@ node --test tests/chat-memory.test.mjs tests/gpu-resource-estimator.test.mjs tes
 
 ## 许可与素材
 
-本仓库目前尚未提供项目级开源许可证，请在使用、修改或再分发前向项目维护者确认授权。第三方依赖和游戏相关的角色、模型、贴图、音频等素材可能有各自的权利归属；仓库或远程地址可访问不代表这些素材已获得再分发许可。Three.js 的许可文件见 [vendor/three/LICENSE](vendor/three/LICENSE)。
+本项目中由项目维护者及贡献者有权授权的原创代码以 [GNU 通用公共许可证第 3 版（GPL-3.0-only）](LICENSE)发布。第三方代码继续遵循其各自的许可证，例如 Three.js 的许可文件见 [vendor/three/LICENSE](vendor/three/LICENSE)。
+
+游戏相关的角色、模型、贴图、动作、音频等素材不因此获得 GPL 授权，其权利归各自的权利人所有；仓库或远程地址可访问不代表这些素材已获得使用或再分发许可。

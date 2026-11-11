@@ -1,10 +1,10 @@
-import { resolveNpcPortrait } from './beat-npc-portraits.js?v=20261102-krnh-3d-v1';
-import { sceneIdolId, SCENE_IDOLS, STAR_EYE_IDOLS } from './scene-protocol.js?v=20261102-krnh-3d-v1';
+import { resolveNpcPortrait } from './beat-npc-portraits.js?v=20261110-hkne-3d-v1';
+import { sceneIdolId, SCENE_IDOLS, STAR_EYE_IDOLS } from './scene-protocol.js?v=20261110-hkne-3d-v1';
 import { BEAT_CUE_IDS, BEAT_BODY_CUE_SPECS, BEAT_EFFECT_ALIASES, BEAT_EFFECT_IDS, BEAT_FACE_ALIASES, BEAT_FACE_IDS, BEAT_OVERLAY_CUE_IDS, isBeatMotionFile, resolveBeatCueAlias } from './beat-cues.js?v=20261103-paired-face-v1';
 import { normalizeFaceCue, normalizeGestureCue } from './dialogue-intent.js?v=20261026-cue-words-v1';
 import { resolveBeatBackgroundAsset } from './beat-background-assets.js?v=20261029-bg-filename-v1';
 import { resolveBeatCostume } from './beat-costumes.js?v=20261013-all-idol-solo1-v1';
-import { BEAT_CAMERA_PRESETS, BEAT_SHOTS, beatActorId } from './beat-player-core.js?v=20261102-krnh-3d-v1';
+import { BEAT_CAMERA_PRESETS, BEAT_SHOTS, beatActorId } from './beat-player-core.js?v=20261110-hkne-3d-v1';
 
 const DEFAULT_CUES = BEAT_CUE_IDS;
 const DEFAULT_SHOTS = BEAT_SHOTS;

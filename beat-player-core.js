@@ -1,6 +1,6 @@
 import { BEAT_CUE_IDS, BEAT_EFFECT_IDS, BEAT_FACE_IDS, BEAT_OVERLAY_CUE_IDS } from './beat-cues.js?v=20261011-stage-cue-rules-v4';
-import { BEAT_NPC_SPEAKER_NAMES } from './beat-npc-portraits.js?v=20261102-krnh-3d-v1';
-import { sceneIdolId } from './scene-protocol.js?v=20261102-krnh-3d-v1';
+import { BEAT_NPC_SPEAKER_NAMES } from './beat-npc-portraits.js?v=20261110-hkne-3d-v1';
+import { sceneIdolId } from './scene-protocol.js?v=20261110-hkne-3d-v1';
 
 export const BEAT_ACTOR_NAMES = Object.freeze({
     kotone: '藤田琴音',
@@ -17,6 +17,9 @@ export const BEAT_ACTOR_NAMES = Object.freeze({
     kcna: '仓本千奈',
     shro: '筱泽广',
     krnh: '贺阳燐羽',
+    hkne: '冰渡香名江',
+    氷渡香名江: '冰渡香名江',
+    香名江: '冰渡香名江',
     燐羽: '贺阳燐羽',
     小燐: '贺阳燐羽',
     賀陽燐羽: '贺阳燐羽',

@@ -4,7 +4,7 @@ export const SCENE_IDOLS = Object.freeze({
     藤田琴音: 'fktn', 花海咲季: 'hski', 花海佑芽: 'hume', 姬崎莉波: 'hrnm',
     紫云清夏: 'ssmk', 葛城莉莉娅: 'kllj', 十王星南: 'jsna', 秦谷美铃: 'hmsz',
     雨夜燕: 'atbm', 有村麻央: 'amao', 月村手毬: 'ttmr', 仓本千奈: 'kcna', 筱泽广: 'shro',
-    贺阳燐羽: 'krnh', 亚纱里老师: 'nasr',
+    贺阳燐羽: 'krnh', 亚纱里老师: 'nasr', 冰渡香名江: 'hkne',
 });
 
 // Re-export the generated resource list so Beat and scene consumers share the

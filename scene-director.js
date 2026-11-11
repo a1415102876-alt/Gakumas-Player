@@ -1,6 +1,6 @@
-import { stageSnapshot, sceneIdolId, SCENE_IDOLS } from './scene-protocol.js?v=20261102-krnh-3d-v1';
+import { stageSnapshot, sceneIdolId, SCENE_IDOLS } from './scene-protocol.js?v=20261110-hkne-3d-v1';
 import { StageAttentionController } from './stage-attention.js?v=20261030-perf-diagnostic-v2';
-import { stagePositionOffset } from './beat-player-core.js?v=20261011-action-rules-v3';
+import { stagePositionOffset } from './beat-player-core.js?v=20261110-hkne-3d-v1';
 import { costumeEntryKey, resolveBeatCostume } from './beat-costumes.js?v=20261013-all-idol-solo1-v1';
 
 export class SceneDirector {

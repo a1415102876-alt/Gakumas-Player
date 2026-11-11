@@ -349,7 +349,7 @@ export const BEAT_NPC_PORTRAITS = Object.freeze([
       }
     ]
   }
-]);
+].filter(character => character.id !== 'hkne'));
 
 export const BEAT_NPC_SPEAKER_NAMES = Object.freeze(Object.fromEntries(BEAT_NPC_PORTRAITS.map(character => [character.id, character.name])));
 const normalizeName = value => String(value || '').replace(/\s+/gu, '').toLowerCase();

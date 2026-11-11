@@ -1,6 +1,6 @@
-import { BeatPlayerApp } from '../beat-player.js?v=20261109-actor-light-v3';
-import { setLivePictureOptions } from '../live-portrait.js?v=20261109-actor-light-v3';
-import { createLocalChatBridge, normalizeChatReply, playerChatScene } from '../beat-chat.js?v=20261108-chat-clock-v1';
+import { BeatPlayerApp } from '../beat-player.js?v=20261110-hkne-3d-v1';
+import { setLivePictureOptions } from '../live-portrait.js?v=20261110-hkne-3d-v1';
+import { createLocalChatBridge, normalizeChatReply, playerChatScene } from '../beat-chat.js?v=20261110-hkne-3d-v1';
 import { createChatMemoryPanel } from './chat-memory-panel.js?v=20261107-chat-memory-v1';
 import { mountResourceMonitor } from '../resource-monitor.js?v=20261108-resource-monitor-v1';
 import { loadTavernWorldbook } from '../worldbook-scan.js?v=20261024-worldbook-v1';
@@ -8,7 +8,7 @@ import { applyFishTtsSettings, fishTtsStatus, resolveFishTtsSettings } from '../
 import { SANDBOX_CHAT_SETTINGS_KEY, buildSandboxChatSettings, mergeStoredChatSettings, readStoredFreeChatSettings } from '../sandbox/sandbox-chat.js?v=20261106-player-chat-v1';
 import { aaLevel } from '../gakumas-aa.js?v=20261105-aa-level-v1';
 import { SANDBOX_PICTURE_KEY, normalizeSandboxPicture } from '../sandbox/sandbox-picture.js?v=20261105-floor-ssr-v1';
-import { buildWeirdContinuationPrompt, buildWeirdScriptPrompt, extractClosedBeatScript, prepareDirectBeatScript, WEIRD_SCRIPT_MODE } from '../sandbox/sandbox-weird-script.js?v=20261106-expand-style-v1';
+import { buildWeirdContinuationPrompt, buildWeirdScriptPrompt, extractClosedBeatScript, prepareDirectBeatScript, WEIRD_SCRIPT_MODE } from '../sandbox/sandbox-weird-script.js?v=20261110-hkne-3d-v1';
 import { appendBeatScript, GP_MODE, gpModeCopy, gpModeUsesAi, normalizeGpMode, readGpDraft, summarizeBeatScript, writeGpDraft } from './gakumas-player-model.js?v=20261108-chat-clock-v1';
 
 const field = id => document.getElementById(id);

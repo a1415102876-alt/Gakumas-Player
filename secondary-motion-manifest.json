@@ -716,6 +716,24 @@
         "pmx": null,
         "skeleton": "G:/SillyTavern/SillyTavern/tools/gakumas-vmd-prototype/krnh-candidate-20261102/skeletons/krnh-casl.json"
       }
+    },
+    {
+      "modelKey": "hkne-othr-0004",
+      "aliases": [
+        "hkne-othr-0004-glb-hair-layer"
+      ],
+      "idolId": "hkne",
+      "outfitId": "othr-0004",
+      "glb": "E:/gakumas-pmx-workflow/output/hkne-othr-0004/hkne-othr-0004.glb",
+      "profile": "secondary-motion-profiles/hkne-othr-0004.json",
+      "profileId": "hkne-othr-0004",
+      "glbSha256": "C2557EA4C008676B5F15114F6594AC86108ADC50C71DEBF6CCFE27E98A23D0FD",
+      "source": {
+        "body": "mdl_chr_hkne-othr-0004_body",
+        "face": "mdl_chr_hkne-base-0000_face",
+        "hair": "mdl_chr_hkne-base-0000_hair",
+        "capture": "capture-2026-11-10-23-0-24-50348-317488234"
+      }
     }
   ]
 }

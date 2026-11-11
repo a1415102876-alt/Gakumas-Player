@@ -26,7 +26,7 @@ import { ACTOR_ADDITIONAL_LIGHTS, GAKUMAS_LOOK, GakumasLookPass, actorEnvironmen
 import { aaLevel } from './gakumas-aa.js?v=20261105-aa-level-v1';
 import { GakumasPostPass, setCaptureMotionBlur } from './gakumas-post.js?v=20261105-floor-ssr-v1';
 import { motionFromPositions } from './gakumas-taa-motion.js?v=20261027-motion-aware-taa-v1';
-import { backgroundDepthBlur, backgroundPanAmount, stagePlateCover, zoomPlateCover } from './beat-player-core.js?v=20261027-bg-zoom-v1';
+import { backgroundDepthBlur, backgroundPanAmount, stagePlateCover, zoomPlateCover } from './beat-player-core.js?v=20261110-hkne-3d-v1';
 import { hasGakumasVertexColorAttribute } from './gakumas-outline.js?v=20260909-outline1';
 import {
     LIVE_PORTRAIT_IDOL_ID,
@@ -40,14 +40,14 @@ import { parsePortraitCue, selectPortraitPerformance, portraitPerformanceCandida
 import { StageAttentionController } from './stage-attention.js?v=20261103-adopt-base-v1';
 import { bindVisemeMorphs } from './dialogue-intent.js?v=20261011-emotion-cue-labels-v2';
 import { applyTalkMouthProfile, selectTalkMouthProfile, talkArticulationFromPhase } from './tts-lip-sync.js?v=20261107-surprise-mouth-v1';
-import { SceneDirector } from './scene-director.js?v=20261108-resource-monitor-v1';
+import { SceneDirector } from './scene-director.js?v=20261110-hkne-3d-v1';
 import { portraitCrowdBudget } from './portrait-crowd-budget.js?v=20261024-crowd-budget-v1';
 import { configureGlbAnimationTarget, detectLivePortraitFormat } from './live-portrait-model.js';
 import { bindGlbMorphTracks } from './glb-morph-tracks.js?v=20260929-face-primitives-v1';
 import { SecondaryMotion, applyHairRestRotationRebase, rebaseHairAnimationTracks, refreshRestInverseBinds } from './gakumas-secondary-motion.js?v=20261102-krnh-sleeve-gravity-v1';
 import { SecondaryMotionProxy, physicsLead, physicsWorkerSupported } from './secondary-motion-proxy.js?v=20261106-physics-worker-v1';
 import { FacialEffectsStage } from './facial-effects-stage.js?v=20261017-browser-cache-v1';
-import { loadResourceLibrary } from './asset-runtime.js?v=20261109-ssmk-collision-restore-v1';
+import { loadResourceLibrary } from './asset-runtime.js?v=20261110-hkne-3d-v1';
 import { filterPreferredSitItems } from './seated-posture.js?v=20261027-seated-rollback-v1';
 import { createPerformanceBucket, recordPerformanceSample, snapshotPerformanceBucket } from './performance-monitor-core.js?v=20261030-perf-diagnostic-v2';
 import { phonePropForIdol, propVisibilityForCue, resolvePropAnchorName } from './stage-props.js';
@@ -75,13 +75,13 @@ export {
     shouldShowLivePortrait,
 };
 
-const LIBRARY_JSON = './library.json?v=20261013-all-idol-solo1-v1';
+const LIBRARY_JSON = './library.json?v=20261110-hkne-3d-v1';
 const MOTION_MAP_JSON = './gakumas-motion-map.json?v=20261010-story-actions-v1';
 const PRESENTATION_BUFFER_RELEASE_DELAY_MS = 8000;
 const GPU_TEXTURE_RELEASE_DELAY_MS = 20000;
 const STAGE_ASSET_ROOT = new URL('./', import.meta.url);
 const SECONDARY_MOTION_JSON = new URL('gakumas-secondary-motion.json?v=20261002-secondary-motion-v25-kcna-native-skirt', STAGE_ASSET_ROOT).href;
-const SECONDARY_MOTION_MANIFEST = new URL('secondary-motion-manifest.json?v=20261026-hair-contact-v1', STAGE_ASSET_ROOT).href;
+const SECONDARY_MOTION_MANIFEST = new URL('secondary-motion-manifest.json?v=20261110-hkne-3d-v1', STAGE_ASSET_ROOT).href;
 const SECONDARY_PROFILE_VERSION = '20261109-ssmk-collision-restore-v1';
 const secondaryMotionTables = new Map();
 

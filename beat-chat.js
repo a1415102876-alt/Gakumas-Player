@@ -1,4 +1,4 @@
-import { parseBeatScript } from './beat-protocol.js?v=20261026-cue-words-v1';
+import { parseBeatScript } from './beat-protocol.js?v=20261110-hkne-3d-v1';
 import { activateTavernWorldbook, importTavernWorldbook } from './worldbook-scan.js';
 
 const DEFAULT_BACKGROUND = '家·教室（午）';

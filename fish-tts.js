@@ -16,6 +16,7 @@
   const MAO_REFERENCE_ID = "4199b1062c28461ca822d130138e99d1";
   const RINHA_REFERENCE_ID = "7eee5c0eca834d529902e9bfcd810d7f";
   const ASARI_REFERENCE_ID = "d58dc7b87a554a72a03c6cfd64b53816";
+  const KANAE_REFERENCE_ID = "df77ae3e7b3b45798c0641f6a2fe928f";
   const DEFAULT_WORKER_ORIGIN = "https://tts.sawadaz.xyz";
   const LEGACY_PROXY_URL = "https://hatsuboshitest.a1415102876.workers.dev/api/fish-tts";
   const DEFAULT_MODEL = "s2.1-pro-free";
@@ -166,7 +167,14 @@
     ["根緒亜紗里", ASARI_REFERENCE_ID],
     ["亚纱里", ASARI_REFERENCE_ID],
     ["亚纱里老师", ASARI_REFERENCE_ID],
-    ["亜紗里", ASARI_REFERENCE_ID]
+    ["亜紗里", ASARI_REFERENCE_ID],
+    ["hkne", KANAE_REFERENCE_ID],
+    ["kanae", KANAE_REFERENCE_ID],
+    ["hido kanae", KANAE_REFERENCE_ID],
+    ["hido-kanae", KANAE_REFERENCE_ID],
+    ["冰渡香名江", KANAE_REFERENCE_ID],
+    ["氷渡香名江", KANAE_REFERENCE_ID],
+    ["香名江", KANAE_REFERENCE_ID]
   ]);
 
   const state = {
@@ -258,6 +266,7 @@
     if (/(?:^|\s)(?:kcna|china|kuramoto\s+china)(?:$|\s)/i.test(normalized)) return CHINA_REFERENCE_ID;
     if (/(?:^|\s)(?:krnh|rinha|kaya\s+rinha|kaya-rinha)(?:$|\s)/i.test(normalized)) return RINHA_REFERENCE_ID;
     if (/(?:^|\s)(?:nasr|asari|nezu\s+asari|nezu-asari)(?:$|\s)/i.test(normalized)) return ASARI_REFERENCE_ID;
+    if (/(?:^|\s)(?:hkne|kanae|hido\s+kanae|hido-kanae)(?:$|\s)/i.test(normalized)) return KANAE_REFERENCE_ID;
     return "";
   }
 
