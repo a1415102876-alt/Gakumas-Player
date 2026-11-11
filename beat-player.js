@@ -1,7 +1,7 @@
-import { createSceneDirector } from './live-portrait.js?v=20261111-hkne-motions-v1';
+import { createSceneDirector } from './live-portrait.js?v=20261111-beat-breath-tts-v2';
 import { performanceRecommendations } from './performance-monitor-core.js?v=20261030-perf-diagnostic-v2';
 import { sceneIdolId } from './scene-protocol.js?v=20261111-hkne-motions-v1';
-import { buildStageSlides, cameraWalkOffset, parseBeatScript, resolveActorPoses, resolveBeatCue } from './beat-protocol.js?v=20261111-hkne-motions-v1';
+import { buildStageSlides, cameraWalkOffset, parseBeatScript, resolveActorPoses, resolveBeatCue } from './beat-protocol.js?v=20261111-beat-breath-tts-v2';
 import { applyActorPose, applyCameraPose } from './scene-free-look.js?v=20261103-camera-lens-v1';
 import { BeatScenePool } from './beat-scene-pool.js?v=20261109-actor-light-v3';
 import { isBeatScene } from './beat-background-assets.js?v=20261108-chat-clock-v1';
@@ -13,7 +13,7 @@ import { loadResourceLibrary, ResourceSession } from './asset-runtime.js?v=20261
 import { buildDialogueAssetPlan } from './dialogue-asset-plan.js?v=20261103-paired-face-v1';
 import { createResourceLoading } from './resource-loading.js';
 import { ResourceBarrier } from './resource-barrier.js';
-import { buildChatPrompt, createChatBridge, normalizeChatReply } from './beat-chat.js?v=20261111-hkne-motions-v1';
+import { buildChatPrompt, createChatBridge, normalizeChatReply } from './beat-chat.js?v=20261111-beat-breath-tts-v2';
 import { estimateTypewriterDuration, isProducerSpeaker, typewriterDelayMs, TYPEWRITER_DEFAULTS } from './dialogue-reveal.js';
 
 // Resolve against this module. A document-relative ./backgrounds_2d path

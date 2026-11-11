@@ -1,11 +1,11 @@
 import { actorPoseFromObject, cameraPoseFromObject } from './scene-free-look.js?v=20261102-actor-pose-v1';
-import { BeatPlayerApp } from './beat-player.js?v=20261111-hkne-motions-v1';
+import { BeatPlayerApp } from './beat-player.js?v=20261111-beat-breath-tts-v2';
 import { BEAT_BACKGROUND_NAMES } from './beat-backgrounds.js?v=20261017-browser-cache-v1';
 import { BEAT_SCENE_ASSETS } from './beat-scene-assets.js?v=20261027-scene-library-v1';
 import { BEAT_CUES, BEAT_EFFECTS, BEAT_FACES, BEAT_OVERLAYS, BEAT_POSITIONS, BEAT_SHOTS, BEAT_CAMERA_PRESETS, BEAT_SPEAKER_NAMES, beatActorId } from './beat-player-core.js?v=20261111-hkne-motions-v1';
 import { BEAT_BODY_CUE_SPECS, BEAT_CUE_ALIASES, beatMotionFileKey, isBeatMotionFile, isBeatPairedCue } from './beat-cues.js?v=20261103-paired-face-v1';
 import { MOTION_BUCKETS } from './core.js?v=20261011-stage-cue-rules-v4';
-import { createEditorBeat, cloneEditorBeat, moveBeat, parseBeatEditorSource, serializeBeatEditorScript, updateBeat, validateEditorDocument } from './beat-editor-model.js?v=20261111-hkne-motions-v1';
+import { createEditorBeat, cloneEditorBeat, moveBeat, parseBeatEditorSource, serializeBeatEditorScript, updateBeat, validateEditorDocument } from './beat-editor-model.js?v=20261111-beat-breath-tts-v2';
 import { createActorPoseGizmo } from './beat-actor-gizmo.js?v=20261103-actor-gizmo-v1';
 
 const qs = (id) => document.getElementById(id);

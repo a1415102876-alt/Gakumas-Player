@@ -322,6 +322,7 @@ export class LivePortraitRuntime {
         this.additiveFinishedHandler = null;
         this.pendingAdditiveFinish = null;
         this.additiveClipId = '';
+        this.idleAdditiveRequest = null;
         this.basePerformanceFinished = false;
         this.performanceKey = '';
         this.performanceSelection = null;
@@ -1166,11 +1167,13 @@ export class LivePortraitRuntime {
             avoidFace: previousSelection?.face,
         });
         if (!item) return false;
-        if (cue.mode !== 'additive' && previousSelection && item.body === previousSelection.body && item.face === previousSelection.face) {
+        const currentSelection = this.performanceSelection;
+        if (cue.mode !== 'additive' && currentSelection
+            && (item.body || '') === currentSelection.body && (item.face || '') === currentSelection.face) {
+            this.performanceKey = key;
             this.holdSamePerformance();
             return true;
         }
-        if (cue.mode !== 'additive') this.clearAdditiveClip();
         const files = motionAssetUrls(item, this.config, this.indexByPack);
         if (cue.mode !== 'file' && this.idolId === 'nasr' && !item.face && item.body) {
             const idle = await this.ensureFamily('idle', { play: !firstFrame, skipFace: true });
@@ -1220,9 +1223,9 @@ export class LivePortraitRuntime {
 
     playAdditiveClip(source, clipId = '') {
         const mixer = this.ensureMixer();
-        // These are head gestures over an independent body+face performance.
+        // Head gestures can layer over independent, paired or file-based bodies.
         // Full-body and facial tracks from a baked VMD must not dilute the base.
-        if (!mixer || !source || !this.performanceKey?.startsWith('mixed:')) return false;
+        if (!mixer || !source || !this.performanceSelection?.body) return false;
         this.clearAdditiveClip();
         this.performanceClips ||= new Map();
         const cacheKey = `${clipId}:head-additive`;
@@ -1296,26 +1299,39 @@ export class LivePortraitRuntime {
         // A repeated cue keeps the held pose. A one-shot nod still ends, but
         // the looping breath must stay, or start if the pose is already held.
         if (this.additiveFinishedHandler) this.clearAdditiveClip();
-        if (!this.basePerformanceFinished || !this.autoIdleAdditiveOnHold || this.additiveAction) return;
+        this.ensureIdleAdditiveOnHold();
+    }
+
+    ensureIdleAdditiveOnHold() {
+        if (this.paused || !this.basePerformanceFinished || !this.autoIdleAdditiveOnHold || this.additiveAction) return;
         this.playRandomIdleAdditiveOnHold(this.playGeneration).catch(error => {
             console.warn('[LivePortrait] idle additive hold failed', error);
         });
     }
 
     async playRandomIdleAdditiveOnHold(generation = this.playGeneration) {
-        if (!this.autoIdleAdditiveOnHold || this.paused || !this.basePerformanceFinished || generation !== this.playGeneration) return false;
-        const candidates = this.idleAdditiveItems();
-        if (!candidates.length) return false;
-        const item = candidates[Math.floor(Math.random() * candidates.length)];
-        const files = motionAssetUrls(item, this.config, this.indexByPack);
-        if (files.length !== 1 || files[0].kind !== 'body' || files[0].guessed) return false;
-        await this.importMotionEntries(files.map(file => ({ ...file, label: item.label, additive: true })));
-        if (this.paused || !this.basePerformanceFinished || generation !== this.playGeneration) return false;
-        const source = this.actions.get(files[0].id)?.clip;
-        return this.playIdleAdditiveClip(source, files[0].id);
+        if (!this.autoIdleAdditiveOnHold || this.paused || !this.basePerformanceFinished || this.additiveAction
+            || generation !== this.playGeneration || this.idleAdditiveRequest?.generation === generation) return false;
+        const request = { generation };
+        this.idleAdditiveRequest = request;
+        try {
+            const candidates = this.idleAdditiveItems();
+            if (!candidates.length) return false;
+            const item = candidates[Math.floor(Math.random() * candidates.length)];
+            const files = motionAssetUrls(item, this.config, this.indexByPack);
+            if (files.length !== 1 || files[0].kind !== 'body' || files[0].guessed) return false;
+            await this.importMotionEntries(files.map(file => ({ ...file, label: item.label, additive: true })));
+            if (this.idleAdditiveRequest !== request || this.paused || this.additiveAction
+                || !this.basePerformanceFinished || generation !== this.playGeneration) return false;
+            const source = this.actions.get(files[0].id)?.clip;
+            return this.playIdleAdditiveClip(source, files[0].id);
+        } finally {
+            if (this.idleAdditiveRequest === request) this.idleAdditiveRequest = null;
+        }
     }
 
     clearAdditiveClip() {
+        this.idleAdditiveRequest = null;
         const mixer = this.model ? this.ensureMixer() : null;
         if (mixer && this.additiveFinishedHandler) mixer.removeEventListener('finished', this.additiveFinishedHandler);
         this.additiveFinishedHandler = null;
@@ -1534,7 +1550,11 @@ export class LivePortraitRuntime {
         if (!clips.length) return false;
         const mixer = this.ensureMixer();
         if (!mixer) return false;
-        this.clearAdditiveClip();
+        // A different face may reuse the already-held body. Keep its looping
+        // breath and phase; a new body or an explicit restart replaces it.
+        const keepBreath = !options.restart && this.additiveAction && !this.additiveFinishedHandler
+            && clips.some(({ clip, kind }) => kind === 'body' && this.liveActions.some(action => action.getClip() === clip));
+        if (!keepBreath) this.clearAdditiveClip();
         this.basePerformanceFinished = false;
         mixer.timeScale = 1;
         const requestedFade = options.fade ?? (this.liveActions.length ? fadeDurationForTransition(fromItem, item) : 0);
@@ -1615,14 +1635,20 @@ export class LivePortraitRuntime {
 
     attachClipFinished(mixer, clips, item, generation) {
         if (!mixer || !clips.length) return;
-        const longest = clips.reduce((left, right) => (right.duration > left.duration ? right : left));
-        const handler = event => {
-            if (this.playGeneration !== generation || event.action.getClip() !== longest) return;
+        const actions = clips.map(clip => mixer.clipAction(clip));
+        // Reused actions can already be clamped at their last frame. They will
+        // not emit another finished event, even if their clip is the longest.
+        const finish = action => {
+            if (this.playGeneration !== generation || actions.some(action => action.enabled && !action.paused)) return;
             this.clearFinishedHandler(mixer);
-            this.pendingFinish = { action: event.action, generation };
+            this.pendingFinish = { action, generation };
+        };
+        const handler = event => {
+            if (actions.includes(event.action)) finish(event.action);
         };
         this.finishedHandler = handler;
         mixer.addEventListener('finished', handler);
+        finish(actions[0]);
     }
 
     flushPendingAnimationFinishes() {
@@ -1644,11 +1670,7 @@ export class LivePortraitRuntime {
         if (!(baseFinished || currentAdditiveFinished) || !this.basePerformanceFinished) return;
         const mixer = this.ensureMixer();
         if (mixer) mixer.timeScale = this.additiveAction ? 1 : 0;
-        if (this.autoIdleAdditiveOnHold && !this.additiveAction) {
-            this.playRandomIdleAdditiveOnHold(this.playGeneration).catch(error => {
-                console.warn('[LivePortrait] idle additive hold failed', error);
-            });
-        }
+        this.ensureIdleAdditiveOnHold();
     }
 
     ensureMixer() {
@@ -1711,7 +1733,8 @@ export class LivePortraitRuntime {
 
     pause() {
         this.cancelPerformance();
-        this.clearAdditiveClip();
+        this.idleAdditiveRequest = null;
+        if (this.additiveFinishedHandler) this.clearAdditiveClip();
         this.setTalkLevel(0, { active: false });
         this.paused = true;
         this.stopLoop();
@@ -1879,6 +1902,7 @@ export class LivePortraitRuntime {
             if (!this.paused) this.renderFrame();
             return;
         }
+        this.idleAdditiveRequest = null;
         if (!this.paused) {
             this.paused = true;
             this.stopLoop();
@@ -1907,6 +1931,7 @@ export class LivePortraitRuntime {
     resume() {
         if (!this.ready) return;
         this.paused = false;
+        this.ensureIdleAdditiveOnHold();
         this.clock.getDelta();
         this.applyCrowdRendering();
         this.startLoop();

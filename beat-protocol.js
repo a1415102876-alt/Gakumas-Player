@@ -123,7 +123,7 @@ function parseLocalizedBeatText(rawText, speaker) {
 }
 
 function isFishVoicedSpeaker(speaker) {
-    return /(?:kotone|fktn|藤田琴音|琴音|hski|花海咲季|咲季|ttmr|月村手毬|手毬|shro|筱泽广|篠澤広|广|hmsz|秦谷美铃|美铃|kllj|葛城莉莉娅|莉莉娅|jsna|十王星南|星南|hume|花海佑芽|佑芽|hrnm|rinami|姬崎莉波|莉波|ssmk|sumika|shiun\s+sumika|紫云清夏|清夏|amao|mao|arimura\s+mao|有村麻央|麻央|atbm|tsubame|amaya\s+tsubame|雨夜燕|燕|kcna|仓本千奈|千奈|krnh|贺阳燐羽|賀陽燐羽|燐羽|nasr|asari|亚纱里|亜紗里)/i.test(String(speaker || ''));
+    return /(?:kotone|fktn|藤田琴音|琴音|hski|花海咲季|咲季|ttmr|月村手毬|手毬|shro|筱泽广|篠澤広|广|hmsz|秦谷美铃|美铃|kllj|葛城莉莉娅|莉莉娅|jsna|十王星南|星南|hume|花海佑芽|佑芽|hrnm|rinami|姬崎莉波|莉波|ssmk|sumika|shiun\s+sumika|紫云清夏|清夏|amao|mao|arimura\s+mao|有村麻央|麻央|atbm|tsubame|amaya\s+tsubame|雨夜燕|燕|kcna|仓本千奈|千奈|krnh|贺阳燐羽|賀陽燐羽|燐羽|nasr|asari|亚纱里|亜紗里|hkne|kanae|hido[\s-]+kanae|冰渡香名江|氷渡香名江|香名江)/i.test(String(speaker || ''));
 }
 
 function addError(errors, code, message, index, beat = null) {
@@ -299,14 +299,12 @@ export function parseBeatScript(source, options = {}) {
             // A 2D NPC face must never change the last visible idol's morphs.
             validOverlays = [];
             validEffects = [];
-        } else if (motionFile || faceMotion) {
-            validOverlays = [];
-        } else if (bodySpec) face ||= bodySpec.defaultFace;
-        else {
-            if (face) addError(errors, 'paired-face', '成套动作自带表情，已忽略独立 face。', openIndex, beatId);
-            if (validOverlays.length) addError(errors, 'paired-overlay', '叠加动作需搭配独立身体动作，已忽略 overlay。', openIndex, beatId);
-            face = '';
-            validOverlays = [];
+        } else if (!motionFile && !faceMotion) {
+            if (bodySpec) face ||= bodySpec.defaultFace;
+            else {
+                if (face) addError(errors, 'paired-face', '成套动作自带表情，已忽略独立 face。', openIndex, beatId);
+                face = '';
+            }
         }
         if (validOverlays.length > 1) {
             addError(errors, 'conflicting-overlays', '同一段只能选择点头或摇头的一种叠加，已保留第一项。', openIndex, beatId);
