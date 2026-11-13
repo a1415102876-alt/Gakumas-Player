@@ -1,4 +1,4 @@
-import { parseBeatScript } from './beat-protocol.js?v=20261111-beat-breath-tts-v2';
+import { parseBeatScript } from './beat-protocol.js?v=20261113-hkne-onsen-v1';
 import { activateTavernWorldbook, importTavernWorldbook } from './worldbook-scan.js';
 
 const DEFAULT_BACKGROUND = '家·教室（午）';

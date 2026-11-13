@@ -1,12 +1,16 @@
 import { stageSnapshot, sceneIdolId, SCENE_IDOLS } from './scene-protocol.js?v=20261111-hkne-motions-v1';
 import { StageAttentionController } from './stage-attention.js?v=20261030-perf-diagnostic-v2';
 import { stagePositionOffset } from './beat-player-core.js?v=20261110-hkne-3d-v1';
-import { costumeEntryKey, resolveBeatCostume } from './beat-costumes.js?v=20261013-all-idol-solo1-v1';
+import { costumeEntryKey, resolveBeatCostume } from './beat-costumes.js?v=20261113-hkne-onsen-v1';
+import { ActorView } from './actor-view.js?v=20261112-stage-renderer-v1';
 
 export class SceneDirector {
-    constructor(container, createRuntime) {
+    // With a shared `stage`, actors have no canvas of their own: the stage draws
+    // every visible one onto its canvas, and this director owns that stage.
+    constructor(container, createRuntime, { stage = null } = {}) {
         this.container = container;
         this.createRuntime = createRuntime;
+        this.stage = stage;
         this.entries = new Map();
         this.costumeEntries = new Map();
         this.generation = 0;
@@ -19,23 +23,34 @@ export class SceneDirector {
 
     getPerformanceSnapshot() {
         const actors = this.allEntries().map(entry => entry.player?.getPerformanceSnapshot?.({
-            idolId: entry.canvas?.dataset?.idol || '',
-            costume: entry.canvas?.dataset?.costume || '',
-            present: entry.present === true && entry.canvas?.style?.visibility !== 'hidden',
+            idolId: entry.view.idolId,
+            costume: entry.view.costume,
+            present: entry.present === true && entry.view.visible,
         })).filter(Boolean);
         const active = actors.filter(actor => actor.present && actor.ready);
+        const renderer = this.stage?.shared
+            ? this.stage.getPerformanceSnapshot?.() || {}
+            : null;
+        const actorRendererTotals = active.reduce((totals, actor) => {
+            totals.drawCalls += Number(actor.renderer?.calls) || 0;
+            totals.triangles += Number(actor.renderer?.triangles) || 0;
+            totals.pixelRatio += Number(actor.renderer?.pixelRatio) || 0;
+            totals.geometries += Number(actor.renderer?.geometries) || 0;
+            totals.textures += Number(actor.renderer?.textures) || 0;
+            return totals;
+        }, { drawCalls: 0, triangles: 0, pixelRatio: 0, geometries: 0, textures: 0 });
         return {
             loadedActors: actors.filter(actor => actor.ready).length,
             activeActors: active.length,
             actors,
             aggregate: {
-                drawCalls: active.reduce((total, actor) => total + (Number(actor.renderer?.calls) || 0), 0),
-                triangles: active.reduce((total, actor) => total + (Number(actor.renderer?.triangles) || 0), 0),
+                drawCalls: renderer ? renderer.calls : actorRendererTotals.drawCalls,
+                triangles: renderer ? renderer.triangles : actorRendererTotals.triangles,
                 updateMs: active.reduce((total, actor) => total + (Number(actor.frame?.updateMs) || 0), 0),
                 renderMs: active.reduce((total, actor) => total + (Number(actor.frame?.renderMs) || 0), 0),
-                pixelRatio: active.reduce((total, actor) => total + (Number(actor.renderer?.pixelRatio) || 0), 0),
-                geometries: active.reduce((total, actor) => total + (Number(actor.renderer?.geometries) || 0), 0),
-                textures: active.reduce((total, actor) => total + (Number(actor.renderer?.textures) || 0), 0),
+                pixelRatio: renderer ? renderer.pixelRatio : actorRendererTotals.pixelRatio,
+                geometries: renderer ? renderer.geometries : actorRendererTotals.geometries,
+                textures: renderer ? renderer.textures : actorRendererTotals.textures,
                 estimatedTextureBytes: active.reduce((total, actor) => total
                     + (Number(actor.textureBudget?.model?.estimatedBytesAfter) || 0)
                     + (Number(actor.textureBudget?.scene?.estimatedBytesAfter) || 0), 0),
@@ -56,12 +71,20 @@ export class SceneDirector {
     }
 
     getResourceSnapshots({ sceneTextureBytes = 0 } = {}) {
-        return this.allEntries().map(entry => entry.player?.getResourceSnapshot?.({
-            label: [entry.canvas?.dataset?.idol, entry.canvas?.dataset?.costume].filter(Boolean).join(' · ') || '偶像',
-            kind: '偶像独立 WebGL context',
-            present: entry.present === true && entry.canvas?.style?.visibility !== 'hidden',
+        const snapshots = this.allEntries().map(entry => entry.player?.getResourceSnapshot?.({
+            label: [entry.view.idolId, entry.view.costume].filter(Boolean).join(' · ') || '偶像',
+            kind: this.stage?.shared ? '偶像模型 / 共享 renderer' : '偶像独立 WebGL context',
+            present: entry.present === true && entry.view.visible,
             sceneTextureBytes,
         })).filter(Boolean);
+        if (this.stage?.shared) snapshots.push(this.stage.getResourceSnapshot({ sceneTextureBytes }));
+        return snapshots;
+    }
+
+    // The entry a later slide will show for this idol, before activateCostumes()
+    // has swapped it in.
+    entryFor(idolId, costumes = {}) {
+        return this.costumeEntries.get(costumeEntryKey(idolId, costumes?.[idolId] || 'Default')) || this.entries.get(idolId) || null;
     }
 
     activateCostumes(costumes = {}) {
@@ -70,8 +93,7 @@ export class SceneDirector {
             const previous = this.entries.get(idolId);
             if (!next || next === previous) continue;
             previous.present = false;
-            previous.canvas.style.visibility = 'hidden';
-            previous.canvas.style.opacity = '0';
+            previous.view.hide();
             previous.player.setPresentationActive?.(false);
             next.position = previous.position;
             next.present = false;
@@ -92,16 +114,11 @@ export class SceneDirector {
             const entryKey = costumeEntryKey(idolId, costume);
             if (this.controller.signal.aborted) return false;
             if (!this.costumeEntries.has(entryKey)) {
-                const canvas = this.container.ownerDocument.createElement('canvas');
-                // Keep preloaded canvases in the layout so Three.js can compile
-                // their shader programs during warmup. Visibility controls
-                // presentation; `hidden` would collapse the render surface.
-                canvas.hidden = false;
-                canvas.dataset.idol = idolId;
-                canvas.dataset.costume = costume;
-                canvas.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;pointer-events:none;visibility:hidden;opacity:0;';
-                this.container.append(canvas);
-                const entry = { canvas, player: this.createRuntime(canvas), present: false, warmed: false };
+                const canvas = this.stage ? null : this.container.ownerDocument.createElement('canvas');
+                const view = new ActorView({ idolId, costume, canvas });
+                if (canvas) this.container.append(canvas);
+                const entry = { view, canvas, player: this.createRuntime(canvas), present: false, warmed: false };
+                entry.player.view = view;
                 entry.player.resources = resources;
                 entry.player.plannedPerformances = performances?.get(idolId);
                 this.costumeEntries.set(entryKey, entry);
@@ -128,19 +145,19 @@ export class SceneDirector {
         let motionsReady = true;
         if (prewarm && readyEntries.length) {
             await Promise.all(readyEntries.map(async entry => {
-                if (entry.canvas.style.visibility !== 'visible') {
-                    const focused = entry.canvas.dataset.idol === focusedId;
+                if (!entry.view.visible) {
+                    const focused = entry.view.idolId === focusedId;
                     entry.player.setCrowdBudget?.({ count: focused ? 1 : 2, focused });
                 }
                 if (!entry.warmed && entry.player.prewarm) {
                     entry.warmed = await entry.player.prewarm();
                 }
-                const cues = cuesById instanceof Map ? cuesById.get(entry.canvas.dataset.idol) : cuesById?.[entry.canvas.dataset.idol];
+                const cues = cuesById instanceof Map ? cuesById.get(entry.view.idolId) : cuesById?.[entry.view.idolId];
                 if (cues?.length && entry.player.preloadCues) {
                     const ready = await entry.player.preloadCues(cues);
                     motionsReady &&= ready;
                 }
-                if (entry.canvas.style.visibility !== 'visible') {
+                if (!entry.view.visible) {
                     entry.player.setPresentationActive?.(false);
                 }
             }));
@@ -163,7 +180,7 @@ export class SceneDirector {
         await Promise.all([...this.entries].map(async ([idolId, entry]) => {
             const target = snapshot.actors[idolId];
             const position = target?.position || entry.position || 'center';
-            if (!this.useShotFrame) entry.canvas.style.transform = `translateX(${stagePositionOffset(position)}%)`;
+            if (!this.useShotFrame) entry.view.setOffset(stagePositionOffset(position));
             entry.position = position;
             let firstFrameReady = false;
             const prepareDialogueCue = target && (!entry.present || deferPresentation)
@@ -172,7 +189,7 @@ export class SceneDirector {
                 if (!await entry.ready || !isCurrent()) return;
                 // Beat owns the reveal after it applies the camera. Select the
                 // cue once, and pose offscreen actors before their canvas shows.
-                const firstFrame = !entry.present || entry.canvas.style.visibility !== 'visible';
+                const firstFrame = !entry.present || !entry.view.visible;
                 firstFrameReady = await entry.player.playSpeakerCue(entryCue, { slideType: 'dialogue', isCurrent, firstFrame });
                 if (!isCurrent()) return;
                 if (firstFrameReady) onEntryCuePrepared(entryCue, idolId);
@@ -183,8 +200,7 @@ export class SceneDirector {
                 if (animated) {
                     await entry.player.playStageTransition('enter', { signal, isCurrent, onStart: () => {
                         entry.present = true;
-                        entry.canvas.style.visibility = 'visible';
-                        entry.canvas.style.opacity = '1';
+                        entry.view.show();
                         if (entry.player.setPresentationActive) entry.player.setPresentationActive(true);
                         else entry.player.resume();
                     } });
@@ -195,8 +211,7 @@ export class SceneDirector {
                     }
                     entry.present = true;
                     if (!deferPresentation) {
-                        entry.canvas.style.visibility = 'visible';
-                        entry.canvas.style.opacity = '1';
+                        entry.view.show();
                         if (entry.player.setPresentationActive) entry.player.setPresentationActive(true);
                         else entry.player.resume();
                     }
@@ -206,8 +221,7 @@ export class SceneDirector {
                 if (animated) await entry.player.playStageTransition('exit', { signal, isCurrent });
                 if (!isCurrent()) return;
                 entry.present = false;
-                entry.canvas.style.visibility = 'hidden';
-                entry.canvas.style.opacity = '0';
+                entry.view.hide();
                 if (entry.player.setPresentationActive) entry.player.setPresentationActive(false);
                 else entry.player.pause();
             }
@@ -239,11 +253,11 @@ export class SceneDirector {
         if (speakerId) this.crowdSpeaker = speakerId;
         const present = [...this.entries.values()].filter(entry => entry.present);
         const count = Math.max(1, present.length);
-        const speakerPresent = present.some(entry => entry.canvas.dataset.idol === this.crowdSpeaker);
+        const speakerPresent = present.some(entry => entry.view.idolId === this.crowdSpeaker);
         const fallback = speakerPresent ? null : present[0];
         for (const entry of this.allEntries()) {
             const visible = present.includes(entry);
-            const focused = visible && (count <= 1 || entry.canvas.dataset.idol === this.crowdSpeaker || entry === fallback);
+            const focused = visible && (count <= 1 || entry.view.idolId === this.crowdSpeaker || entry === fallback);
             entry.player.setCrowdBudget?.({
                 count: visible ? count : 2,
                 focused,
@@ -288,14 +302,16 @@ export class SceneDirector {
             // An actor can be on stage but out of frame: Beat's applyShot() hides
             // it and pauses its loop. Waking it here made every off-camera actor
             // run a full animation, physics and draw loop into a hidden canvas.
-            if (entry.present && entry.canvas?.style?.visibility !== 'hidden') entry.player.resume();
+            if (entry.present && entry.view.visible) entry.player.resume();
         }
     }
 
     dispose() {
         this.pause();
         this.controller.abort();
-        for (const entry of this.allEntries()) { entry.player.dispose(); entry.canvas.remove(); }
+        for (const entry of this.allEntries()) { entry.player.dispose(); entry.view.dispose(); }
+        this.stage?.dispose();
+        this.stage = null;
         this.entries.clear();
         this.costumeEntries.clear();
     }

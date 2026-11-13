@@ -1,0 +1,383 @@
+{
+  "scene": "env_3d_adv_riverbed-00-00-noon",
+  "water": {
+    "shader": "Environment/SimpleWaterFlow",
+    "keywords": [],
+    "renderQueue": -1,
+    "floats": {
+      "_AlphaClip": 0,
+      "_AlphaDstBlend": 0,
+      "_AlphaSrcBlend": 1,
+      "_AlphaToMask": 0,
+      "_Blend": 0,
+      "_BlendModePreserveSpecular": 1,
+      "_BumpPower": 1,
+      "_BumpScale": 1,
+      "_CausticsAmplitube": 41.7599983215332,
+      "_CausticsChromaticAberration": 0.023800000548362732,
+      "_CausticsConcentration": 1,
+      "_CausticsFluctuationDir": 1,
+      "_CausticsFluctuationMovePower": 0.0560000017285347,
+      "_CausticsFluctuationPower": 0.2160000056028366,
+      "_CausticsFluctuationTimming": 1,
+      "_CausticsPer": 0,
+      "_CausticsPower": 0.6880000233650208,
+      "_CausticsSteps": 2,
+      "_ClearCoatMask": 0,
+      "_ClearCoatSmoothness": 0,
+      "_ColorMask": 15,
+      "_CousticsChromaticAberration": 0.026499999687075615,
+      "_Cull": 2,
+      "_CullLength": 10000,
+      "_Cutoff": 0.5,
+      "_DetailAlbedoMapScale": 1,
+      "_DetailNormalMapScale": 1,
+      "_DstBlend": 0,
+      "_DstBlendAlpha": 0,
+      "_EdgeSensitivity": 10,
+      "_EnvironmentReflections": 1,
+      "_FoamDis": 0,
+      "_FoamStr": 0,
+      "_GlossMapScale": 0,
+      "_Glossiness": 0,
+      "_GlossyReflections": 0,
+      "_IOR": 1,
+      "_LightingZTest": 3,
+      "_LightingZWrite": 0,
+      "_MainBumpPower": 0.30000001192092896,
+      "_MainFluctuationDir": 0,
+      "_MainFluctuationPower": 10,
+      "_MainScrollSpeed": 2,
+      "_Metallic": 1,
+      "_OcclusionStrength": 1,
+      "_Parallax": 0.004999999888241291,
+      "_QueueControl": 0,
+      "_QueueOffset": 0,
+      "_ReceiveShadows": 1,
+      "_RefractThickness": 0,
+      "_Smoothness": 1,
+      "_SmoothnessTextureChannel": 0,
+      "_SpecularHighlights": 1,
+      "_SrcBlend": 1,
+      "_SrcBlendAlpha": 1,
+      "_StencilRef": 32,
+      "_SubBumpPower": 1,
+      "_SubFluctuationAddDirection": -0.05000000074505806,
+      "_SubFluctuationAddDirectionPower": 10,
+      "_SubFluctuationDir": -1,
+      "_SubFluctuationDirection": 1,
+      "_SubFluctuationPower": 10,
+      "_SubScrollSpeed": 0.10000000149011612,
+      "_Surface": 0,
+      "_VLRenderMode": 0,
+      "_VLTransparentMode": 0,
+      "_WorkflowMode": 1,
+      "_ZWrite": 1,
+      "_ZWriteControl": 0,
+      "_fluctuationPower": 1
+    },
+    "colors": {
+      "_BaseColor": [
+        0.1665000021457672,
+        0.28480264544487,
+        0.3330000042915344,
+        1
+      ],
+      "_BlurScale": [
+        10.199999809265137,
+        1,
+        0,
+        0
+      ],
+      "_CausticsFluctuationDir": [
+        1,
+        1,
+        0,
+        0
+      ],
+      "_CausticsFluctuationMoveSpeed": [
+        0.10000000149011612,
+        1,
+        0,
+        0
+      ],
+      "_CausticsFluctuationMoveUV": [
+        -1,
+        1,
+        0,
+        0
+      ],
+      "_CausticsMoveSpeed": [
+        1,
+        1,
+        0,
+        0
+      ],
+      "_CausticsUV": [
+        1,
+        1,
+        0,
+        0
+      ],
+      "_Color": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "_EdgeColor": [
+        0.10112354904413223,
+        0.13483139872550964,
+        0.1499999463558197,
+        1
+      ],
+      "_EmissionColor": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "_MainWaveUV": [
+        80,
+        80,
+        0,
+        0
+      ],
+      "_ScrollDir": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "_ScrollSpeed": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "_SpecColor": [
+        0.19999995827674866,
+        0.19999995827674866,
+        0.19999995827674866,
+        1
+      ],
+      "_SubScrollSpeed": [
+        10,
+        10,
+        0,
+        0
+      ],
+      "_SubUVScrollDirection": [
+        0,
+        -1,
+        0,
+        0
+      ],
+      "_SubWaveUV": [
+        50,
+        50,
+        0,
+        0
+      ],
+      "_UVScaleOffset": [
+        10,
+        10,
+        1,
+        0
+      ],
+      "_UVScrollDir": [
+        0.5,
+        -1,
+        0,
+        0
+      ],
+      "_UVScrollDirection": [
+        0,
+        -2,
+        0,
+        0
+      ],
+      "_UVScrollSpeed": [
+        -0.10999999940395355,
+        -1,
+        0,
+        0
+      ],
+      "_XScrollDir": [
+        1,
+        1,
+        0.10000000149011612,
+        0.10000000149011612
+      ]
+    },
+    "textures": {
+      "_NoiseMap": {
+        "file": "water-noisemap.png",
+        "name": "NoiseMap"
+      },
+      "_Normalmap": {
+        "file": "water-normalmap.png",
+        "name": "WaterSurface_single01"
+      },
+      "_SubNormalmap": {
+        "file": "water-subnormalmap.png",
+        "name": "WaterSurface_single02"
+      }
+    },
+    "overrideBaseColor": null,
+    "material": "m_riverbed_00_00_wtr01"
+  },
+  "clouds": {
+    "material": {
+      "shader": "Campus/Cloud",
+      "keywords": [],
+      "renderQueue": -1,
+      "floats": {
+        "_AlphaClip": 0,
+        "_AlphaDstBlend": 10,
+        "_AlphaSrcBlend": 0,
+        "_Blend": 0,
+        "_BumpScale": 1,
+        "_ColorMask": 15,
+        "_Cull": 2,
+        "_Cutoff": 0.5,
+        "_DefDebugMask": 15,
+        "_DstBlend": 10,
+        "_EmissionAlbedoScale": 0,
+        "_EnvironmentReflections": 1,
+        "_ForwardRefractRatio": 0,
+        "_GlossMapScale": 0,
+        "_Glossiness": 0,
+        "_GlossyReflections": 0,
+        "_IOR": 1,
+        "_LightingZTest": 3,
+        "_LightingZWrite": 0,
+        "_Metallic": 1,
+        "_OcclusionStrength": 1,
+        "_QueueControl": 0,
+        "_QueueOffset": 0,
+        "_ReceiveShadows": 1,
+        "_RefractThickness": 0.004999999888241291,
+        "_Smoothness": 1,
+        "_SmoothnessTextureChannel": 0,
+        "_SpecularHighlights": 1,
+        "_SrcBlend": 1,
+        "_StencilRef": 32,
+        "_Surface": 0,
+        "_VLRenderMode": 2,
+        "_VLTransparentMode": 2,
+        "_WorkflowMode": 1,
+        "_ZWrite": 0,
+        "_ZWriteControl": 0
+      },
+      "colors": {
+        "_BaseColor": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "_CloudColor": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "_Color": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "_DefScale": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "_DefValue": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "_EmissionColor": [
+          0,
+          0,
+          0,
+          1
+        ],
+        "_Offset": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "_SpecColor": [
+          0.19999995827674866,
+          0.19999995827674866,
+          0.19999995827674866,
+          1
+        ],
+        "_Tiling": [
+          1,
+          1,
+          0,
+          0
+        ]
+      },
+      "textures": {
+        "_Basemap": {
+          "texture": 0,
+          "name": "t_env_nature-cloud-00_trs00_alb_alp",
+          "scale": [
+            1,
+            1
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "gltfTransform": {
+            "scale": [
+              1,
+              1
+            ],
+            "offset": [
+              0,
+              0
+            ]
+          }
+        }
+      },
+      "overrideBaseColor": null
+    },
+    "file": "clouds.glb",
+    "layers": [
+      {
+        "name": "cloud-layer-0",
+        "rotateSpeed": 1.5
+      },
+      {
+        "name": "cloud-layer-1",
+        "rotateSpeed": 1.399999976158142
+      },
+      {
+        "name": "cloud-layer-2",
+        "rotateSpeed": 1.2000000476837158
+      },
+      {
+        "name": "cloud-layer-3",
+        "rotateSpeed": 1.7999999523162842
+      },
+      {
+        "name": "cloud-layer-4",
+        "rotateSpeed": 2.5999999046325684
+      }
+    ]
+  },
+  "depthFog": {
+    "densityScale": 0.01,
+    "source": "preview-calibration"
+  }
+}

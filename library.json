@@ -292,7 +292,18 @@
       "pack": "idols/hkne-othr-0004",
       "model": "hkne-othr-0004.glb",
       "textureDir": "Texture2D",
-      "secondaryMotionProfile": "hkne-othr-0004"
+      "secondaryMotionProfile": "hkne-othr-0004",
+      "costumes": {
+        "Onsen": {
+          "outfit": "ONSEN",
+          "name": "温泉服",
+          "pack": "idols/hkne-onsen",
+          "model": "hkne-head_hume-onsen.glb",
+          "textureDir": "Texture2D",
+          "secondaryMotionProfile": "hkne-onsen",
+          "note": "佑芽温泉服身体（hume-othr-0000）+ 香名江 hkne-base-0000 脸和头发；头发二次运动沿用 hkne-othr-0004，身体衣物暂无二次运动"
+        }
+      }
     }
   ],
   "packs": {
@@ -495,6 +506,10 @@
     "idols/atbm-solo1": {
       "root": "E:/gakumas-pmx-workflow/output/solo1-20261013/atbm-cstm-0106",
       "r2Prefix": "idols/atbm-solo1"
+    },
+    "idols/hkne-onsen": {
+      "root": "E:/gakumas-pmx-workflow/hkne-hume-onsen-20261112/models/hkne-onsen",
+      "r2Prefix": "idols/hkne-onsen"
     }
   },
   "scenes": [

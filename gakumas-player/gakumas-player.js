@@ -1,6 +1,6 @@
-import { BeatPlayerApp } from '../beat-player.js?v=20261111-beat-breath-tts-v2';
-import { setLivePictureOptions } from '../live-portrait.js?v=20261111-beat-breath-tts-v2';
-import { createLocalChatBridge, normalizeChatReply, playerChatScene } from '../beat-chat.js?v=20261111-beat-breath-tts-v2';
+import { BeatPlayerApp } from '../beat-player.js?v=20261113-hkne-onsen-v1';
+import { setLivePictureOptions } from '../live-portrait.js?v=20261113-hkne-onsen-v1';
+import { createLocalChatBridge, normalizeChatReply, playerChatScene } from '../beat-chat.js?v=20261113-hkne-onsen-v1';
 import { createChatMemoryPanel } from './chat-memory-panel.js?v=20261107-chat-memory-v1';
 import { mountResourceMonitor } from '../resource-monitor.js?v=20261108-resource-monitor-v1';
 import { loadTavernWorldbook } from '../worldbook-scan.js?v=20261024-worldbook-v1';
@@ -9,6 +9,7 @@ import { SANDBOX_CHAT_SETTINGS_KEY, buildSandboxChatSettings, mergeStoredChatSet
 import { aaLevel } from '../gakumas-aa.js?v=20261105-aa-level-v1';
 import { SANDBOX_PICTURE_KEY, normalizeSandboxPicture } from '../sandbox/sandbox-picture.js?v=20261105-floor-ssr-v1';
 import { buildWeirdContinuationPrompt, buildWeirdScriptPrompt, extractClosedBeatScript, prepareDirectBeatScript, WEIRD_SCRIPT_MODE } from '../sandbox/sandbox-weird-script.js?v=20261110-hkne-3d-v1';
+import { clearCustomBackground, loadCustomBackgroundImage, prepareCustomBackgroundFile, readCustomBackground, saveCustomBackground, setCustomBackgroundEnabled } from '../custom-background.js?v=20261112-custom-background-v3';
 import { appendBeatScript, GP_MODE, gpModeCopy, gpModeUsesAi, normalizeGpMode, readGpDraft, summarizeBeatScript, writeGpDraft } from './gakumas-player-model.js?v=20261108-chat-clock-v1';
 
 const field = id => document.getElementById(id);
@@ -50,7 +51,7 @@ function readPicture() {
 
 const picture = readPicture();
 setLivePictureOptions(picture);
-document.body.style.setProperty('--gp-dialogue-font-size', `${picture.dialogueFontSize}px`);
+applyDialogueFontSize(picture.dialogueFontSize);
 applyFishTtsSettings(resolveFishTtsSettings(), {
   onError: message => showToast(String(message || '角色语音播放失败')),
 });
@@ -475,6 +476,10 @@ async function play() {
     return;
   }
   flushDraft();
+  if (!app.ensureRenderer()) {
+    setStatus('gpScriptStatus', app.renderUnavailable, 'error');
+    return;
+  }
   setPhase('play');
   app.stop();
   app.setDialogueRevealEnabled?.(false);
@@ -523,6 +528,10 @@ async function enterChat() {
     syncMode();
   }
   if (view.mode !== GP_MODE.CHAT) return;
+  if (!app.ensureRenderer()) {
+    setStatus('gpComposeStatus', app.renderUnavailable, 'error');
+    return;
+  }
   setStatus('gpComposeStatus', '');
   setPhase('chat');
   app.enterChatMode(field('chatIdolSelect')?.value || 'kotone');
@@ -551,15 +560,27 @@ function syncAaControls(id) {
 function savePicture(aa = selectedAa()) {
   const stored = readPicture();
   const blur = field('gpMotionBlur');
+  const fontSize = field('gpDialogueFontSize');
   const picture = normalizeSandboxPicture({
     ...stored,
     aa,
     motionBlur: blur ? blur.checked : stored.motionBlur,
+    dialogueFontSize: fontSize ? Number(fontSize.value) : stored.dialogueFontSize,
   });
   localStorage.setItem(SANDBOX_PICTURE_KEY, JSON.stringify(picture));
   setLivePictureOptions(picture);
   writeAaNote(picture.aa);
+  applyDialogueFontSize(picture.dialogueFontSize);
   return picture;
+}
+
+// The dialogue card and the settings preview both read this variable.
+function applyDialogueFontSize(size) {
+  document.body.style.setProperty('--gp-dialogue-font-size', `${size}px`);
+  const input = field('gpDialogueFontSize');
+  if (input && Number(input.value) !== size) input.value = String(size);
+  const value = field('gpDialogueFontSizeValue');
+  if (value) value.textContent = `${size} px`;
 }
 
 function openSettings() {
@@ -576,6 +597,8 @@ function openSettings() {
   syncAaControls(picture.aa);
   const blur = field('gpMotionBlur');
   if (blur) blur.checked = picture.motionBlur;
+  applyDialogueFontSize(picture.dialogueFontSize);
+  renderCustomBgControls();
   setStatus('gpSettingsStatus', '');
   const dialog = field('gpSettings');
   if (dialog && !dialog.open) dialog.showModal();
@@ -602,7 +625,83 @@ function saveSettings() {
   const chatText = next.baseUrl && next.model ? 'AI 接口已记下。' : 'AI 接口未填写，扩写时再补也可以。';
   const aaText = `抗锯齿：${aaLevel(picture.aa).label}。`;
   const blurText = picture.motionBlur ? '运动模糊：开。' : '运动模糊：关。';
-  setStatus('gpSettingsStatus', `设置已保存在本机。${chatText}${aaText}${blurText}${fishTtsStatus(voice)}`, 'ok');
+  const fontText = `台词字号：${picture.dialogueFontSize} px。`;
+  setStatus('gpSettingsStatus', `设置已保存在本机。${chatText}${aaText}${blurText}${fontText}${fishTtsStatus(voice)}`, 'ok');
+}
+
+// --- Custom background -----------------------------------------------------
+
+const customBg = { record: null, previewUrl: '', busy: false, token: 0 };
+
+function renderCustomBgControls() {
+  const record = customBg.record;
+  const preview = field('gpCustomBgPreview');
+  if (customBg.previewUrl) URL.revokeObjectURL(customBg.previewUrl);
+  customBg.previewUrl = record ? URL.createObjectURL(record.blob) : '';
+  if (preview) {
+    preview.style.backgroundImage = customBg.previewUrl ? `url("${customBg.previewUrl}")` : '';
+    preview.dataset.empty = record ? 'false' : 'true';
+    preview.title = record?.name || '';
+  }
+  const enabled = field('gpCustomBgEnabled');
+  if (enabled) {
+    enabled.checked = Boolean(record?.enabled);
+    enabled.disabled = !record || customBg.busy;
+  }
+  const upload = field('gpCustomBgUploadBtn');
+  if (upload) {
+    upload.disabled = customBg.busy;
+    upload.querySelector('span').textContent = record ? '更换图片' : '上传图片';
+  }
+  const clear = field('gpCustomBgClearBtn');
+  if (clear) clear.disabled = !record || customBg.busy;
+}
+
+// Push the stored record into the player: decode it when enabled, or drop it.
+async function applyCustomBackground() {
+  const token = ++customBg.token;
+  const record = customBg.record;
+  if (!record?.enabled) {
+    app.setCustomBackground(null);
+    return;
+  }
+  const loaded = await loadCustomBackgroundImage(record);
+  if (token !== customBg.token) { loaded?.release(); return; }
+  app.setCustomBackground(loaded);
+}
+
+async function refreshCustomBackground() {
+  try {
+    customBg.record = await readCustomBackground();
+  } catch (error) {
+    customBg.record = null;
+    console.warn('[GakumasPlayer] custom background unavailable', error);
+  }
+  renderCustomBgControls();
+  await applyCustomBackground().catch(error => showToast(`自定义背景无法加载：${error.message || error}`));
+}
+
+async function runCustomBgTask(task, successMessage) {
+  if (customBg.busy) return;
+  customBg.busy = true;
+  renderCustomBgControls();
+  try {
+    customBg.record = await task();
+    await applyCustomBackground();
+    setStatus('gpSettingsStatus', successMessage(customBg.record), 'ok');
+  } catch (error) {
+    setStatus('gpSettingsStatus', `自定义背景：${error.message || error}`, 'error');
+  } finally {
+    customBg.busy = false;
+    renderCustomBgControls();
+  }
+}
+
+function uploadCustomBackground(file) {
+  return runCustomBgTask(async () => {
+    const prepared = await prepareCustomBackgroundFile(file);
+    return saveCustomBackground({ ...prepared, name: file.name, enabled: true });
+  }, record => `自定义背景已保存并启用（${record.width}×${record.height}）。`);
 }
 
 function moveModeFocus(current, step) {
@@ -648,6 +747,20 @@ document.querySelectorAll('input[name="gpAa"]').forEach((input) => {
   });
 });
 field('gpMotionBlur')?.addEventListener('change', () => { savePicture(); });
+field('gpDialogueFontSize')?.addEventListener('input', () => { savePicture(); });
+field('gpCustomBgUploadBtn')?.addEventListener('click', () => field('gpCustomBgFile')?.click());
+field('gpCustomBgFile')?.addEventListener('change', (event) => {
+  const file = event.target.files?.[0];
+  event.target.value = '';
+  if (file) void uploadCustomBackground(file);
+});
+field('gpCustomBgEnabled')?.addEventListener('change', (event) => {
+  const enabled = event.target.checked;
+  void runCustomBgTask(() => setCustomBackgroundEnabled(enabled), () => (enabled ? '已启用自定义背景。' : '已改回脚本里的场景。'));
+});
+field('gpCustomBgClearBtn')?.addEventListener('click', () => {
+  void runCustomBgTask(async () => { await clearCustomBackground(); return null; }, () => '自定义背景已移除，改回脚本里的场景。');
+});
 field('gpInput')?.addEventListener('input', () => {
   syncInputCount();
   persistDraft();
@@ -691,6 +804,11 @@ if (loadedFromEditor) {
 field('gpProducerProfileBtn')?.addEventListener('click', () => chatMemory.open('profile'));
 field('gpChatHistoryBtn')?.addEventListener('click', () => chatMemory.open('history'));
 field('gpPlayerChatMemoryBtn')?.addEventListener('click', () => chatMemory.open('history'));
+
+void refreshCustomBackground();
+
+// After `view` exists: showToast reads its timer.
+if (app.renderUnavailable) showToast('浏览器当前无法使用 WebGL，3D 播放不可用。脚本编辑和设置仍可使用。');
 
 window.gakumasPlayer = Object.freeze({
   app,

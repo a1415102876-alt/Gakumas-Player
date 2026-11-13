@@ -189,7 +189,8 @@ export function preparedStageCovers(loaded = {}, next = {}) {
     return nextBackgrounds.every(name => backgrounds.has(name));
 }
 
-export function beatBackgroundChanged(previousBackground, nextBackground) {
+export function beatBackgroundChanged(previousBackground, nextBackground, nextBackgroundExplicit = true) {
+    if (!nextBackgroundExplicit) return false;
     const previous = String(previousBackground || '').trim();
     const next = String(nextBackground || '').trim();
     return Boolean(previous && next && previous !== next);

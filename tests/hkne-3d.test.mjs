@@ -38,6 +38,21 @@ test('香名江预加载模型、贴图和指定二次运动配置', () => {
     assert.ok(!plan.keys.some(key => key.startsWith('npc-portraits/') && key.includes('香名江')));
 });
 
+test('自定义背景只使用浏览器本地仓库，不生成资源清单键', () => {
+    const library = {
+        config: json('../library.json'),
+        manifest: json('../resource-manifest.json'),
+        map: json('../gakumas-motion-map.json'),
+    };
+    const parsed = parseBeatScript('<beat speaker="hkne" background="custom1"><display lang="zh">你好。</display></beat>', {
+        customBackgrounds: ['custom1'],
+    });
+    assert.deepEqual(parsed.errors, []);
+    const { slides } = buildStageSlides(parsed.beats, BEAT_SPEAKER_NAMES);
+    const plan = buildDialogueAssetPlan({ beats: parsed.beats, slides }, { cast: ['hkne'] }, library);
+    assert.ok(!plan.keys.includes('backgrounds_2d/custom1'));
+});
+
 test('香名江专属动作和表情均在编辑器及资源索引中可用', () => {
     const library = {
         config: json('../library.json'),

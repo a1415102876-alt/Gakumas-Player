@@ -1,5 +1,6 @@
 import * as THREE from './vendor/three/build/three.module.js';
-import { actorEnvironmentSample } from './gakumas-scene-core.js?v=20261109-actor-light-v3';
+import { actorEnvironmentSample } from './gakumas-scene-core.js?v=20261112-single-renderer-v1';
+import { resetRendererCanvasViewport } from './stage-renderer-core.js?v=20261112-2d-plate-grade-v1';
 
 export { actorEnvironmentSample };
 
@@ -215,6 +216,7 @@ varying vec2 vUv;
 uniform sampler2D gkLookPlate;
 uniform vec4 gkLookCover;
 uniform float gkLookHasPlate;
+uniform float gkLookDirectPlate;
 uniform float gkLookSharpen;
 
 vec2 gkPlateUv(vec2 uv) {
@@ -223,21 +225,35 @@ vec2 gkPlateUv(vec2 uv) {
 
 vec3 gkSample(vec2 uv) {
     vec2 sampleUv = clamp(uv, vec2(0.0), vec2(1.0));
+    if (gkLookDirectPlate > 0.5) {
+        return texture2D(gkLookMap, clamp(gkPlateUv(sampleUv), vec2(0.0), vec2(1.0))).rgb;
+    }
     vec4 source = texture2D(gkLookMap, sampleUv);
     if (gkLookHasPlate < 0.5 || source.a < 0.001) return gkLookHasPlate < 0.5 ? source.rgb : vec3(0.0);
     vec3 plate = texture2D(gkLookPlate, clamp(gkPlateUv(sampleUv), vec2(0.0), vec2(1.0))).rgb;
     return max(source.rgb - plate * (1.0 - source.a), vec3(0.0)) / source.a;
 }
 
+// This path is called only while sharpening a composited portrait plate, where
+// gkLookHasPlate is true and gkLookDirectPlate is false. Keep it branchless:
+// ANGLE's D3D11 shader compiler can fail to link when gkSample()'s dynamic
+// sampler branches are nested inside the alpha-gated sharpen branch.
+vec3 gkSamplePlateStraight(vec2 uv) {
+    vec2 sampleUv = clamp(uv, vec2(0.0), vec2(1.0));
+    vec4 source = texture2D(gkLookMap, sampleUv);
+    vec3 plate = texture2D(gkLookPlate, clamp(gkPlateUv(sampleUv), vec2(0.0), vec2(1.0))).rgb;
+    return max(source.rgb - plate * (1.0 - source.a), vec3(0.0)) / max(source.a, 0.001);
+}
+
 void main() {
-    vec4 source = texture2D(gkLookMap, vUv);
     vec3 base = gkSample(vUv);
+    vec4 source = gkLookDirectPlate > 0.5 ? vec4(base, 1.0) : texture2D(gkLookMap, vUv);
     if (gkLookHasPlate > 0.5 && gkLookSharpen > 0.5 && source.a > 0.82) {
         vec3 soft = (
-            gkSample(vUv + vec2(gkLookTexel.x, 0.0)) +
-            gkSample(vUv - vec2(gkLookTexel.x, 0.0)) +
-            gkSample(vUv + vec2(0.0, gkLookTexel.y)) +
-            gkSample(vUv - vec2(0.0, gkLookTexel.y))
+            gkSamplePlateStraight(vUv + vec2(gkLookTexel.x, 0.0)) +
+            gkSamplePlateStraight(vUv - vec2(gkLookTexel.x, 0.0)) +
+            gkSamplePlateStraight(vUv + vec2(0.0, gkLookTexel.y)) +
+            gkSamplePlateStraight(vUv - vec2(0.0, gkLookTexel.y))
         ) * 0.25;
         base = max(base + (base - soft) * 0.45, vec3(0.0));
     }
@@ -275,6 +291,10 @@ export class GakumasLookPass {
     constructor(renderer) {
         this.renderer = renderer;
         this.enabled = false;
+        // See GakumasPostPass: where the finished frame goes, and whether it is
+        // blended over what is already there.
+        this.presentTarget = null;
+        this.layered = false;
         this.target = new THREE.WebGLRenderTarget(1, 1, {
             depthBuffer: true,
             stencilBuffer: true,
@@ -303,6 +323,7 @@ export class GakumasLookPass {
                 gkLookPlate: { value: null },
                 gkLookCover: { value: new THREE.Vector4(1, 1, 0, 0) },
                 gkLookHasPlate: { value: 0 },
+                gkLookDirectPlate: { value: 0 },
                 gkLookSharpen: { value: 1 },
             },
             vertexShader: LOOK_VERTEX,
@@ -356,10 +377,31 @@ export class GakumasLookPass {
 
     end() {
         const autoClear = this.renderer.autoClear;
-        this.renderer.setRenderTarget(null);
+        const material = this.material;
+        this.renderer.setRenderTarget(this.presentTarget);
+        if (!this.presentTarget) {
+            // Intermediate passes can leave a smaller viewport/scissor active.
+            // Every visible LookPass result must cover the whole canvas, which
+            // is especially important for a 2D plate with a changed aspect or
+            // scale.
+            resetRendererCanvasViewport(this.renderer, this.renderer.domElement);
+        }
         this.renderer.autoClear = false;
-        this.renderer.render(this.scene, this.camera);
-        this.renderer.autoClear = autoClear;
+        if (this.layered) {
+            material.transparent = true;
+            material.blending = THREE.CustomBlending;
+            material.blendSrc = THREE.OneFactor;
+            material.blendDst = THREE.OneMinusSrcAlphaFactor;
+        }
+        try {
+            this.renderer.render(this.scene, this.camera);
+        } finally {
+            if (this.layered) {
+                material.transparent = false;
+                material.blending = THREE.NormalBlending;
+            }
+            this.renderer.autoClear = autoClear;
+        }
     }
 
     render(draw) {
@@ -382,6 +424,9 @@ export class GakumasLookPass {
         const plateMap = this.material.uniforms.gkLookPlate;
         const previousHas = hasPlate.value;
         const previousPlate = plateMap.value;
+        const directPlate = this.material.uniforms.gkLookDirectPlate;
+        const previousDirect = directPlate.value;
+        directPlate.value = 0;
         hasPlate.value = plate?.texture ? 1 : 0;
         if (plate?.texture) plateMap.value = plate.texture;
         if (plate?.cover) this.material.uniforms.gkLookCover.value.copy(plate.cover);
@@ -391,6 +436,45 @@ export class GakumasLookPass {
             map.value = previous;
             hasPlate.value = previousHas;
             plateMap.value = previousPlate;
+            directPlate.value = previousDirect;
+        }
+    }
+
+    presentPlate(texture, cover = null) {
+        if (!texture) return;
+        this.renderer.getSize(this.size);
+        this.setSize(this.size.x, this.size.y);
+        // `presentTexture` may have temporarily changed the sampling step to
+        // match an actor capture. A plate is sampled in the output canvas
+        // space, so always restore the canvas-sized step before grading it.
+        this.material.uniforms.gkLookTexel.value.set(1 / this.target.width, 1 / this.target.height);
+        const map = this.material.uniforms.gkLookMap;
+        const previousMap = map.value;
+        const directPlate = this.material.uniforms.gkLookDirectPlate;
+        const previousDirect = directPlate.value;
+        const hasPlate = this.material.uniforms.gkLookHasPlate;
+        const previousHas = hasPlate.value;
+        const coverUniform = this.material.uniforms.gkLookCover;
+        const previousCover = coverUniform.value.clone();
+        map.value = texture;
+        directPlate.value = 1;
+        hasPlate.value = 0;
+        if (cover) {
+            const value = cover.isVector4 ? cover : {
+                x: cover.x ?? cover.scaleX ?? 1,
+                y: cover.y ?? cover.scaleY ?? 1,
+                z: cover.z ?? cover.offsetX ?? 0,
+                w: cover.w ?? cover.offsetY ?? 0,
+            };
+            coverUniform.value.set(value.x, value.y, value.z, value.w);
+        }
+        try {
+            this.end();
+        } finally {
+            map.value = previousMap;
+            directPlate.value = previousDirect;
+            hasPlate.value = previousHas;
+            coverUniform.value.copy(previousCover);
         }
     }
 

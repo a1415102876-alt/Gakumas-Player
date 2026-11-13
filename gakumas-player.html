@@ -8,7 +8,7 @@
   <link rel="icon" href="./assets/star.png">
   <link rel="stylesheet" href="./beat-player.css?v=20261106-hide-2d-floor-v1">
   <link rel="stylesheet" href="./gakumas-gakuen.css?v=20261107-gakuen-v2">
-  <link rel="stylesheet" href="./gakumas-gakuen-player.css?v=20261108-resource-monitor-v1">
+  <link rel="stylesheet" href="./gakumas-gakuen-player.css?v=20261113-dialogue-font-v1">
   <link rel="stylesheet" href="./gakumas-opening.css?v=20261107-gakuen-v2">
   <link rel="stylesheet" href="./gakumas-player/notices.css?v=1">
   <script type="importmap">
@@ -339,6 +339,30 @@
         <p id="gpAaNote" class="gp-settings-note">时间抗锯齿，默认画质。</p>
         <label class="gp-switch"><input id="gpMotionBlur" type="checkbox"><span>运动模糊</span></label>
         <p class="gp-settings-note">角色或镜头移动时沿运动方向拖影。默认关闭。</p>
+        <div class="gp-font-size">
+          <label for="gpDialogueFontSize" class="gp-aa-name">台词字号</label>
+          <div class="gp-font-size-row">
+            <span aria-hidden="true">小</span>
+            <input id="gpDialogueFontSize" type="range" min="14" max="30" step="1" value="23" aria-describedby="gpDialogueFontNote">
+            <span aria-hidden="true">大</span>
+            <output id="gpDialogueFontSizeValue" for="gpDialogueFontSize">23 px</output>
+          </div>
+          <p id="gpDialogueFontPreview" class="gp-font-preview" aria-hidden="true">制作人，今天也一起加油吧。</p>
+        </div>
+        <p id="gpDialogueFontNote" class="gp-settings-note">播放和闲聊时对话框里台词的大小，拖动后立即生效。默认 23 px。</p>
+      </fieldset>
+      <fieldset class="gp-custom-bg">
+        <legend>自定义背景</legend>
+        <div class="gp-custom-bg-row">
+          <div id="gpCustomBgPreview" class="gp-custom-bg-preview" data-empty="true"><span>未上传</span></div>
+          <div class="gp-custom-bg-tools">
+            <input id="gpCustomBgFile" type="file" accept="image/png,image/jpeg,image/webp,image/gif,image/avif,image/bmp" hidden>
+            <button id="gpCustomBgUploadBtn" class="gp-tool" type="button"><svg aria-hidden="true"><use href="#gpCopy"/></svg><span>上传图片</span></button>
+            <button id="gpCustomBgClearBtn" class="gp-tool" type="button" disabled><svg aria-hidden="true"><use href="#gpTrash"/></svg><span>移除</span></button>
+          </div>
+        </div>
+        <label class="gp-switch"><input id="gpCustomBgEnabled" type="checkbox" disabled><span>使用自定义背景</span></label>
+        <p id="gpCustomBgNote" class="gp-settings-note">开启后，播放和闲聊都用这张图替换脚本里的所有场景（含 3D 场景）。图片只保存在本机浏览器，长边超过 4096 像素会自动缩小。</p>
       </fieldset>
       <p id="gpSettingsStatus" class="gp-status" role="status"></p>
       <footer class="gp-settings-actions">
@@ -355,6 +379,6 @@
   <script src="./fish-tts.js?v=20261111-hkne-voice-v1"></script>
   <script type="module" src="./gakumas-player/notices.js?v=1"></script>
   <script type="module" src="./gakumas-player/gakumas-gakuen.js?v=20261107-gakuen-v1"></script>
-  <script type="module" src="./gakumas-player/gakumas-player.js?v=20261111-beat-breath-tts-v2"></script>
+  <script type="module" src="./gakumas-player/gakumas-player.js?v=20261113-dialogue-font-v1"></script>
 </body>
 </html>

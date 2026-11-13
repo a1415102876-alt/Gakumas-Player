@@ -216,9 +216,9 @@ function flare(entry = {}) {
     };
 }
 
-// Screen-space post modules taken from the volume stack. Grading and fog stay
-// in the scene shader; this is only what a fullscreen pass can add.
-export function scenePost(stack = {}, active = {}) {
+// Each 3D scene keeps its own resolved volume grade in the final HDR composite.
+// Fog and lightmap tint stay in scene shading, including the direct/LDR path.
+export function scenePost(stack = {}, active = {}, sceneId = null) {
     const on = name => !!active[name];
     const bloom = stack.VLBloom || {};
     const diffusion = stack.VLDiffusion || {};
@@ -227,6 +227,8 @@ export function scenePost(stack = {}, active = {}) {
     const vignette = stack.Vignette || {};
     const center = vignette.center || {};
     return {
+        sceneId,
+        grading: sceneGrade(stack, active),
         bloom: {
             enabled: on('VLBloom'),
             intensity: Number(bloom.intensity) || 0,
@@ -234,6 +236,7 @@ export function scenePost(stack = {}, active = {}) {
             diffusion: Number(bloom.diffusion) || 0,
             color: linearColor(colorArray(bloom.color)),
         },
+        starStreak: { enabled: on('VLStarStreak') },
         diffusion: {
             enabled: on('VLDiffusion'),
             diffusion: Number(diffusion.diffusion) || 0,
@@ -264,15 +267,18 @@ function colorArray(value, fallback = [1, 1, 1]) {
     return [value.r ?? value[0] ?? fallback[0], value.g ?? value[1] ?? fallback[1], value.b ?? value[2] ?? fallback[2]];
 }
 
-// Scene-only grading taken from the resolved volume stack. Actors keep the
-// stage look; the scene shader applies this so lightmap HDR does not clip.
-export function sceneGrade(stack = {}) {
-    const adjust = stack.ColorAdjustments || {};
-    const tone = stack.VLTonemapping || {};
-    const lightmap = stack.VLLightmapVolume || {};
+// Grading from this camera's resolved volume stack. The scene shader uses it
+// directly in LDR; HDR draws defer it until scene and actors are composited.
+export function sceneGrade(stack = {}, active = null) {
+    // Serialized inactive components still contain values. Respect the resolved
+    // activation map so an unused tint or tonemapper cannot affect this scene.
+    const component = name => (!active || active[name]) ? stack[name] || {} : {};
+    const adjust = component('ColorAdjustments');
+    const tone = component('VLTonemapping');
+    const lightmap = component('VLLightmapVolume');
     const lightmapColor = linearColor(colorArray(lightmap.color));
     const lightmapIntensity = Number.isFinite(lightmap.intensity) ? lightmap.intensity : 1;
-    const smh = stack.ShadowsMidtonesHighlights || {};
+    const smh = component('ShadowsMidtonesHighlights');
     return {
         shadows: smhTint(smh.shadows),
         midtones: smhTint(smh.midtones),
@@ -343,6 +349,29 @@ export function sceneSphereFog(stack = {}) {
         density,
         maxAmount: Number.isFinite(fog.maxAmount) ? fog.maxAmount : 1,
         color: linearColor(colorArray(fog.color)),
+    };
+}
+
+export function sceneDepthFog(stack = {}, active = {}, { densityScale = 1 } = {}) {
+    const fog = stack.DepthFog || {};
+    const scale = Number.isFinite(densityScale) ? Math.max(0, densityScale) : 1;
+    const density = Math.max(0, Number(fog.density) || 0) * scale;
+    return {
+        enabled: active.DepthFog === true && density > 0,
+        density,
+        maxAmount: Number.isFinite(fog.maxAmount) ? Math.max(0, Math.min(1, fog.maxAmount)) : 1,
+        color: linearColor(colorArray(fog.color, [0.5, 0.6, 0.7])),
+        applySkybox: Boolean(fog.applySkybox),
+    };
+}
+
+export function sceneCloudLayers(stack = {}, active = {}) {
+    const clouds = stack.VLCloud || {};
+    return {
+        enabled: active.VLCloud === true,
+        speed: Number.isFinite(clouds.multiplySpeed) ? clouds.multiplySpeed : 1,
+        offsetY: Number(clouds.cloudOffsetY) || 0,
+        color: [...linearColor(colorArray(clouds.cloudEmissionColor)), 1],
     };
 }
 

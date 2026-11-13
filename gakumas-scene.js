@@ -1,9 +1,13 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-import { applyRootTransform, beatUsesStageDefaultPlacement, decalUv, layoutCameraView, linearColor, pickLayoutActor, reflectionProbeBox, resolveBeatSceneCameraOptions, resolveVolumeStack, retreatCameraView, sceneEffectProfile, sceneFogWithOverride, sceneGrade, sceneLayoutOptions, scenePost, sceneSphereFog, sceneActorLight, sceneLightData, sceneRootTransform, selectReflectionProbe, shCoefficients, validateSceneSidecar } from './gakumas-scene-core.js?v=20261109-actor-light-v3';
+import { applyRootTransform, beatUsesStageDefaultPlacement, decalUv, layoutCameraView, linearColor, pickLayoutActor, reflectionProbeBox, resolveBeatSceneCameraOptions, resolveVolumeStack, retreatCameraView, sceneEffectProfile, sceneFogWithOverride, sceneLayoutOptions, scenePost, sceneSphereFog, sceneDepthFog, sceneCloudLayers, sceneActorLight, sceneLightData, sceneRootTransform, selectReflectionProbe, shCoefficients, validateSceneSidecar } from './gakumas-scene-core.js?v=20261112-single-renderer-v1';
 import { calibratedBeatLayout, defaultSceneLayoutId, withScenePlacementOverrides } from './scene-placement-overrides.js?v=20261027-calibrated-beat-v1';
 import { activityForScene, checkAnchorPlan, nearestSafePoint, pathIsClear, validateActivity } from './scene-activity.js?v=20261028-block-boxes-v1';
 import { createSceneEffects } from './gakumas-scene-effects.js?v=20261028-hot-spring-v1';
+
+import { RIVERBED_NOON, WATER_GLSL, loadRiverbedShaderData, waterUniforms, createRiverbedClouds } from './gakumas-scene-riverbed.js?v=20261112-single-renderer-v1';
+
+import { GRADE_GLSL } from './gakumas-color-grade.js?v=20261112-single-renderer-v1';
 
 const ACTIVITY_MANIFEST_URL = new URL('./scene-activity-manifest.json', import.meta.url).href;
 
@@ -15,61 +19,6 @@ function zoomCameraView(view, zoom = 1) {
     return { ...view, position };
 }
 
-const GRADE_GLSL = `
-uniform float gkExposure;
-uniform float gkContrast;
-uniform float gkSaturation;
-uniform vec3 gkColorFilter;
-uniform vec4 gkTone;
-uniform float gkToneEnabled;
-uniform vec3 gkShadows;
-uniform vec3 gkMidtones;
-uniform vec3 gkHighlights;
-uniform vec4 gkSmhLimits;
-
-vec3 gkLinearToLogC(vec3 x) {
-    vec3 hi = 0.244161 * (log(5.555556 * x + 0.047996) / log(10.0)) + 0.386036;
-    vec3 lo = 5.301883 * x + 0.092819;
-    return mix(lo, hi, step(vec3(0.011361), x));
-}
-
-vec3 gkLogCToLinear(vec3 x) {
-    vec3 hi = (pow(vec3(10.0), (x - 0.386036) / 0.244161) - 0.047996) / 5.555556;
-    vec3 lo = (x - 0.092819) / 5.301883;
-    return mix(lo, hi, step(vec3(5.301883 * 0.011361 + 0.092819), x));
-}
-
-vec3 gkUchimura(vec3 x, float a, float m, float l, float c) {
-    float P = 1.0;
-    float l0 = ((P - m) * l) / a;
-    float S0 = m + l0;
-    float S1 = m + a * l0;
-    float C2 = (a * P) / (P - S1);
-    float CP = -C2 / P;
-    vec3 w0 = 1.0 - smoothstep(0.0, m, x);
-    vec3 w2 = step(S0, x);
-    vec3 w1 = 1.0 - w0 - w2;
-    vec3 T = m * pow(max(x, vec3(0.0)) / m, vec3(c));
-    vec3 S = P - (P - S1) * exp(CP * (x - S0));
-    vec3 L = m + a * (x - m);
-    return T * w0 + L * w1 + S * w2;
-}
-
-vec3 gkGrade(vec3 color) {
-    color *= gkExposure;
-    vec3 logc = gkLinearToLogC(max(color, vec3(0.0)));
-    color = gkLogCToLinear((logc - ${0.4135884}) * gkContrast + ${0.4135884});
-    color = max(color * gkColorFilter, vec3(0.0));
-    float luma = dot(color, vec3(0.2126729, 0.7151522, 0.0721750));
-    float shadowsFactor = 1.0 - smoothstep(gkSmhLimits.x, gkSmhLimits.y, luma);
-    float highlightsFactor = smoothstep(gkSmhLimits.z, gkSmhLimits.w, luma);
-    color *= gkShadows * shadowsFactor + gkMidtones * (1.0 - shadowsFactor - highlightsFactor) + gkHighlights * highlightsFactor;
-    luma = dot(color, vec3(0.2126729, 0.7151522, 0.0721750));
-    color = max(vec3(luma) + (color - vec3(luma)) * gkSaturation, vec3(0.0));
-    if (gkToneEnabled > 0.5) color = gkUchimura(color, gkTone.z, gkTone.x, gkTone.y, gkTone.w);
-    return color;
-}
-`;
 
 const MAX_SCENE_LIGHTS = 16;
 
@@ -84,11 +33,23 @@ varying vec2 vGkLightmapUv;
 varying vec3 vGkNormal;
 varying vec3 vGkPosition;
 varying vec3 vGkCamera;
+varying float vGkViewDepth;
+uniform float gkSceneScale;
 varying float vGkVertexAlpha;
-#ifdef GK_VERTEX_ALPHA
+#ifdef GK_WATER
+varying vec4 vGkWaterColor;
+#endif
+#if defined(GK_VERTEX_ALPHA) || defined(GK_WATER_VERTEX_COLOR)
 attribute vec4 _vertexcolor;
 #endif
 void main() {
+#ifdef GK_WATER
+#ifdef GK_WATER_VERTEX_COLOR
+    vGkWaterColor = _vertexcolor;
+#else
+    vGkWaterColor = vec4(1.0);
+#endif
+#endif
     vGkUv = (gkMapTransform * vec3(uv, 1.0)).xy;
 #ifdef GK_VERTEX_ALPHA
     vGkVertexAlpha = _vertexcolor.a;
@@ -104,6 +65,7 @@ void main() {
     vGkPosition = (toScene * vec4(position, 1.0)).xyz;
     vGkNormal = mat3(toScene) * normal;
     vGkCamera = (gkWorldToScene * vec4(cameraPosition, 1.0)).xyz;
+    vGkViewDepth = -(modelViewMatrix * vec4(position, 1.0)).z / max(gkSceneScale, 1e-6);
     gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
 }
 `;
@@ -180,14 +142,19 @@ uniform float gkSkyReflection;
 uniform vec4 gkFogSphere;
 uniform vec4 gkFogColor;
 uniform float gkFogDensity;
+uniform float gkDepthFogDensity;
+uniform vec4 gkDepthFogColor;
+uniform float gkSceneScale;
+varying float vGkViewDepth;
 ${GRADE_GLSL}
 ${SKY_GLSL}
+${WATER_GLSL}
 
 // VL SphereFog: density (1 - r^2) integrated along the view ray inside the
 // sphere, normalised so a full diameter is 1; the result is lerped toward
 // amount * colour by min(amount, maxAmount).
-vec3 gkApplyFog(vec3 color) {
-    if (gkFogDensity <= 0.0) return color;
+vec4 gkSphereFog() {
+    if (gkFogDensity <= 0.0) return vec4(0.0);
     vec3 toPixel = vGkPosition - vGkCamera;
     float len = max(length(toPixel), 1e-5);
     vec3 rd = toPixel / len;
@@ -196,18 +163,29 @@ vec3 gkApplyFog(vec3 color) {
     float b = dot(rd, oc);
     float c = dot(oc, oc) - 1.0;
     float disc = b * b - c;
-    if (disc < 0.0) return color;
+    if (disc < 0.0) return vec4(0.0);
     float s = sqrt(disc);
     float t0 = -s - b;
     float t1 = s - b;
-    if (t1 < 0.0 || dist < t0) return color;
+    if (t1 < 0.0 || dist < t0) return vec4(0.0);
     t0 = max(t0, 0.0);
     t1 = min(dist, t1);
     float f0 = t0 * t0 * t0 / 3.0 + b * t0 * t0 + c * t0;
     float f1 = t1 * t1 * t1 / 3.0 + b * t1 * t1 + c * t1;
     float amount = (f0 - f1) * 0.75 * gkFogDensity;
     float weight = clamp(min(amount, gkFogColor.w), 0.0, 1.0);
-    return mix(color, amount * gkFogColor.rgb, weight);
+    return vec4(amount * gkFogColor.rgb, weight);
+}
+
+vec3 gkApplyFog(vec3 color) {
+    vec4 fog = gkSphereFog();
+    if (gkDepthFogDensity > 0.0) {
+        // Original forward pass: exponential eye depth (not radial distance),
+        // with an uncapped colour contribution and a capped blend weight.
+        float amount = max(1.0 - exp(-max(vGkViewDepth, 0.0) * gkDepthFogDensity), 0.0);
+        fog += vec4(amount * gkDepthFogColor.rgb, min(amount, gkDepthFogColor.a));
+    }
+    return mix(color, fog.rgb, clamp(fog.a, 0.0, 1.0));
 }
 
 vec3 gkShadeSH9(vec3 n) {
@@ -300,6 +278,10 @@ void main() {
         n = gkPerturbNormal(n, mapN);
     }
     vec3 v = normalize(vGkCamera - vGkPosition);
+    vec3 waterEmission = vec3(0.0);
+#ifdef GK_WATER
+    gkWaterSurface(base.rgb, n, v, smoothness, waterEmission);
+#endif
     float nv = clamp(dot(n, v), 1e-4, 1.0);
 
     // URP BRDFData (metallic workflow).
@@ -398,7 +380,7 @@ void main() {
         emission += gkSSSColor * base.rgb * transmitted * translucencyMask;
     }
 
-    vec3 color = gkApplyFog(indirect + direct * gkDirectScale + emission + base.rgb * gkEmission);
+    vec3 color = gkApplyFog(indirect + direct * gkDirectScale + emission + waterEmission + base.rgb * gkEmission);
     // Premultiplied transparents scale the whole result, reflections included.
     if (gkPremultiply > 0.5) color *= base.a;
     gl_FragColor = linearToOutputTexel(vec4(gkGrade(color), base.a));
@@ -473,9 +455,10 @@ function loadTexture(loader, url, { mipmaps = true } = {}) {
 }
 
 export class GakumasSceneStage {
-    constructor({ scene, scale = 1 }) {
+    constructor({ scene, scale = 1, resources = null }) {
         this.scene = scene;
         this.scale = scale;
+        this.resources = resources;
         this.root = new THREE.Group();
         this.root.name = 'gakumas-scene';
         this.root.visible = false;
@@ -487,11 +470,15 @@ export class GakumasSceneStage {
         this.gltf = null;
         this.effects = null;
         this.sky = null;
+        this.riverbedAssets = null;
+        this.clouds = null;
+        this.cloudSettings = null;
         this.farDistance = 0;
         this.grade = null;
         this.actorLight = null;
         this.sceneLightEntries = [];
         this.shared = {
+            gkDeferGrade: { value: 0 },
             gkSceneFromWorld: { value: new THREE.Matrix3() },
             gkExposure: { value: 1 },
             gkContrast: { value: 1 },
@@ -520,6 +507,10 @@ export class GakumasSceneStage {
             gkFogSphere: { value: new THREE.Vector4(0, 0, 0, 1) },
             gkFogColor: { value: new THREE.Vector4(0, 0, 0, 1) },
             gkFogDensity: { value: 0 },
+            gkDepthFogDensity: { value: 0 },
+            gkDepthFogColor: { value: new THREE.Vector4(0, 0, 0, 0) },
+            gkSceneScale: { value: 1 },
+            gkWaterTime: { value: 0 },
         };
         this.probes = [];
         this.activityManifest = null;
@@ -637,6 +628,19 @@ export class GakumasSceneStage {
         this.textures.push(...owned);
         this.probes = probes;
         this.applyLights(sidecar.lights);
+        let riverbedAssets;
+        try {
+            riverbedAssets = await loadRiverbedShaderData(sidecar.scene, this.resources, isCurrent);
+        } catch (error) {
+            if (this.gltf === gltf) this.unload();
+            throw error;
+        }
+        if (!isCurrent()) {
+            riverbedAssets?.dispose();
+            if (this.gltf === gltf) this.unload();
+            return null;
+        }
+        this.riverbedAssets = riverbedAssets;
         const stats = await this.buildEnvironment(gltf, lightmaps, isCurrent);
         if (!isCurrent()) {
             if (this.gltf === gltf) this.unload();
@@ -655,6 +659,11 @@ export class GakumasSceneStage {
         stats.activityFamily = this.activity?.family || null;
         stats.activityStatus = this.activity?.status || null;
         if (skyTexture) this.buildSky(skyTexture, skyEntry, sidecar.environment.sky);
+        if (this.riverbedAssets) {
+            this.clouds = createRiverbedClouds(this.riverbedAssets, this.shared, GRADE_GLSL);
+            this.scene.add(this.clouds.group);
+        }
+        stats.cloudLayers = this.riverbedAssets?.data.clouds.layers.length || 0;
         const box = new THREE.Box3().setFromObject(gltf.scene);
         this.farDistance = box.isEmpty() ? 0 : box.getSize(new THREE.Vector3()).length() * this.scale * 1.2;
         this.root.visible = true;
@@ -664,7 +673,7 @@ export class GakumasSceneStage {
     }
 
     async buildEnvironment(gltf, lightmaps, isCurrent = () => true) {
-        const stats = { meshes: 0, lightmapped: 0, probeLit: 0 };
+        const stats = { meshes: 0, lightmapped: 0, probeLit: 0, water: 0 };
         const replaced = new Map();
         const meshes = [];
         gltf.scene.updateMatrixWorld(true);
@@ -689,6 +698,10 @@ export class GakumasSceneStage {
             const probe = this.probes[selectReflectionProbe(this.sidecar.reflectionProbes, center.toArray())] || null;
             const defMap = defMaps.get(source.userData?.unity?.textures?._DefMap?.texture) || null;
             object.material = this.environmentMaterial(source, info, lightmap, { probe, defMap, geometry: object.geometry });
+            if (this.riverbedAssets && source.userData?.unity?.shader === 'Environment/SimpleWaterFlow') {
+                object.onBeforeRender = () => { this.shared.gkWaterTime.value = performance.now() / 1000; };
+                stats.water += 1;
+            }
             replaced.set(source.uuid, source);
             object.castShadow = false;
             object.receiveShadow = false;
@@ -703,6 +716,12 @@ export class GakumasSceneStage {
         return stats;
     }
 
+    attachTo(scene = this.scene) {
+        scene.add(this.root);
+        if (this.sky) scene.add(this.sky);
+        if (this.clouds) scene.add(this.clouds.group);
+    }
+
     environmentMaterial(source, info, lightmap, { probe = null, defMap = null, geometry = null } = {}) {
         const unity = source.userData?.unity || {};
         const map = source.map || null;
@@ -711,6 +730,7 @@ export class GakumasSceneStage {
         const shader = unity.shader || '';
         const usesDef = /^Environment\/(Default|Vegetation)$/.test(shader);
         const vegetation = shader === 'Environment/Vegetation';
+        const water = shader === 'Environment/SimpleWaterFlow' && this.riverbedAssets;
         const defValue = unity.colors?._DefValue || [1, 1, 1, 1];
         const emissionColor = linearColor(unity.colors?._EmissionColor || [0, 0, 0]);
         const normalMap = source.normalMap || null;
@@ -726,6 +746,7 @@ export class GakumasSceneStage {
             name: `${source.name}-env`,
             uniforms: {
                 ...this.shared,
+                ...(water ? waterUniforms(this.riverbedAssets, linearColor) : {}),
                 gkMap: { value: map },
                 gkHasMap: { value: map ? 1 : 0 },
                 gkMapTransform: { value: map ? map.matrix.clone() : new THREE.Matrix3() },
@@ -762,7 +783,10 @@ export class GakumasSceneStage {
                 gkProbeBoxMax: { value: new THREE.Vector3(...(probe?.box.max || [0, 0, 0])) },
                 gkProbeBoxProjection: { value: probe?.probe.boxProjection ? 1 : 0 },
             },
-            defines: vegetation && geometry?.attributes._vertexcolor ? { GK_VERTEX_ALPHA: '' } : {},
+            defines: {
+                ...(vegetation && geometry?.attributes._vertexcolor ? { GK_VERTEX_ALPHA: '' } : {}),
+                ...(water ? { GK_WATER: '', ...(geometry?.attributes._vertexcolor ? { GK_WATER_VERTEX_COLOR: '' } : {}) } : {}),
+            },
             vertexShader: ENV_VERTEX,
             fragmentShader: ENV_FRAGMENT,
             side: source.side,
@@ -856,6 +880,7 @@ export class GakumasSceneStage {
         mesh.frustumCulled = false;
         mesh.renderOrder = -1000;
         mesh.onBeforeRender = (_renderer, _scene, camera) => {
+            if (this.clouds && this.cloudSettings) this.clouds.update(camera, this.root, performance.now() / 1000, this.cloudSettings);
             mesh.position.copy(camera.position);
             mesh.scale.setScalar((camera.near + camera.far) * 0.5);
             mesh.updateMatrixWorld();
@@ -942,16 +967,31 @@ export class GakumasSceneStage {
         this.root.scale.setScalar(transform.scale);
         this.root.position.fromArray(transform.position);
         this.root.updateMatrixWorld(true);
+        this.shared.gkSceneScale.value = transform.scale;
         this.shared.gkSceneFromWorld.value.setFromMatrix4(new THREE.Matrix4().makeRotationY(-transform.rotationY));
         this.shared.gkWorldToScene.value.copy(this.root.matrixWorld).invert();
         const { stack, volumes, activeComponents } = resolveVolumeStack(this.sidecar.volumes, layout.camera?.position || actor?.position || [0, 0, 0]);
         const fog = sceneFogWithOverride(sceneSphereFog(stack), sceneEffectProfile(this.sidecar.scene, this.sidecar.effects)?.fogOverride);
-        this.grade = { ...sceneGrade(stack), fog, volumes };
+        // Roll out the missing shader features on the audited noon riverbed.
+        // Other maps keep their existing appearance until their inputs are checked.
+        const depthFog = this.sidecar.scene === RIVERBED_NOON ? sceneDepthFog(stack, activeComponents, this.riverbedAssets?.data.depthFog) : null;
+        this.cloudSettings = sceneCloudLayers(stack, activeComponents);
+        this.post = scenePost(stack, activeComponents, this.sidecar.scene);
+        this.grade = { ...this.post.grading, fog, depthFog, volumes };
         this.actorLight = sceneActorLight(stack);
-        this.post = scenePost(stack, activeComponents);
         this.applyGrade(this.grade);
         this.transform = transform;
         return { layout, transform, view: this.cameraView(layoutId) };
+    }
+
+    withPostProcessing(post, draw) {
+        const uniform = this.shared.gkDeferGrade;
+        const previous = uniform.value;
+        // Only defer while drawing into the matching HDR pass. Restore even if
+        // drawing fails, so warmups and direct renders never lose scene grading.
+        uniform.value = post?.usesSceneHDR && post.settings?.sceneId === this.sidecar?.scene ? 1 : 0;
+        try { return draw(); }
+        finally { uniform.value = previous; }
     }
 
     applyLights(lights) {
@@ -982,6 +1022,9 @@ export class GakumasSceneStage {
         this.shared.gkHighlights.value.set(...grade.highlights);
         this.shared.gkSmhLimits.value.set(...grade.smhLimits);
         this.shared.gkLightmapTint.value.set(...grade.lightmapTint);
+        const depthFog = grade.depthFog;
+        this.shared.gkDepthFogDensity.value = depthFog?.enabled ? depthFog.density : 0;
+        if (depthFog?.enabled) this.shared.gkDepthFogColor.value.set(...depthFog.color, depthFog.maxAmount);
         const fog = grade.fog;
         this.shared.gkFogDensity.value = fog?.enabled ? fog.density : 0;
         if (fog?.enabled) {
@@ -1011,6 +1054,11 @@ export class GakumasSceneStage {
     unload() {
         this.ready = false;
         this.loadGeneration += 1;
+        this.clouds?.group.removeFromParent();
+        this.riverbedAssets?.dispose();
+        this.riverbedAssets = null;
+        this.clouds = null;
+        this.cloudSettings = null;
         this.effects?.dispose();
         this.effects = null;
         if (this.gltf) {
@@ -1026,7 +1074,7 @@ export class GakumasSceneStage {
             this.root.remove(this.gltf.scene);
         }
         if (this.sky) {
-            this.scene.remove(this.sky);
+            this.sky.removeFromParent();
             this.sky.geometry.dispose();
             this.sky.material.dispose();
         }
@@ -1039,6 +1087,7 @@ export class GakumasSceneStage {
         this.shared.gkSkyMap.value = null;
         this.shared.gkHasSky.value = 0;
         this.shared.gkFogDensity.value = 0;
+        this.shared.gkDepthFogDensity.value = 0;
         this.gltf = null;
         this.sky = null;
         this.sidecar = null;

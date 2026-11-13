@@ -1,9 +1,9 @@
-import { formatActorMove, formatActorPose, formatCameraMove, formatCameraPose, formatDepthOfField, formatFocalLength, parseActorMove, parseActorPose, parseBeatScript, parseCameraMove, parseCameraPose, parseCameraWalk, parseDepthOfField, parseFocalLength } from './beat-protocol.js?v=20261111-beat-breath-tts-v2';
+import { formatActorMove, formatActorPose, formatCameraMove, formatCameraPose, formatDepthOfField, formatFocalLength, parseActorMove, parseActorPose, parseBeatScript, parseCameraMove, parseCameraPose, parseCameraWalk, parseDepthOfField, parseFocalLength } from './beat-protocol.js?v=20261113-hkne-onsen-v1';
 
 const STANDARD_ATTRIBUTES = Object.freeze(new Set([
   'id', 'speaker', 'cue', 'face', 'overlay', 'effect', 'look', 'position',
   'background', 'shot', 'wait', 'transition', 'camera', 'focal', 'dof', 'camera-pose', 'camera-move', 'camera-walk', 'actor-pose', 'actor-move', 'camera-motion', 'camera-ease',
-  'camera-duration', 'costume',
+  'camera-duration', 'costume', 'hide-dialogue', 'hide-actors',
 ]));
 
 const FIELD_TO_ATTRIBUTE = Object.freeze({
@@ -30,7 +30,17 @@ const FIELD_TO_ATTRIBUTE = Object.freeze({
   cameraEase: 'camera-ease',
   cameraDuration: 'camera-duration',
   costume: 'costume',
+  hideDialogue: 'hide-dialogue',
+  hideActors: 'hide-actors',
 });
+// Per-beat switches written as attribute="1" and left out when off.
+const FLAG_FIELDS = new Set(['hideDialogue', 'hideActors']);
+const CUSTOM_BACKGROUND_ATTRIBUTE = /^custom[1-9]\d*$/iu;
+
+function readFlag(source, field, attribute) {
+  if (Object.hasOwn(source, field)) return source[field] === true;
+  return parseCameraWalk(source.rawAttributes?.[attribute]) === true;
+}
 const LEGACY_CAMERA_ATTRIBUTES = new Set(['camera-motion', 'camera-ease', 'camera-duration']);
 
 const ARRAY_FIELDS = new Set(['overlay', 'effects']);
@@ -139,7 +149,7 @@ function sanitizeBeat(beat, index = 0) {
     background: trimText(source.background),
     shot: trimText(source.shot) || 'medium',
     wait: trimText(source.wait) || 'text',
-    transition: trimText(source.transition) === 'clock' ? 'clock' : '',
+    transition: ['clock', 'none'].includes(trimText(source.transition)) ? trimText(source.transition) : '',
     camera: trimText(source.camera),
     focal: Object.hasOwn(source, 'focal') ? parseFocalLength(source.focal) : parseFocalLength(source.rawAttributes?.focal),
     dof: Object.hasOwn(source, 'dof') ? parseDepthOfField(source.dof) : parseDepthOfField(source.rawAttributes?.dof),
@@ -157,6 +167,8 @@ function sanitizeBeat(beat, index = 0) {
     cameraEase: trimText(source.cameraEase),
     cameraDuration: Number.isFinite(Number(source.cameraDuration)) && Number(source.cameraDuration) > 0 ? Number(source.cameraDuration) : 0,
     costume: trimText(source.costume),
+    hideDialogue: readFlag(source, 'hideDialogue', 'hide-dialogue'),
+    hideActors: readFlag(source, 'hideActors', 'hide-actors'),
     text: trimText(source.text),
     ttsText: trimText(source.ttsText),
     costumes: cloneValue(source.costumes || {}),
@@ -193,7 +205,10 @@ function rawAttributePatch(normalized, rawAttributes) {
   const result = { ...(rawAttributes || {}) };
   for (const [field, attribute] of Object.entries(FIELD_TO_ATTRIBUTE)) {
     if (!Object.hasOwn(normalized, field)) continue;
-    if (ARRAY_FIELDS.has(field)) {
+    if (FLAG_FIELDS.has(field)) {
+      if (normalized[field] === true) result[attribute] = '1';
+      else delete result[attribute];
+    } else if (ARRAY_FIELDS.has(field)) {
       const values = normalizeArray(normalized[field]);
       if (values.length) result[attribute] = values.join(',');
       else delete result[attribute];
@@ -241,7 +256,7 @@ function attributesText(beat, index) {
   values.id = trimText(beat.id) || makeId(index);
   values.speaker = trimText(beat.speaker);
   values.cue = trimText(beat.cue) || 'talk';
-  const preferredOrder = ['id', 'speaker', 'cue', 'face', 'overlay', 'effect', 'look', 'position', 'actor-pose', 'actor-move', 'background', 'shot', 'wait', 'transition', 'camera', 'focal', 'dof', 'camera-pose', 'camera-move', 'camera-walk', 'camera-motion', 'camera-ease', 'camera-duration', 'costume'];
+  const preferredOrder = ['id', 'speaker', 'cue', 'face', 'overlay', 'effect', 'look', 'position', 'actor-pose', 'actor-move', 'background', 'shot', 'wait', 'transition', 'camera', 'focal', 'dof', 'camera-pose', 'camera-move', 'camera-walk', 'camera-motion', 'camera-ease', 'camera-duration', 'costume', 'hide-dialogue', 'hide-actors'];
   const keys = [...new Set([...preferredOrder, ...Object.keys(values)])].filter(key => values[key] != null && values[key] !== '');
   return keys.map(key => `${key}="${escapeAttribute(values[key])}"`).join(' ');
 }
@@ -280,10 +295,17 @@ export function parseBeatEditorSource(source, options = {}) {
   const beats = matches.map((match, index) => {
     const normalized = parsed.beats[index] || {};
     const localized = readLocalizedBody(match.body);
+    const rawAttributes = parseRawAttributes(match.attributesSource);
+    // Keep a customN reference in the editor source even when the local image
+    // has been deleted or is not available on this browser. The player still
+    // reports the missing asset, while the editor can preserve the reference
+    // for a later upload/import instead of silently replacing it.
+    const customBackground = trimText(rawAttributes.background);
+    if (CUSTOM_BACKGROUND_ATTRIBUTE.test(customBackground)) normalized.background = customBackground.toLowerCase();
     const beat = sanitizeBeat({
       ...normalized,
       ...localized,
-      rawAttributes: parseRawAttributes(match.attributesSource),
+      rawAttributes,
       rawBodyExtras: localized.rawBodyExtras,
       rawLead: index === 0 ? '' : '',
     }, index);

@@ -1,12 +1,13 @@
 import { actorPoseFromObject, cameraPoseFromObject } from './scene-free-look.js?v=20261102-actor-pose-v1';
-import { BeatPlayerApp } from './beat-player.js?v=20261111-beat-breath-tts-v2';
+import { BeatPlayerApp } from './beat-player.js?v=20261113-hkne-onsen-v1';
 import { BEAT_BACKGROUND_NAMES } from './beat-backgrounds.js?v=20261017-browser-cache-v1';
 import { BEAT_SCENE_ASSETS } from './beat-scene-assets.js?v=20261027-scene-library-v1';
 import { BEAT_CUES, BEAT_EFFECTS, BEAT_FACES, BEAT_OVERLAYS, BEAT_POSITIONS, BEAT_SHOTS, BEAT_CAMERA_PRESETS, BEAT_SPEAKER_NAMES, beatActorId } from './beat-player-core.js?v=20261111-hkne-motions-v1';
 import { BEAT_BODY_CUE_SPECS, BEAT_CUE_ALIASES, beatMotionFileKey, isBeatMotionFile, isBeatPairedCue } from './beat-cues.js?v=20261103-paired-face-v1';
 import { MOTION_BUCKETS } from './core.js?v=20261011-stage-cue-rules-v4';
-import { createEditorBeat, cloneEditorBeat, moveBeat, parseBeatEditorSource, serializeBeatEditorScript, updateBeat, validateEditorDocument } from './beat-editor-model.js?v=20261111-beat-breath-tts-v2';
+import { createEditorBeat, cloneEditorBeat, moveBeat, parseBeatEditorSource, serializeBeatEditorScript, updateBeat, validateEditorDocument } from './beat-editor-model.js?v=20261113-hkne-onsen-v1';
 import { createActorPoseGizmo } from './beat-actor-gizmo.js?v=20261103-actor-gizmo-v1';
+import { deleteCustomBackgroundItem, listCustomBackgrounds, prepareCustomBackgroundFile, saveCustomBackgroundItem } from './custom-background.js?v=20261112-custom-background-v3';
 
 const qs = (id) => document.getElementById(id);
 const unique = (values) => [...new Set((values || []).map(value => String(value ?? '').trim()).filter(Boolean))];
@@ -30,6 +31,9 @@ const labelFor = (value) => {
 const clone = (value) => JSON.parse(JSON.stringify(value));
 const PREVIEW_SETTINGS_KEY = 'hatsuBeatEditorPreviewSettings';
 const DEFAULT_PREVIEW_SETTINGS = Object.freeze({ stageWidth: 900, dialogueWidth: 760 });
+let customBackgroundRecords = [];
+const customPreviewUrls = new Map();
+const CUSTOM_BACKGROUND_ID = /^custom[1-9]\d*$/iu;
 
 const elementMap = {
     stage: qs('beatEditorStage'), background: qs('beatEditorStageBackground'), script: qs('beatScript'),
@@ -134,6 +138,80 @@ function populateSelect(select, values, includeBlank = false) {
     select.replaceChildren();
     if (includeBlank) select.append(new Option('（无）', ''));
     values.forEach(value => select.append(new Option(labelFor(value), value)));
+}
+
+function refreshBackgroundOptions() {
+    const select = qs('beatEditorBackground');
+    if (!select) return;
+    const selected = select.value || state.document.beats[state.selectedIndex]?.background || '';
+    options.background = unique([
+        ...BEAT_BACKGROUND_NAMES,
+        ...(BEAT_SCENE_ASSETS || []).map(item => item?.name),
+        ...customBackgroundRecords.map(record => record.id),
+        ...state.document.beats.map(beat => beat.background).filter(value => CUSTOM_BACKGROUND_ID.test(String(value || ''))),
+    ]);
+    populateSelect(select, options.background, true);
+    if (selected) select.value = selected;
+}
+
+function renderCustomBackgroundLibrary() {
+    const list = qs('beatEditorCustomList');
+    if (!list) return;
+    customPreviewUrls.forEach(url => URL.revokeObjectURL(url));
+    customPreviewUrls.clear();
+    list.replaceChildren();
+    if (!customBackgroundRecords.length) {
+        list.append(Object.assign(document.createElement('span'), { className: 'editor-custom-empty', textContent: '尚未上传 Custom 图。' }));
+        refreshBackgroundOptions();
+        return;
+    }
+    const fragment = document.createDocumentFragment();
+    for (const record of customBackgroundRecords) {
+        const card = document.createElement('article');
+        card.className = 'editor-custom-card';
+        const image = document.createElement('img');
+        image.alt = `${record.id} 本地背景预览`;
+        image.loading = 'lazy';
+        const url = URL.createObjectURL(record.blob);
+        customPreviewUrls.set(record.id, url);
+        image.src = url;
+        const body = document.createElement('div');
+        body.className = 'editor-custom-card-body';
+        body.innerHTML = `<code></code><span class="editor-custom-card-actions"><button type="button" data-custom-action="select" data-custom-id="${record.id}">选用</button><button type="button" data-custom-action="delete" data-custom-id="${record.id}" aria-label="删除 ${record.id}">删</button></span>`;
+        body.querySelector('code').textContent = record.id;
+        card.append(image, body);
+        fragment.append(card);
+    }
+    list.append(fragment);
+    refreshBackgroundOptions();
+}
+
+async function refreshCustomBackgroundLibrary() {
+    try {
+        customBackgroundRecords = await listCustomBackgrounds();
+        await app.setCustomBackgrounds(customBackgroundRecords);
+        renderCustomBackgroundLibrary();
+    } catch (error) {
+        setStatus(`Custom 图仓库读取失败：${error?.message || error}`, 'warn');
+    }
+}
+
+async function uploadCustomBackground() {
+    const input = qs('beatEditorCustomFile');
+    const file = input?.files?.[0];
+    if (!file) return;
+    setStatus(`正在处理 ${file.name}…`);
+    try {
+        const prepared = await prepareCustomBackgroundFile(file);
+        const record = await saveCustomBackgroundItem({ blob: prepared.blob, name: file.name, width: prepared.width, height: prepared.height });
+        await refreshCustomBackgroundLibrary();
+        mutate({ background: record.id });
+        setStatus(`已保存 ${record.id}，并应用到当前 Beat。`);
+    } catch (error) {
+        setStatus(`Custom 图片保存失败：${error?.message || error}`, 'warn');
+    } finally {
+        if (input) input.value = '';
+    }
 }
 
 function renderMotionFiles() {
@@ -253,20 +331,49 @@ function setupFields() {
     populateSelect(qs('beatEditorLook'), options.look, true);
     populateSelect(qs('beatEditorShot'), options.shot);
     populateSelect(qs('beatEditorCamera'), options.camera, true);
-    populateSelect(qs('beatEditorOverlays'), options.overlay);
-    populateSelect(qs('beatEditorEffects'), options.effects);
+    populateToggleGroup(qs('beatEditorOverlays'), options.overlay);
+    populateToggleGroup(qs('beatEditorEffects'), options.effects);
     populateSelect(qs('beatEditorWait'), options.wait);
+}
+
+function populateToggleGroup(group, values) {
+    if (!group) return;
+    group.replaceChildren();
+    values.forEach(value => {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.value = value;
+        button.textContent = labelFor(value);
+        button.setAttribute('aria-pressed', 'false');
+        group.append(button);
+    });
+}
+
+function toggleFieldOption(event) {
+    const field = event.currentTarget;
+    const button = event.target.closest('button');
+    if (!button || button.parentElement !== field) return;
+    const values = fieldValue(field);
+    const next = values.includes(button.value)
+        ? values.filter(value => value !== button.value)
+        : field.dataset.selection === 'single' ? [button.value] : [...values, button.value];
+    mutate({ [field.dataset.field]: next });
 }
 
 function fieldValue(field) {
     if (!field) return '';
+    if (field.dataset.selection) return [...field.querySelectorAll('button[aria-pressed="true"]')].map(button => button.value);
     if (field.multiple) return [...field.selectedOptions].map(option => option.value);
     return field.value;
 }
 
 function setField(field, value) {
     if (!field) return;
-    if (field.multiple) { const values = new Set(Array.isArray(value) ? value : []); [...field.options].forEach(option => { option.selected = values.has(option.value); }); }
+    if (field.dataset.selection) {
+        const values = new Set(Array.isArray(value) ? value : []);
+        field.querySelectorAll('button').forEach(button => button.setAttribute('aria-pressed', String(values.has(button.value))));
+    }
+    else if (field.multiple) { const values = new Set(Array.isArray(value) ? value : []); [...field.options].forEach(option => { option.selected = values.has(option.value); }); }
     else field.value = value == null ? '' : String(value);
 }
 
@@ -283,6 +390,8 @@ function renderProperties() {
     syncActorPoseFields();
     syncCameraMoveFields();
     syncActorMoveFields();
+    const hideDialogue = qs('beatEditorHideDialogue'); if (hideDialogue) hideDialogue.checked = beat.hideDialogue === true;
+    const hideActors = qs('beatEditorHideActors'); if (hideActors) hideActors.checked = beat.hideActors === true;
 }
 
 function renderList() {
@@ -357,6 +466,10 @@ function serializeAndStore() {
     const script = serializeBeatEditorScript(state.document); qs('beatScript').value = script; return script;
 }
 
+function editorParseOptions() {
+    return { allowOtherSpeakers: true, customBackgrounds: customBackgroundRecords.map(record => record.id) };
+}
+
 async function refreshPreview({ silent = false, needsResources = true } = {}) {
     const token = ++state.previewToken; const script = serializeAndStore();
     setStatus(silent ? '正在刷新预览…' : '正在解析并预加载资源…');
@@ -384,7 +497,7 @@ function undo() { const previous = state.undo.pop(); if (!previous) return; stat
 function redo() { const next = state.redo.pop(); if (!next) return; state.undo.push(clone(state.document)); state.document = next; state.selectedIndex = Math.min(state.selectedIndex, state.document.beats.length - 1); setDirty(true); renderAll(); schedulePreviewRefresh({ silent: false, immediate: true, requiresResources: true }); }
 
 function importSource(source) {
-    const parsed = parseBeatEditorSource(source, { allowOtherSpeakers: true });
+    const parsed = parseBeatEditorSource(source, editorParseOptions());
     if (!parsed.beats.length) { qs('beatEditorValidation').textContent = '没有找到可导入的 <beat> 段落。'; qs('beatEditorValidation').dataset.level = 'warn'; return; }
     pushHistory(); state.document = parsed; state.selectedIndex = 0; setDirty(true); renderAll(); schedulePreviewRefresh({ silent: false, immediate: true, requiresResources: true });
 }
@@ -516,6 +629,10 @@ setupFields();
 applyPreviewSettings();
 if (state.document.source) qs('beatEditorImportSource').value = state.document.source;
 document.querySelectorAll('[data-field]').forEach(field => {
+    if (field.dataset.selection) {
+        field.addEventListener('click', toggleFieldOption);
+        return;
+    }
     const eventName = field.tagName === 'SELECT' ? 'change' : 'input';
     field.addEventListener(eventName, event => mutate(currentPatchFromEvent(event)));
 });
@@ -526,6 +643,31 @@ qs('beatEditorMotionBucket')?.addEventListener('change', renderMotionFiles);
 qs('beatEditorMotionFile')?.addEventListener('change', event => { if (event.currentTarget.value) applyMotionFile(event.currentTarget.value); });
 qs('beatEditorMotionName')?.addEventListener('change', event => { const value = event.currentTarget.value.trim(); if (value) applyMotionFile(value); });
 qs('beatEditorFaceFile')?.addEventListener('change', event => mutate({ face: event.currentTarget.value }));
+qs('beatEditorCustomUploadBtn')?.addEventListener('click', () => qs('beatEditorCustomFile')?.click());
+qs('beatEditorCustomFile')?.addEventListener('change', () => { void uploadCustomBackground(); });
+qs('beatEditorCustomList')?.addEventListener('click', async event => {
+    const button = event.target.closest('button[data-custom-action]');
+    if (!button) return;
+    const id = button.dataset.customId;
+    if (button.dataset.customAction === 'select') {
+        mutate({ background: id });
+        return;
+    }
+    if (button.dataset.customAction === 'delete') {
+        if (!window.confirm(`删除 ${id}？使用它的 Beat 会保留这个编号，并在播放时提示背景缺失。`)) return;
+        try {
+            const wasUsed = state.document.beats[state.selectedIndex]?.background?.toLowerCase() === String(id).toLowerCase();
+            await deleteCustomBackgroundItem(id);
+            await refreshCustomBackgroundLibrary();
+            // Reparse immediately so a Beat that still references the deleted
+            // ID gets the same unknown-background diagnostic as a fresh load.
+            await refreshPreview({ silent: true, needsResources: false });
+            if (wasUsed) setStatus(`${id} 已删除，当前 Beat 仍引用它，播放时会提示资源缺失。`, 'warn');
+        } catch (error) {
+            setStatus(`Custom 图片删除失败：${error?.message || error}`, 'warn');
+        }
+    }
+});
 qs('beatEditorFreeLook')?.addEventListener('change', () => {
     const toggle = qs('beatEditorFreeLook');
     if (!toggle) return;
@@ -582,6 +724,8 @@ qs('beatEditorCameraMove')?.addEventListener('change', () => {
     cameraMoveHistoryOpen = false;
     commitCameraMove({ from: pose, to: { ...pose }, duration: 1.2 }, { history: true });
 });
+qs('beatEditorHideDialogue')?.addEventListener('change', event => mutate({ hideDialogue: event.currentTarget.checked }));
+qs('beatEditorHideActors')?.addEventListener('change', event => mutate({ hideActors: event.currentTarget.checked }));
 qs('beatEditorCameraWalk')?.addEventListener('change', () => {
     const move = withCameraWalk(moveFromFields(CAMERA_MOVE_FIELDS));
     if (!move) return;
@@ -823,6 +967,8 @@ let actorGizmoMode = 'translate';
 let actorGizmoHistory = false;
 let actorGizmoOrigin = null;
 let actorGizmoPlayer = null;
+let actorGizmoStage = null;
+let actorGizmoRenderHook = null;
 const actorGizmo = createActorPoseGizmo(qs('beatEditorStage'), {
     onDragStart() {
         actorGizmoOrigin = state.document.beats[state.selectedIndex]?.actorPose
@@ -879,14 +1025,43 @@ function setActorGizmoMode(mode) {
     speakerPlayer()?.renderFrame?.();
 }
 
+function clearActorGizmoRenderHook() {
+    if (actorGizmoPlayer?.afterRender === actorGizmoRenderHook) actorGizmoPlayer.afterRender = null;
+    if (actorGizmoStage?.afterCompose === actorGizmoRenderHook) actorGizmoStage.afterCompose = null;
+    actorGizmoStage = null;
+    actorGizmoRenderHook = null;
+    actorGizmoPlayer = null;
+}
+
 function refreshActorGizmo() {
     if (actorGizmo.dragging) return;
     const beat = state.document.beats[state.selectedIndex];
     const player = speakerPlayer();
     const active = Boolean(beat?.actorPose && player?.model && player?.camera && player?.renderer);
-    if (actorGizmoPlayer && actorGizmoPlayer !== player) actorGizmoPlayer.afterRender = null;
-    actorGizmoPlayer = active ? player : null;
-    if (actorGizmoPlayer) actorGizmoPlayer.afterRender = () => actorGizmo.render(actorGizmoPlayer.renderer, actorGizmoPlayer.camera);
+    const nextPlayer = active ? player : null;
+    const nextStage = nextPlayer?.sharedStage || null;
+    if (actorGizmoPlayer !== nextPlayer || actorGizmoStage !== nextStage) clearActorGizmoRenderHook();
+    if (nextPlayer && !actorGizmoRenderHook) {
+        actorGizmoPlayer = nextPlayer;
+        actorGizmoStage = nextStage;
+        actorGizmoRenderHook = () => {
+            const current = actorGizmoPlayer;
+            if (current?.camera && current?.renderer
+                && (!actorGizmoStage || actorGizmoStage.isVisible(current))) {
+                actorGizmo.render(current.renderer, current.camera);
+            }
+        };
+        if (actorGizmoStage) {
+            // Shared-stage actors render into intermediate targets. Draw editor
+            // controls after the complete composition so they remain a crisp
+            // UI overlay and never enter TAA, bloom, or the group accumulation.
+            actorGizmoStage.afterCompose = actorGizmoRenderHook;
+        } else {
+            // Private stages still own one canvas, so the actor's post-render
+            // callback remains the right place for the editor overlay.
+            actorGizmoPlayer.afterRender = actorGizmoRenderHook;
+        }
+    }
     actorGizmo.setEnabled(active, player?.model, player?.camera);
     if (active) player.renderFrame();
 }
@@ -898,4 +1073,10 @@ qs('beatEditorExportBtn').addEventListener('click', exportScript); qs('beatEdito
 void loadMotionCatalog();
 qs('beatEditorPlay').addEventListener('click', () => { qs('beatEditorAuto').checked = true; void app.togglePlay(); }); qs('beatEditorPrevious').addEventListener('click', () => { state.selectedIndex = Math.max(0, state.selectedIndex - 1); renderAll(); void app.goTo(state.selectedIndex, { autoplay: false }); }); qs('beatEditorNext').addEventListener('click', () => { state.selectedIndex = Math.min(state.document.beats.length - 1, state.selectedIndex + 1); renderAll(); void app.goTo(state.selectedIndex, { autoplay: false }); }); qs('beatEditorStop').addEventListener('click', () => app.stop()); qs('beatEditorAdvance').addEventListener('click', () => { state.selectedIndex = Math.min(state.document.beats.length - 1, state.selectedIndex + 1); renderAll(); void app.goTo(state.selectedIndex, { autoplay: false }); });
 window.addEventListener('beforeunload', () => app.dispose?.(), { once: true });
-renderAll(); void refreshPreview({ silent: false, needsResources: true });
+renderAll();
+void (async () => {
+    // Load the browser-local image IDs before compiling the initial script so
+    // existing customN references are available to both the editor and preview.
+    await refreshCustomBackgroundLibrary();
+    await refreshPreview({ silent: false, needsResources: true });
+})();

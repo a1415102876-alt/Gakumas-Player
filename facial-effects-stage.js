@@ -5,6 +5,16 @@ export const STAR_EYE_TEXTURES = Object.freeze(Object.fromEntries(
     Object.entries(STAR_EYE_RESOURCES).map(([id, resource]) => [id, resource.col]),
 ));
 
+const KANAE_NO_HIGHLIGHT_RESOURCE = Object.freeze({
+    col: 'hkne-eye-nohighlight/textures/t_chr_hkne_eye-nohighlight_col_alp.png',
+    shade: 'hkne-eye-nohighlight/textures/t_chr_hkne_eye-nohighlight_sdw.png',
+    def: 'hkne-eye-nohighlight/textures/t_chr_hkne_eye-nohighlight_def.png',
+});
+
+export function noHighlightEyeResource(idolId) {
+    return String(idolId || '').trim().toLowerCase() === 'hkne' ? KANAE_NO_HIGHLIGHT_RESOURCE : null;
+}
+
 export const FACIAL_EFFECT_DEFINITIONS = Object.freeze({
     starEyes: { label: '星星眼', kind: 'eye-mode' },
     noHighlight: { label: '无高光眼睛', kind: 'eye-mode' },
@@ -311,6 +321,8 @@ export class FacialEffectsStage {
                 }
                 this.restoreStarUniforms(material);
                 if (this.state.starEyes) this.ensureStarUniforms(material);
+                if (this.state.noHighlight && noHighlightEyeResource(this.idolId)) this.ensureKanaeNoHighlight(material);
+                else this.restoreKanaeNoHighlight(material);
             }
             if (isHighlightMaterial(material)) {
                 material.userData.facialBaseOpacity ??= material.opacity;
@@ -320,6 +332,60 @@ export class FacialEffectsStage {
                 material.needsUpdate = true;
             }
         }
+    }
+
+    ensureKanaeNoHighlight(material) {
+        const resource = noHighlightEyeResource(this.idolId);
+        if (!resource) return;
+        const key = `no-highlight:${this.idolId}`;
+        if (!this.loading.has(key)) {
+            this.loading.set(key, Promise.all([
+                this.texture(resource.col),
+                this.dataTexture(resource.shade),
+                this.dataTexture(resource.def),
+            ]).then(([texture, shade, def]) => ({ texture, shade, def }))
+                .catch(error => {
+                    this.report(`无高光眼睛资源加载失败：${error.message}`);
+                    return null;
+                }));
+        }
+        this.loading.get(key).then(maps => {
+            if (!maps || !this.state.noHighlight || this.idolId !== 'hkne' || !this.model) return;
+            if (!this.materialEntries.some(entry => entry.material === material)) return;
+            material.userData.facialKanaeNoHighlightMaps = maps;
+            material.userData.facialKanaeNoHighlightUniforms ??= {
+                shade: material.userData.gakumasUniforms?.gkShadeMap?.value,
+                def: material.userData.gakumasUniforms?.gkDefMap?.value,
+                hasShade: material.userData.gakumasUniforms?.gkHasShade?.value,
+                hasDef: material.userData.gakumasUniforms?.gkHasDef?.value,
+            };
+            material.map = maps.texture;
+            material.map.repeat.copy(material.userData.facialBaseRepeat || new THREE.Vector2(1, 1));
+            material.map.offset.copy(material.userData.facialBaseOffset || new THREE.Vector2(0, 0));
+            const uniforms = material.userData.gakumasUniforms;
+            if (uniforms?.gkShadeMap) uniforms.gkShadeMap.value = maps.shade;
+            if (uniforms?.gkDefMap) uniforms.gkDefMap.value = maps.def;
+            if (uniforms?.gkHasShade) uniforms.gkHasShade.value = 1;
+            if (uniforms?.gkHasDef) uniforms.gkHasDef.value = 1;
+            material.needsUpdate = true;
+        });
+    }
+
+    restoreKanaeNoHighlight(material) {
+        const base = material.userData.facialKanaeNoHighlightUniforms;
+        if (!base) return;
+        if (material.userData.facialBaseMap) {
+            material.map = material.userData.facialBaseMap;
+            material.map.repeat.copy(material.userData.facialBaseRepeat || new THREE.Vector2(1, 1));
+            material.map.offset.copy(material.userData.facialBaseOffset || new THREE.Vector2(0, 0));
+        }
+        const uniforms = material.userData.gakumasUniforms;
+        if (uniforms?.gkShadeMap) uniforms.gkShadeMap.value = base.shade;
+        if (uniforms?.gkDefMap) uniforms.gkDefMap.value = base.def;
+        if (uniforms?.gkHasShade) uniforms.gkHasShade.value = base.hasShade;
+        if (uniforms?.gkHasDef) uniforms.gkHasDef.value = base.hasDef;
+        delete material.userData.facialKanaeNoHighlightUniforms;
+        material.needsUpdate = true;
     }
 
     ensureStarMaterial(material) {
@@ -573,6 +639,7 @@ gl_FragColor.rgb = mix(gl_FragColor.rgb, facialBlackWarmShadow, facialBlackMask 
         for (const key of this.effectGroups.keys()) this.clearGroup(key);
         for (const { material } of this.materialEntries) {
             if (material.userData?.facialBaseMap) material.map = material.userData.facialBaseMap;
+            this.restoreKanaeNoHighlight(material);
             const uniforms = material.userData?.gakumasUniforms;
             const starBase = material.userData?.facialStarUniforms;
             if (uniforms && starBase) {

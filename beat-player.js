@@ -1,20 +1,22 @@
-import { createSceneDirector } from './live-portrait.js?v=20261111-beat-breath-tts-v2';
+import { createSceneDirector } from './live-portrait.js?v=20261113-hkne-onsen-v1';
+import { resolveSharedStageMode } from './stage-mode.js?v=20261112-single-renderer-v1';
 import { performanceRecommendations } from './performance-monitor-core.js?v=20261030-perf-diagnostic-v2';
 import { sceneIdolId } from './scene-protocol.js?v=20261111-hkne-motions-v1';
-import { buildStageSlides, cameraWalkOffset, parseBeatScript, resolveActorPoses, resolveBeatCue } from './beat-protocol.js?v=20261111-beat-breath-tts-v2';
+import { buildStageSlides, cameraWalkOffset, parseBeatScript, resolveActorPoses, resolveBeatCue } from './beat-protocol.js?v=20261113-hkne-onsen-v1';
 import { applyActorPose, applyCameraPose } from './scene-free-look.js?v=20261103-camera-lens-v1';
-import { BeatScenePool } from './beat-scene-pool.js?v=20261109-actor-light-v3';
+import { BeatScenePool } from './beat-scene-pool.js?v=20261112-single-renderer-v1';
 import { isBeatScene } from './beat-background-assets.js?v=20261108-chat-clock-v1';
 import { beatSpeakerStyle } from './beat-speaker-theme.js?v=20261007-speaker-colors-v1';
-import { BEAT_ACTOR_NAMES, BEAT_CUES, BEAT_EFFECTS, BEAT_FACES, BEAT_OVERLAYS, BEAT_POSITIONS, BEAT_SHOTS, BEAT_SPEAKER_NAMES, backgroundDepthBlur, backgroundPanAmount, backgroundPanPosition, beatActorId, beatBackgroundChanged, buildBackgroundPlan, estimateBeatHold, getShotPreset, plateCoverToBackground, preparedStageCovers, resolveBeatCameraPreset, resolveBeatShot, stagePlateCover, stagePositionOffset, zoomPlateCover } from './beat-player-core.js?v=20261110-hkne-3d-v1';
+import { BEAT_ACTOR_NAMES, BEAT_CUES, BEAT_EFFECTS, BEAT_FACES, BEAT_OVERLAYS, BEAT_POSITIONS, BEAT_SHOTS, BEAT_SPEAKER_NAMES, backgroundDepthBlur, backgroundPanAmount, backgroundPanPosition, beatActorId, beatBackgroundChanged, buildBackgroundPlan, estimateBeatHold, getShotPreset, plateCoverToBackground, preparedStageCovers, resolveBeatCameraPreset, resolveBeatShot, stagePlateCover, stagePositionOffset, zoomPlateCover } from './beat-player-core.js?v=20261112-custom-bg-transition-v1';
 import { BEAT_BACKGROUND_NAMES, backgroundAssetUrl, preloadBackgrounds } from './beat-backgrounds.js?v=20261017-browser-cache-v1';
 import { TtsLipSyncAnalyzer } from './tts-lip-sync.js?v=20261107-surprise-mouth-v1';
-import { loadResourceLibrary, ResourceSession } from './asset-runtime.js?v=20261111-hkne-motions-v1';
-import { buildDialogueAssetPlan } from './dialogue-asset-plan.js?v=20261103-paired-face-v1';
+import { loadResourceLibrary, ResourceSession } from './asset-runtime.js?v=20261113-hkne-onsen-v1';
+import { buildDialogueAssetPlan } from './dialogue-asset-plan.js?v=20261112-custom-background-v2';
 import { createResourceLoading } from './resource-loading.js';
 import { ResourceBarrier } from './resource-barrier.js';
-import { buildChatPrompt, createChatBridge, normalizeChatReply } from './beat-chat.js?v=20261111-beat-breath-tts-v2';
+import { buildChatPrompt, createChatBridge, normalizeChatReply } from './beat-chat.js?v=20261113-hkne-onsen-v1';
 import { estimateTypewriterDuration, isProducerSpeaker, typewriterDelayMs, TYPEWRITER_DEFAULTS } from './dialogue-reveal.js';
+import { listCustomBackgrounds, loadCustomBackgroundImage } from './custom-background.js?v=20261112-custom-background-v3';
 
 // Resolve against this module. A document-relative ./backgrounds_2d path
 // points at the produce page when the player is embedded there.
@@ -59,11 +61,33 @@ const SCENE_SCRIPT = `<beat speaker="kotone" cue="talk" look="camera" position="
 <beat speaker="rinami" cue="greet" look="camera" position="left" shot="reaction" camera="reaction">琴音妹妹，加油。</beat>`;
 
 const NAME_MAP = BEAT_SPEAKER_NAMES;
+// Player and editor previews use one WebGL context by default. Set ?stage=private
+// or localStorage 'gakumas.stage' = 'private' to fall back to per-actor canvases.
+function sharedStageRequested() {
+    try {
+        return resolveSharedStageMode({
+            search: globalThis.location?.search || '',
+            storedPreference: globalThis.localStorage?.getItem('gakumas.stage'),
+        });
+    } catch {
+        return true;
+    }
+}
+const SHARED_STAGE = sharedStageRequested();
+// Two actors share the frame for these cues, so the shot is not a solo.
+const INTERACTION_CUES = Object.freeze(['pinch', 'pinch-receive', 'shake', 'shake-receive']);
 const ACTOR_OPTIONS = [...new Set([...Object.keys(NAME_MAP), ...Object.values(NAME_MAP)])];
 const CHAT_BACKGROUND = '家·教室（午）';
+export const WEBGL_UNAVAILABLE_MESSAGE = '浏览器当前无法创建 WebGL，3D 播放无法启动。通常是显卡加速被关闭，或显卡进程多次崩溃后被浏览器停用。请完全退出并重新打开浏览器；仍不行时，在浏览器设置中开启“使用图形加速”，并打开 chrome://gpu 查看 WebGL 状态。';
+const CUSTOM_BACKGROUND_NAME = 'custom-background';
+const CUSTOM_BACKGROUND_ID = /^custom[1-9]\d*$/iu;
 const CHAT_IDOL_OPTIONS = Object.entries(BEAT_ACTOR_NAMES)
     .filter(([id]) => !['nasr', 'asari'].includes(id))
     .map(([id, name]) => ({ id, name }));
+
+function isCustomBackgroundName(value) {
+    return CUSTOM_BACKGROUND_ID.test(String(value || '').trim());
+}
 
 function getElement(root, id) {
     return root.querySelector(`#${id}`) || document.getElementById(id);
@@ -106,15 +130,10 @@ export class BeatPlayerApp {
             status: getElement(root, 'beatStatus'),
             diagnostics: getElement(root, 'beatDiagnostics'),
         };
-        this.director = createSceneDirector(this.elements.stage, {
-            // Medium dialogue: head sits below the top of the portrait, and the
-            // hips land near the dialogue box. Other shots zoom around that.
-            cameraDistanceFactor: 1.6,
-            cameraTargetY: 0.71,
-            autoIdleAdditiveOnHold: true,
-        });
-        this.director.useShotFrame = true;
-        this.scenePool = new BeatScenePool(this.elements.stage);
+        // Empty while WebGL works; otherwise the reason shown to the user.
+        this.renderUnavailable = '';
+        this.director = this.createDirector();
+        this.scenePool = new BeatScenePool(this.elements.stage, { stage: this.director.stage });
         this.resourceGeneration = 0;
         this.resourceLoading = createResourceLoading(this.elements.stage, () => this.retryResources());
         this.state = { generation: 0, current: -1, playing: false, timer: null, choosing: false, selectedChoice: -1 };
@@ -131,7 +150,13 @@ export class BeatPlayerApp {
         this.baseFixedCameraOptions = this.fixedCameraOptions;
         this.defaultCostumes = options.defaultCostumes || {};
         this.backgroundImages = new Map();
+        this.customBackgrounds = new Map();
+        this.customBackgroundsReadyState = false;
+        this.customBackgroundsReady = this.reloadCustomBackgrounds();
         this.backgroundPlan = [];
+        // { image, url, release } from custom-background.js. While set, it
+        // replaces every scripted background, 2D plates and 3D scenes alike.
+        this.customBackground = null;
         this.focusedActor = '';
         this.tts = options.tts || globalThis.HatsuFishTts || null;
         this.ttsSession = '';
@@ -209,6 +234,13 @@ export class BeatPlayerApp {
             if (event.defaultPrevented || event.target.closest('button, a, input, textarea, select, label')) return;
             this.advanceDialogue();
         });
+        // With the dialogue box hidden for a beat, the stage itself advances.
+        this.elements.stage?.addEventListener('click', event => {
+            const stage = this.elements.stage;
+            if (stage.dataset.dialogue !== 'hidden' || stage.dataset.viewUnlocked === 'true') return;
+            if (event.defaultPrevented || event.target.closest('button, a, input, textarea, select, label, .beat-choices')) return;
+            this.advanceDialogue();
+        });
         this.elements.dialogueCard?.addEventListener('keydown', event => {
             if (event.target !== event.currentTarget || !['Enter', ' '].includes(event.key)) return;
             event.preventDefault();
@@ -232,11 +264,68 @@ export class BeatPlayerApp {
             shots: BEAT_SHOTS,
             positions: BEAT_POSITIONS,
             backgrounds: BEAT_BACKGROUND_NAMES,
+            customBackgrounds: [...this.customBackgrounds.keys()],
+            customBackgroundsReady: this.customBackgroundsReadyState,
             backgroundCategory: this.backgroundCategory,
             backgroundContext: this.backgroundContext,
             defaultBackground: this.defaultBackground,
             defaultCostumes: this.defaultCostumes,
         });
+    }
+
+    async reloadCustomBackgrounds() {
+        try {
+            const records = await listCustomBackgrounds();
+            await this.setCustomBackgrounds(records);
+            if (this.disposed) return [];
+            if (String(this.elements.script?.value || '').trim() && this.compiled?.beats?.length) {
+                this.compile({ silent: true });
+            }
+            return records;
+        } catch (error) {
+            // A failed repository read is still a completed read. Recompile so
+            // pending customN references become useful diagnostics instead of
+            // remaining in the provisional state forever.
+            this.customBackgroundsReadyState = true;
+            if (!this.disposed && String(this.elements.script?.value || '').trim() && this.compiled?.beats?.length) {
+                this.compile({ silent: true });
+            }
+            console.warn('[BeatPlayer] custom background repository unavailable', error);
+            return [];
+        }
+    }
+
+    async setCustomBackgrounds(records = []) {
+        const generation = (this.customBackgroundGeneration || 0) + 1;
+        this.customBackgroundGeneration = generation;
+        const valid = (Array.isArray(records) ? records : []).filter(record => isCustomBackgroundName(record?.id));
+        const loaded = await Promise.all(valid.map(async record => {
+            try {
+                const image = await loadCustomBackgroundImage(record);
+                return image ? [String(record.id).toLowerCase(), { ...image, id: String(record.id).toLowerCase() }] : null;
+            } catch (error) {
+                console.warn('[BeatPlayer] custom background image unavailable', record?.id, error);
+                return null;
+            }
+        }));
+        const next = new Map(loaded.filter(Boolean));
+        if (this.disposed || generation !== this.customBackgroundGeneration) {
+            next.forEach(record => record.release?.());
+            return this.customBackgrounds;
+        }
+        const previous = this.customBackgrounds;
+        this.customBackgrounds = next;
+        this.customBackgroundsReadyState = true;
+        previous.forEach(record => record.release?.());
+        const beat = this.state.current >= 0 ? this.compiled.beats[this.state.current] : null;
+        if (beat && !this.resourceLoadingActive) {
+            this.applyShot(beat);
+            for (const entry of this.director.allEntries()) {
+                if (entry.present) entry.player.renderFrame?.();
+            }
+            if (!this.scenePool?.activePlayer) this.scenePool?.renderBackground?.();
+        }
+        return next;
     }
 
     /**
@@ -252,7 +341,7 @@ export class BeatPlayerApp {
         const previousIndex = this.state.current;
         this.compiled = { ...parsed, ...stage };
         this.preloadPlan = this.buildPreloadPlan(parsed.beats);
-        this.backgroundPlan = buildBackgroundPlan(parsed.beats);
+        this.backgroundPlan = buildBackgroundPlan(parsed.beats).filter(name => !isCustomBackgroundName(name));
         this.renderDiagnostics();
         if (!parsed.beats.length) {
             this.state.current = -1;
@@ -268,7 +357,7 @@ export class BeatPlayerApp {
         const parsed = this.parseScript();
         const stage = buildStageSlides(parsed.beats, NAME_MAP);
         const preloadPlan = this.buildPreloadPlan(parsed.beats);
-        const backgroundPlan = buildBackgroundPlan(parsed.beats);
+        const backgroundPlan = buildBackgroundPlan(parsed.beats).filter(name => !isCustomBackgroundName(name));
         const reuseStage = this.canReusePreparedStage(preloadPlan, backgroundPlan);
         this.stop();
         this.state.selectedChoice = -1;
@@ -282,8 +371,7 @@ export class BeatPlayerApp {
             this.scenePool.present('', null);
             for (const entry of this.director.allEntries()) {
                 entry.present = false;
-                entry.canvas.style.visibility = 'hidden';
-                entry.canvas.style.opacity = '0';
+                entry.view.hide();
             }
         }
         this.resourceGeneration += 1;
@@ -331,6 +419,7 @@ export class BeatPlayerApp {
         // Flat plates are stored on the player, not in the 3D scene pool.
         // Counting only the pool made every 2D beat look unprepared.
         for (const name of this.backgroundImages?.keys() || []) loadedBackgrounds.push(name);
+        for (const name of this.customBackgrounds?.keys() || []) loadedBackgrounds.push(name);
         return preparedStageCovers({
             ready: Boolean(this.resources && !this.resources.disposed && cast.length),
             cast,
@@ -366,7 +455,7 @@ export class BeatPlayerApp {
                 loaded: [...(this.scenePool?.entries || [])]
                     .filter(([, entry]) => entry?.loaded)
                     .map(([name]) => name),
-                active: this.scenePool?.activePlayer?.canvas?.dataset?.idol || '',
+                active: this.scenePool?.activePlayer?.idolId || '',
             },
             activeActors: director.activeActors,
             loadedActors: director.loadedActors,
@@ -552,8 +641,7 @@ export class BeatPlayerApp {
         try {
             const played = await entry.player.playStageTransition('kiduku', { isCurrent, onStart: () => {
                 entry.present = true;
-                entry.canvas.style.visibility = 'visible';
-                entry.canvas.style.opacity = '1';
+                entry.view.show();
                 entry.player.resume();
             } });
             if (!isCurrent()) return false;
@@ -699,13 +787,19 @@ export class BeatPlayerApp {
         const previousBackground = previousIndex >= 0 && previousIndex !== index
             ? this.compiled.beats[previousIndex]?.background
             : '';
-        const sceneChanged = beatBackgroundChanged(previousBackground, beat.background);
+        // A custom background stays put, so script scene cuts need no wipe.
+        const sceneChanged = !this.customBackground && beatBackgroundChanged(previousBackground, beat.background, beat.backgroundExplicit);
         this.cancelSceneWipe();
         const theme = beatSpeakerStyle(speakerName, this.resolveSpeakerTheme);
-        const clockTransition = previousIndex >= 0 && previousIndex !== index && beat.transition === 'clock';
-        const wipe = clockTransition
-            ? this.playClockWipe()
-            : (sceneChanged ? this.playSceneWipe(theme.color === '#978c83' ? '#ff4f9a' : theme.color) : null);
+        const entering = previousIndex >= 0 && previousIndex !== index;
+        const clockTransition = entering && beat.transition === 'clock';
+        // transition="none" cuts straight into this beat, even across a scene change.
+        const cutTransition = entering && beat.transition === 'none';
+        const wipe = cutTransition
+            ? null
+            : clockTransition
+                ? this.playClockWipe()
+                : (sceneChanged ? this.playSceneWipe(theme.color === '#978c83' ? '#ff4f9a' : theme.color) : null);
         if (!wipe) this.renderBeat(beat);
         this.setStatus(`正在准备第 ${index + 1} / ${this.compiled.beats.length} 段…`);
         try {
@@ -740,6 +834,7 @@ export class BeatPlayerApp {
             }
             if (generation !== this.state.generation) return false;
             this.director.resume();
+            this.preactivateUpcoming(index, generation);
             const revealDuration = this.startDialogueReveal(beat, generation);
             const voicePlayback = this.playBeatVoice(beat, generation);
             if (wipe?.active()) wipe.finish();
@@ -1096,35 +1191,40 @@ export class BeatPlayerApp {
         const cameraShot = beat?.camera ? resolveBeatCameraPreset(beat.camera, presentation.shot) : presentation.shot;
         const effectiveShot = cameraShot === 'keep' ? presentation.shot : cameraShot;
         const preset = getShotPreset(effectiveShot, presentation.focus);
-        const interaction = ['pinch', 'pinch-receive', 'shake', 'shake-receive'].includes(String(beat?.cue || '').toLowerCase());
+        const interaction = INTERACTION_CUES.includes(String(beat?.cue || '').toLowerCase());
         const solo = Boolean(preset.focus) && (!interaction || Boolean(this.fixedPresentation));
         this.focusedActor = preset.focus || '';
         const focusedEntry = preset.focus ? this.director.entries.get(preset.focus) : null;
-        const scene3d = isBeatScene(beat?.background);
+        // An explicit customN on this Beat is more specific than the legacy
+        // setting that replaces every scripted background.
+        const beatCustom = isCustomBackgroundName(beat?.background)
+            && this.customBackgrounds.has(String(beat.background).toLowerCase());
+        const globalCustom = Boolean(this.customBackground) && !beatCustom;
+        const scene3d = !globalCustom && !beatCustom && isBeatScene(beat?.background);
         const platePosition = focusedEntry?.position || 'center';
         this.applyBackground(beat, platePosition);
-        this.applyFlatBackgroundCamera(scene3d ? '' : beat?.background, preset, platePosition);
+        this.applyFlatBackgroundCamera(scene3d ? '' : (globalCustom ? CUSTOM_BACKGROUND_NAME : beat?.background), preset, platePosition);
         this.elements.stage.dataset.shot = effectiveShot;
         const speakerPoses = resolveActorPoses(compiledBeats, foundBeat >= 0 ? foundBeat : this.state?.current);
         for (const [idolId, entry] of this.director.entries) {
-            if (!entry.canvas) continue;
+            if (!entry.view) continue;
             const base = stagePositionOffset(entry.position);
             const focused = !solo || preset.focus === idolId;
-            const visible = Boolean(entry.present && focused);
+            // hide-actors keeps everyone on stage (pose, attention, voice) but
+            // out of frame for this beat, leaving only the background.
+            const visible = Boolean(entry.present && focused && !beat?.hideActors);
             // Focused actors return to the viewport center. The background is
             // panned separately to the actor's left/center/right station.
             const translate = solo && focused ? 0 : base;
             const scale = solo ? (focused ? preset.scale : 0.84) : preset.scale;
-            entry.canvas.style.transition = 'none';
-            entry.canvas.style.transform = 'none';
+            entry.view.clearOffset();
             entry.player.setShotFrame?.(scene3d ? { scale: 1, shiftX: 0, originY: .5 } : { scale, shiftX: (translate / 100) * 2, originY: preset.originY });
-            entry.canvas.style.zIndex = focused ? '3' : '1';
-            entry.canvas.style.visibility = visible ? 'visible' : 'hidden';
-            entry.canvas.style.opacity = visible ? '1' : '0';
+            entry.view.setOrder(focused ? 3 : 1);
+            entry.view.show(visible);
             entry.player.setPresentationActive?.(visible);
             entry.player.setActorPose?.(speakerPoses.get(idolId) || null);
         }
-        const scenePlayer = focusedEntry?.present && focusedEntry.player.ready ? focusedEntry.player : null;
+        const scenePlayer = !beat?.hideActors && focusedEntry?.present && focusedEntry.player.ready ? focusedEntry.player : null;
         if (!scenePlayer) {
             for (const entry of this.director.entries.values()) {
                 if (entry.player?.stageScene) entry.player.setStageScene(null);
@@ -1141,9 +1241,38 @@ export class BeatPlayerApp {
         this.elements.stage.dataset.cameraZoom = cameraOptions.zoom || '';
         // `camera` and `shot` are one shared framing channel. Both the 2D plate
         // and the 3D scene receive the same effective value.
-        const presented = this.scenePool.present(beat?.background || '', scenePlayer, cameraShot, focusedEntry?.position || 'center', cameraOptions) || !scene3d;
+        const presented = this.scenePool.present((globalCustom || beatCustom) ? '' : beat?.background || '', scenePlayer, cameraShot, focusedEntry?.position || 'center', cameraOptions) || !scene3d;
         this.startPoseMove(beat);
         return presented;
+    }
+
+    // The script already says who is on camera next. Rebuild that actor's
+    // released GPU buffers while this line is still on screen, so the flip
+    // itself only has to change visibility.
+    preactivateUpcoming(index, generation) {
+        const beats = this.compiled?.beats || [];
+        const next = beats[index + 1];
+        if (!next || next.hideActors || this.fixedPresentation) return;
+        const presentation = resolveBeatShot(beats, index + 1);
+        const cameraShot = next.camera ? resolveBeatCameraPreset(next.camera, presentation.shot) : presentation.shot;
+        const preset = getShotPreset(cameraShot === 'keep' ? presentation.shot : cameraShot, presentation.focus);
+        const solo = Boolean(preset.focus) && !INTERACTION_CUES.includes(String(next.cue || '').toLowerCase());
+        const speaker = beatActorId(next.speaker);
+        const present = [...this.director.entries].filter(([, entry]) => entry.present).map(([idolId]) => idolId);
+        const ids = solo ? [preset.focus] : [...new Set([...present, speaker].filter(Boolean))];
+        const count = Math.max(1, new Set([...present, ...ids]).size);
+        const targets = ids.map(idolId => ({
+            idolId,
+            entry: this.director.entryFor?.(idolId, next.costumes) || this.director.entries.get(idolId),
+        })).filter(({ entry }) => entry?.player?.preactivate && entry.player.ready && entry.view && !entry.view.visible);
+        if (!targets.length) return;
+        const isCurrent = () => generation === this.state.generation;
+        (async () => {
+            for (const { idolId, entry } of targets) {
+                if (!isCurrent()) return;
+                await entry.player.preactivate({ count, focused: solo || count <= 1 || idolId === speaker, isCurrent });
+            }
+        })().catch(error => console.warn('[BeatPlayer] preactivate unavailable', error));
     }
 
     stopPoseMove() {
@@ -1220,8 +1349,15 @@ export class BeatPlayerApp {
     }
 
     async prepareResources(plan, generation, { reuse = false, silent = false } = {}) {
+        if (!this.ensureRenderer()) {
+            this.setStatus(this.renderUnavailable);
+            this.resourceLoading.update({ phase: 'error', message: this.renderUnavailable });
+            throw new Error(this.renderUnavailable);
+        }
         const director = this.director, scenePool = this.scenePool, compiled = this.compiled, backgroundPlan = [...this.backgroundPlan];
         const current = () => generation === this.resourceGeneration;
+        await this.customBackgroundsReady;
+        if (!current()) return false;
         const keepStage = reuse && this.resources && !this.resources.disposed;
         // A visual-only editor change can reuse the prepared stage. Keep the
         // barrier and compiled beats in sync, but do not flash the full-screen
@@ -1266,7 +1402,7 @@ export class BeatPlayerApp {
             ]);
             if (generation !== this.resourceGeneration) return false;
             backgrounds.loaded.forEach((image, name) => this.backgroundImages.set(name, image));
-            const castEntries = director.allEntries().filter(entry => plan.cast.includes(entry.canvas.dataset.idol) && entry.player.ready);
+            const castEntries = director.allEntries().filter(entry => plan.cast.includes(entry.view.idolId) && entry.player.ready);
             const effectCombinations = [...new Map(compiled.beats.map(beat => {
                 const effects = [...(beat.effects || [])].sort();
                 return [JSON.stringify(effects), effects];
@@ -1343,12 +1479,45 @@ export class BeatPlayerApp {
         this.preloadPromise.then(ready => ready && this.goTo(Math.max(0, this.state.current), { autoplay: false })).catch(() => {});
     }
 
+    // The browser can refuse every WebGL context (GPU acceleration off, or the
+    // GPU process blocked after repeated crashes). Throwing here used to take
+    // the whole page down; instead keep a context-free director so scripts,
+    // settings and chat memory stay usable, and report why playback cannot run.
+    createDirector() {
+        const options = {
+            // Medium dialogue: head sits below the top of the portrait, and the
+            // hips land near the dialogue box. Other shots zoom around that.
+            cameraDistanceFactor: 1.6,
+            cameraTargetY: 0.71,
+            autoIdleAdditiveOnHold: true,
+        };
+        let director;
+        try {
+            director = createSceneDirector(this.elements.stage, { ...options, sharedStage: SHARED_STAGE });
+            this.renderUnavailable = '';
+        } catch (error) {
+            console.warn('[BeatPlayer] WebGL unavailable', error);
+            this.renderUnavailable = WEBGL_UNAVAILABLE_MESSAGE;
+            // Without a shared stage no context is created until an actor loads.
+            director = createSceneDirector(this.elements.stage, { ...options, sharedStage: false });
+        }
+        director.useShotFrame = true;
+        this.elements.stage.dataset.stageRenderer = this.renderUnavailable ? 'unavailable' : director.stage ? 'shared' : 'per-actor';
+        return director;
+    }
+
+    /** Retry WebGL after an earlier failure. Returns true when rendering works. */
+    ensureRenderer() {
+        if (!this.renderUnavailable) return true;
+        this.resetResourcePlayers();
+        return !this.renderUnavailable;
+    }
+
     resetResourcePlayers() {
         this.director.dispose();
-        this.director = createSceneDirector(this.elements.stage, { cameraDistanceFactor: 1.6, cameraTargetY: .71, autoIdleAdditiveOnHold: true });
-        this.director.useShotFrame = true;
+        this.director = this.createDirector();
         this.scenePool.dispose();
-        this.scenePool = new BeatScenePool(this.elements.stage);
+        this.scenePool = new BeatScenePool(this.elements.stage, { stage: this.director.stage });
         this.backgroundImages.clear();
     }
 
@@ -1614,6 +1783,10 @@ export class BeatPlayerApp {
 
     renderBeat(beat) {
         const current = this.state.current;
+        if (this.elements.stage) {
+            if (beat?.hideDialogue) this.elements.stage.dataset.dialogue = 'hidden';
+            else delete this.elements.stage.dataset.dialogue;
+        }
         this.elements.progress.textContent = beat ? `${current + 1} / ${this.compiled.beats.length}` : '—';
         this.renderSpeaker(beat ? (NAME_MAP[beat.speaker] || beat.speaker || '旁白') : '等待播放');
         this.elements.text.textContent = this.dialogueReveal.enabled && beat?.text
@@ -1629,12 +1802,16 @@ export class BeatPlayerApp {
     applyFlatBackgroundCamera(name, preset, position = 'center') {
         const node = this.elements.background;
         if (!node) return;
-        if (!name || isBeatScene(name)) {
+        const custom = name === CUSTOM_BACKGROUND_NAME || isCustomBackgroundName(name);
+        if (!name || (!custom && isBeatScene(name))) {
             node.style.backgroundSize = '';
             node.style.filter = '';
+            if (this.director?.stage?.shared) this.director.stage.setBackgroundPlate(null);
             return;
         }
-        const image = this.backgroundImages.get(name);
+        const image = name === CUSTOM_BACKGROUND_NAME
+            ? this.customBackground?.image
+            : isCustomBackgroundName(name) ? this.customBackgrounds.get(String(name).toLowerCase())?.image : this.backgroundImages.get(name);
         const viewW = this.elements.stage?.clientWidth || image?.width || 1;
         const viewH = this.elements.stage?.clientHeight || image?.height || 1;
         const blur = backgroundDepthBlur(preset?.scale);
@@ -1649,20 +1826,60 @@ export class BeatPlayerApp {
         node.style.backgroundSize = css.size;
         node.style.backgroundPosition = css.position;
         node.style.filter = `blur(${blur}px)`;
+        if (this.director?.stage?.shared) {
+            // Shared mode owns the only visible canvas. Put the flat plate in
+            // that canvas so actors are composited above it and the old DOM
+            // background cannot produce a second, differently filtered layer.
+            this.director.stage.setBackgroundPlate(image || null, cover);
+            node.style.backgroundImage = '';
+        }
     }
 
     applyBackground(beat, position = 'center') {
-        const name = String(beat?.background || '').trim();
-        const image = this.backgroundImages.get(name);
-        const url = backgroundAssetUrl(name, BEAT_BACKGROUND_ROOT);
+        const beatName = String(beat?.background || '').trim();
+        const beatCustom = isCustomBackgroundName(beatName) ? this.customBackgrounds.get(beatName.toLowerCase()) : null;
+        const globalCustom = beatCustom ? null : this.customBackground;
+        const name = globalCustom ? CUSTOM_BACKGROUND_NAME : beatName;
+        const image = globalCustom?.image || beatCustom?.image || this.backgroundImages.get(name);
+        // A missing customN record must stay local to the browser. Do not let
+        // the normal plate resolver turn it into a bogus network URL.
+        const url = globalCustom || beatCustom || isCustomBackgroundName(beatName)
+            ? ''
+            : backgroundAssetUrl(name, BEAT_BACKGROUND_ROOT);
         if (!this.elements.background) return;
-        const plate = url ? `url("${this.resources?.resolve(url) || url}")` : '';
-        this.elements.background.style.backgroundImage = plate;
+        const plate = globalCustom || beatCustom ? `url("${(globalCustom || beatCustom).url}")` : url ? `url("${this.resources?.resolve(url) || url}")` : '';
+        const sharedStage = this.director?.stage?.shared;
+        this.elements.background.style.backgroundImage = sharedStage ? '' : plate;
         this.elements.background.style.backgroundPosition = backgroundPanPosition(position);
-        for (const entry of this.director.entries.values()) entry.player.setStagePlate?.(image || null, position);
+        if (!sharedStage) {
+            for (const entry of this.director.entries.values()) entry.player.setStagePlate?.(image || null, position);
+        }
         this.elements.stage.dataset.background = name;
-        this.elements.stage.dataset.backgroundKind = isBeatScene(name) ? '3d' : '2d';
+        this.elements.stage.dataset.backgroundKind = !globalCustom && !beatCustom && isBeatScene(name) ? '3d' : '2d';
         this.elements.stage.dataset.backgroundPosition = String(position || 'center').trim().toLowerCase();
+    }
+
+    /**
+     * Replace (or, with null, restore) the scripted backgrounds. Scripted
+     * scenes keep loading as usual, so switching back needs no reload.
+     */
+    setCustomBackground(next) {
+        const previous = this.customBackground;
+        if (previous === next) return;
+        this.customBackground = next?.image && next?.url ? next : null;
+        const beat = this.state.current >= 0 ? this.compiled.beats[this.state.current] : null;
+        if (beat && !this.resourceLoadingActive) {
+            this.applyShot(beat);
+            const player = this.scenePool?.activePlayer || null;
+            for (const entry of this.director.allEntries()) {
+                if (entry.present) entry.player.renderFrame?.();
+            }
+            if (!player) this.scenePool?.renderBackground?.();
+        } else if (!beat) {
+            this.applyBackground(null);
+        }
+        // The plate texture now points at the new image (or none).
+        previous?.release?.();
     }
 
     renderDiagnostics() {
@@ -1696,6 +1913,8 @@ export class BeatPlayerApp {
     }
 
     dispose() {
+        this.disposed = true;
+        this.customBackgroundGeneration = (this.customBackgroundGeneration || 0) + 1;
         this.stopPoseMove();
         this.stop();
         this.resourceGeneration += 1;
@@ -1703,6 +1922,10 @@ export class BeatPlayerApp {
         this.resourceLoading.dispose();
         this.scenePool.dispose();
         this.director.dispose();
+        this.customBackground?.release?.();
+        this.customBackground = null;
+        this.customBackgrounds?.forEach(record => record.release?.());
+        this.customBackgrounds?.clear();
     }
 }
 

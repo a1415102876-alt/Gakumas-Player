@@ -731,6 +731,58 @@
       "missingBundles": []
     },
     {
+      "id": "hkne-eye-nohighlight",
+      "category": "materialEffect",
+      "description": "冰渡香名江无高光眼睛主体材质",
+      "bundles": [
+        {
+          "bundle": "mef_mat_chr_hkne_eye-nohighlight-001",
+          "textures": [
+            {
+              "name": "t_chr_hkne_eye-nohighlight_col_alp",
+              "file": "public/mmd-dialogue-stage/assets/facial-effects/hkne-eye-nohighlight/textures/t_chr_hkne_eye-nohighlight_col_alp.png",
+              "width": 1024,
+              "height": 1024,
+              "mode": "RGBA"
+            },
+            {
+              "name": "t_chr_hkne_eye-nohighlight_sdw",
+              "file": "public/mmd-dialogue-stage/assets/facial-effects/hkne-eye-nohighlight/textures/t_chr_hkne_eye-nohighlight_sdw.png",
+              "width": 1024,
+              "height": 1024,
+              "mode": "RGBA"
+            },
+            {
+              "name": "t_chr_hkne_eye-nohighlight_def",
+              "file": "public/mmd-dialogue-stage/assets/facial-effects/hkne-eye-nohighlight/textures/t_chr_hkne_eye-nohighlight_def.png",
+              "width": 1024,
+              "height": 1024,
+              "mode": "RGBA"
+            }
+          ],
+          "meshes": [],
+          "objects": []
+        },
+        {
+          "bundle": "mef_mat_chr_hkne_ehl-nohighlight-001",
+          "textures": [
+            {
+              "name": "t_chr_cmmn_ehl-nohighlight-001_col",
+              "file": "public/mmd-dialogue-stage/assets/facial-effects/hkne-eye-nohighlight/textures/t_chr_cmmn_ehl-nohighlight-001_col.png",
+              "width": 4,
+              "height": 4,
+              "mode": "RGBA"
+            }
+          ],
+          "meshes": [],
+          "objects": []
+        }
+      ],
+      "mount": null,
+      "directory": "hkne-eye-nohighlight",
+      "missingBundles": []
+    },
+    {
       "id": "atbm-eye-nohighlight",
       "category": "materialEffect",
       "description": "无高光眼睛材质",

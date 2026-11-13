@@ -734,6 +734,24 @@
         "hair": "mdl_chr_hkne-base-0000_hair",
         "capture": "capture-2026-11-10-23-0-24-50348-317488234"
       }
+    },
+    {
+      "modelKey": "hkne-head_hume-onsen",
+      "aliases": [
+        "hkne-onsen"
+      ],
+      "idolId": "hkne",
+      "outfitId": "onsen",
+      "glb": "E:/gakumas-pmx-workflow/hkne-hume-onsen-20261112/models/hkne-onsen/hkne-head_hume-onsen.glb",
+      "profile": "secondary-motion-profiles/hkne-onsen.json",
+      "profileId": "hkne-onsen",
+      "glbSha256": "19BC881D57601B8C786B3553E7494E74F06538F0FFB751D21E9BDF6886B67564",
+      "source": {
+        "body": "mdl_chr_hume-othr-0000_body",
+        "face": "mdl_chr_hkne-base-0000_face",
+        "hair": "mdl_chr_hkne-base-0000_hair",
+        "derivedProfile": "hkne-othr-0004 (hair only)"
+      }
     }
   ]
 }

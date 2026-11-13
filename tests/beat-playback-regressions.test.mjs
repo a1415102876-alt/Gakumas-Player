@@ -6,7 +6,7 @@ import * as THREE from '../vendor/three/build/three.module.js';
 import { MOTION_FADE, playlistClipIds, fadeDurationForClip, fadeDurationForTransition } from '../core.js';
 import { parsePortraitCue, selectPortraitPerformance } from '../portrait-cues.js';
 import { parseBeatScript, resolveBeatCue } from '../beat-protocol.js';
-import { BEAT_SPEAKER_NAMES } from '../beat-player-core.js';
+import { BEAT_SPEAKER_NAMES, beatBackgroundChanged } from '../beat-player-core.js';
 
 const read = path => readFileSync(new URL(path, import.meta.url), 'utf8');
 function methods(source, first, next) {
@@ -25,11 +25,26 @@ const Runtime = runInNewContext(`(class {
 })`, {
     THREE, MOTION_FADE, playlistClipIds, fadeDurationForClip, fadeDurationForTransition,
     parsePortraitCue, selectPortraitPerformance,
-    portraitMotionLoops: runInNewContext(`(${source.slice(source.indexOf('function portraitMotionLoops('), source.indexOf('\nexport function createSceneDirector('))})`),
+    portraitMotionLoops: runInNewContext(`(${source.slice(source.indexOf('function portraitMotionLoops('), source.indexOf('\nexport function createSceneDirector('))}\n)`),
     motionAssetUrls: item => ['body', 'face'].filter(kind => item[kind]).map(kind => ({ id: item[kind], kind })),
 });
 
 const tick = () => new Promise(resolve => setImmediate(resolve));
+
+test('继承的自定义背景不会误触发场景转场', () => {
+    const parsed = parseBeatScript(
+        '<beat speaker="hkne" background="custom1">第一句。</beat>\n'
+        + '<beat speaker="hkne">第二句。</beat>\n'
+        + '<beat speaker="hkne" background="custom2">第三句。</beat>',
+        { customBackgrounds: ['custom1', 'custom2'] },
+    );
+    assert.deepEqual(parsed.errors, []);
+    assert.deepEqual(parsed.beats.map(beat => beat.background), ['custom1', 'custom1', 'custom2']);
+    assert.deepEqual(parsed.beats.map(beat => beat.backgroundExplicit), [true, false, true]);
+    assert.equal(beatBackgroundChanged(parsed.beats[0].background, parsed.beats[1].background, parsed.beats[1].backgroundExplicit), false);
+    assert.equal(beatBackgroundChanged(parsed.beats[1].background, parsed.beats[2].background, parsed.beats[2].backgroundExplicit), true);
+});
+
 function fixture() {
     const model = new THREE.Mesh(new THREE.BufferGeometry(), new THREE.MeshBasicMaterial());
     const spine = new THREE.Bone();
@@ -252,12 +267,12 @@ test('香名江日语台词通过解析、预加载和播放链，使用指定�
         tts, ttsSession: session, state: { current: 0, generation: 1 },
         stopTtsLipSync() {}, startTtsLipSync() {},
     });
-    const aliases = ['hkne', '冰渡香名江', '氷渡香名江', '香名江', 'kanae', 'hido kanae', 'hido-kanae'];
+    const aliases = ['hkne', '冰渡香名江', '氷渡香名江', '香名江', 'kanae', 'hido kanae', 'hido-kanae', 'Hiwatari Kanae'];
     for (const [index, speaker] of aliases.entries()) {
-        const { beats, errors } = parseBeatScript(`<beat id="voice-${index}" speaker="${speaker}"><display lang="zh">请多指教。</display><tts lang="ja">[soft]よろしくお願いします。</tts></beat>`);
+        const { beats, errors } = parseBeatScript(`<beat id="voice-${index}" speaker="${speaker}"><display lang="zh">请多指教。</display><tts lang="ja">[soft]冰渡香名江です。よろしくお願いします。</tts></beat>`);
         assert.deepEqual(errors, []);
         assert.equal(beats[0].text, '请多指教。');
-        assert.equal(beats[0].ttsText, '[soft]よろしくお願いします。', speaker);
+        assert.equal(beats[0].ttsText, '[soft]冰渡香名江です。よろしくお願いします。', speaker);
         assert.equal(tts.referenceIdForSpeaker(speaker), 'df77ae3e7b3b45798c0641f6a2fe928f');
         player.compiled = { beats };
         player.prepareBeatVoices();
@@ -267,7 +282,8 @@ test('香名江日语台词通过解析、预加载和播放链，使用指定�
     for (const request of requests) {
         assert.equal(request.url, 'https://tts.example.test/api/fish-tts');
         assert.equal(request.body.reference_id, 'df77ae3e7b3b45798c0641f6a2fe928f');
-        assert.equal(request.body.text, '[soft]よろしくお願いします。');
+        assert.equal(request.body.text, '[soft]冰渡香名江です。よろしくお願いします。');
+        assert.ok(request.body.pronunciation_dictionary[0].items.some(item => item.key === '冰渡香名江' && item.value === 'hi1wa0ta1ri0ka1na1e0'));
     }
     const other = parseBeatScript('<beat speaker="producer"><display>明白。</display><tts lang="ja">はい。</tts></beat>');
     assert.equal(other.beats[0].ttsText, undefined);

@@ -1,6 +1,6 @@
 const POST_TARGET_NAMES = [
     'target', 'color', 'msaa', 'history', 'velocityTarget', 'bloomA', 'bloomB',
-    'softA', 'softB', 'dofTarget', 'spaceA', 'spaceB', 'spaceFull',
+    'softA', 'softB', 'dofTarget', 'spaceA', 'spaceB', 'spaceFull', 'bloomPyramid', 'layerTarget',
 ];
 
 function textureBytesPerPixel(texture, three) {
@@ -82,14 +82,18 @@ export function estimateRendererResources({
     modelTextureBytes = 0,
     sceneTextureBytes = 0,
     plateTextureBytes = 0,
+    renderTargetRefs = null,
+    shadowMapRefs = null,
+    includeCanvas = true,
+    includeRendererCounts = true,
     three,
 } = {}) {
-    const targets = postTargets(postPass);
-    for (const target of postTargets(lookPass)) targets.add(target);
-    const shadows = shadowTargets(roots);
+    const targets = renderTargetRefs == null ? postTargets(postPass) : new Set(renderTargetRefs);
+    if (renderTargetRefs == null) for (const target of postTargets(lookPass)) targets.add(target);
+    const shadows = shadowMapRefs == null ? shadowTargets(roots) : new Set(shadowMapRefs);
     const renderTargetBytes = [...targets].reduce((total, target) => total + estimateTargetMemoryBytes(target, three), 0);
     const shadowMapBytes = [...shadows].reduce((total, target) => total + estimateTargetMemoryBytes(target, three), 0);
-    const canvas = renderer?.domElement;
+    const canvas = includeCanvas ? renderer?.domElement : null;
     const canvasBytes = Math.max(0, Number(canvas?.width) || 0) * Math.max(0, Number(canvas?.height) || 0) * 4;
     const geometryMemoryBytes = geometryBytes(roots);
     const pictureTextureBytes = Math.max(0, Number(plateTextureBytes) || 0);
@@ -107,8 +111,8 @@ export function estimateRendererResources({
         geometryBytes: geometryMemoryBytes,
         canvasBytes,
         estimatedBytes,
-        rendererTextureCount: Number(renderer?.info?.memory?.textures) || 0,
-        rendererGeometryCount: Number(renderer?.info?.memory?.geometries) || 0,
+        rendererTextureCount: includeRendererCounts ? Number(renderer?.info?.memory?.textures) || 0 : 0,
+        rendererGeometryCount: includeRendererCounts ? Number(renderer?.info?.memory?.geometries) || 0 : 0,
         canvasWidth: Number(canvas?.width) || 0,
         canvasHeight: Number(canvas?.height) || 0,
     };

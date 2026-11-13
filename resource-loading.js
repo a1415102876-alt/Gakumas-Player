@@ -1,4 +1,4 @@
-import { resourceStore } from './asset-runtime.js';
+import { resourceStore } from './asset-runtime.js?v=20261113-hkne-onsen-v1';
 
 const mb = bytes => (Number(bytes || 0) / 1024 ** 2).toFixed(1);
 export function resourceProgressText(progress = {}) {

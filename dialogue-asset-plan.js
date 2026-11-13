@@ -7,6 +7,7 @@ import { textureDescriptor, GAKUMAS_ACTIVE_TEXTURE_KINDS } from './gakumas-mater
 import { isBeatScene, resolveBeatBackgroundAsset } from './beat-background-assets.js';
 import { STAR_EYE_RESOURCES } from './star-eye-resources.js';
 import { propAssetKeysForIdol } from './stage-props.js';
+import { normalizeCustomBackgroundId } from './custom-background.js';
 
 export function resourceCatalog(map) {
     return (map?.buckets || []).flatMap(bucket => (bucket.families || []).flatMap(family => (family.items || []).map(item => ({
@@ -124,13 +125,19 @@ export function buildDialogueAssetPlan(compiled, preload, library, { random, pre
             add(path.slice(path.indexOf('npc-portraits/')));
         }
         if (beat.background) {
-            if (isBeatScene(beat.background)) {
-                const scene = resolveBeatBackgroundAsset(beat.background);
-                if (!scene.matched) throw new Error(`场景未配置：${beat.background}`);
-                add(scene.path.replace(/^\.\//, ''));
-            } else {
-                const background = resolveBeatBackgroundAsset(beat.background);
-                add(`backgrounds_2d/${background.matched ? background.name : beat.background}`);
+            // Custom backgrounds live in the browser-local IndexedDB
+            // repository. They must never be turned into a manifest key such
+            // as `backgrounds_2d/custom1`; the player resolves them from its
+            // local image map after the normal resource plan is prepared.
+            if (!normalizeCustomBackgroundId(beat.background)) {
+                if (isBeatScene(beat.background)) {
+                    const scene = resolveBeatBackgroundAsset(beat.background);
+                    if (!scene.matched) throw new Error(`场景未配置：${beat.background}`);
+                    add(scene.path.replace(/^\.\//, ''));
+                } else {
+                    const background = resolveBeatBackgroundAsset(beat.background);
+                    add(`backgrounds_2d/${background.matched ? background.name : beat.background}`);
+                }
             }
         }
         const effects = new Set(beat.effects || []);

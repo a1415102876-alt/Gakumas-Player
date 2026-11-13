@@ -73,8 +73,8 @@ export function mountResourceMonitor({ app, button, panel, closeButton, summary,
         );
         renderRows(document, rows, renderers);
         status.textContent = renderers.length
-            ? `${renderers.length} 个 WebGL renderer · ${new Date(snapshot.timestamp).toLocaleTimeString()}`
-            : '尚无已初始化的 WebGL renderer';
+            ? `${renderers.length} 项 GPU 资源估算 · ${new Date(snapshot.timestamp).toLocaleTimeString()}`
+            : '尚无已初始化的 GPU 资源';
     };
 
     const close = () => {

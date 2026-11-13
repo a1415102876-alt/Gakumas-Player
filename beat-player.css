@@ -207,4 +207,7 @@ h2 { margin: 0; font-size: 20px; }
 .beat-speaker-portrait { position: absolute; z-index: 1; left: 0; bottom: 100%; width: clamp(148px, 52%, 232px); max-width: 100%; height: auto; aspect-ratio: 1; object-fit: contain; pointer-events: none; user-select: none; }
 .beat-speaker-portrait[hidden] { display: none !important; }
 .dialogue-card { cursor: pointer; touch-action: manipulation; }
+/* hide-dialogue="1": the box is out of the way for one beat; the stage takes the click. */
+.beat-stage[data-dialogue="hidden"] .dialogue-card { visibility: hidden; pointer-events: none; }
+.beat-stage[data-dialogue="hidden"]:not([data-view-unlocked="true"]) { cursor: pointer; }
 .dialogue-card:focus-visible { outline: 2px solid rgba(255,255,255,.9); outline-offset: 3px; }

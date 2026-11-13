@@ -90,10 +90,16 @@ API 和语音配置保存在浏览器本机，密钥会在使用相应功能时�
 
 ## 开发和验证
 
-主要入口是 `gakumas-player.html`，本地服务为 `server.mjs`，脚本编辑器为 `beat-editor.html`。Three.js 位于 `vendor/three/`。运行现有 Node 测试：
+主要入口是 `gakumas-player.html`，本地服务为 `server.mjs`，脚本编辑器为 `beat-editor.html`。Three.js 位于 `vendor/three/`。
+
+Player 和编辑器预览默认共用一个 WebGL 渲染器与画布，角色、3D 场景和 2D 背景会合成到同一舞台。要临时回退到每个角色单独渲染器，可在网址加 `?stage=private`；也可在浏览器控制台设置 `localStorage.setItem('gakumas.stage', 'private')`，重新加载后生效。网址中的 `?stage=shared` 可以覆盖这个回退设置。GPU 资源窗口提供的是基于资源尺寸和渲染目标的程序估算，浏览器不会提供 NVIDIA 驱动报告的真实显存用量。
+
+3D 场景支持统一 HDR 后处理：各场景按当前机位解析自己的 volume，使用各自的曝光、对比度、饱和度、色调映射、泛光及柔化参数，并遵循组件的激活状态。切换场景时会替换参数并重置 TAA 历史；不支持半浮点目标时保留材质调色的兼容路径。泛光、柔化等采用近似实现和视觉校准，尚未完整复现游戏原版 Shader。
+
+运行现有 Node 测试：
 
 ```sh
-node --test tests/chat-memory.test.mjs tests/gpu-resource-estimator.test.mjs tests/portrait-texture-budget.test.mjs tests/ssmk-shoulder-collisions.test.mjs tests/notices.test.mjs
+node --test tests
 ```
 
 ## 许可与素材

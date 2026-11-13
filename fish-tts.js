@@ -20,7 +20,7 @@
   const DEFAULT_WORKER_ORIGIN = "https://tts.sawadaz.xyz";
   const LEGACY_PROXY_URL = "https://hatsuboshitest.a1415102876.workers.dev/api/fish-tts";
   const DEFAULT_MODEL = "s2.1-pro-free";
-  const PRONUNCIATION_VERSION = "20261103-krnh-nasr-tts-v1";
+  const PRONUNCIATION_VERSION = "20261112-hkne-hiwatari-kanae-v1";
   // User-supplied kana readings; generated offline with tools/generate-fish-pronunciation.py.
   // Pitch is OpenJTalk's default inference, not extracted game voice accent.
   // Spoken lines use full names, given names, and the simplified Chinese spellings.
@@ -76,6 +76,12 @@
     ["燐羽", "りんは", "ri1N1ha0"],
     ["亚纱里", "あさり", "a1sa0ri0"],
     ["亜紗里", "あさり", "a1sa0ri0"],
+    ["冰渡香名江", "ひわたり　かなえ", "hi1wa0ta1ri0ka1na1e0"],
+    ["氷渡香名江", "ひわたり　かなえ", "hi1wa0ta1ri0ka1na1e0"],
+    ["香名江", "かなえ", "ka1na1e0"],
+    ["Hiwatari Kanae", "ひわたり　かなえ", "hi1wa0ta1ri0ka1na1e0"],
+    ["hiwatari-kanae", "ひわたり　かなえ", "hi1wa0ta1ri0ka1na1e0"],
+    ["kanae", "かなえ", "ka1na1e0"],
     ["毬", "まり", "ma0ri1"]
   ].map(([key, reading, value]) => Object.freeze({ key, reading, value })));
   const ALLOWED_TAGS = Object.freeze(["soft", "pause", "long pause", "emphasis", "excited", "sighing"]);
@@ -170,6 +176,8 @@
     ["亜紗里", ASARI_REFERENCE_ID],
     ["hkne", KANAE_REFERENCE_ID],
     ["kanae", KANAE_REFERENCE_ID],
+    ["hiwatari kanae", KANAE_REFERENCE_ID],
+    ["hiwatari-kanae", KANAE_REFERENCE_ID],
     ["hido kanae", KANAE_REFERENCE_ID],
     ["hido-kanae", KANAE_REFERENCE_ID],
     ["冰渡香名江", KANAE_REFERENCE_ID],
@@ -266,7 +274,7 @@
     if (/(?:^|\s)(?:kcna|china|kuramoto\s+china)(?:$|\s)/i.test(normalized)) return CHINA_REFERENCE_ID;
     if (/(?:^|\s)(?:krnh|rinha|kaya\s+rinha|kaya-rinha)(?:$|\s)/i.test(normalized)) return RINHA_REFERENCE_ID;
     if (/(?:^|\s)(?:nasr|asari|nezu\s+asari|nezu-asari)(?:$|\s)/i.test(normalized)) return ASARI_REFERENCE_ID;
-    if (/(?:^|\s)(?:hkne|kanae|hido\s+kanae|hido-kanae)(?:$|\s)/i.test(normalized)) return KANAE_REFERENCE_ID;
+    if (/(?:^|\s)(?:hkne|kanae|hiwatari\s+kanae|hiwatari-kanae|hido\s+kanae|hido-kanae)(?:$|\s)/i.test(normalized)) return KANAE_REFERENCE_ID;
     return "";
   }
 

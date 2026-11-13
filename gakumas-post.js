@@ -1,11 +1,13 @@
 import * as THREE from './vendor/three/build/three.module.js';
-import { haltonSequence } from './gakumas-scene-core.js?v=20261002-scene-lit-v7';
+import { haltonSequence } from './gakumas-scene-core.js?v=20261112-single-renderer-v1';
 import { clampTaaMotion, mergeTaaMotion, decayTaaMotion } from './gakumas-taa-motion.js?v=20261027-motion-aware-taa-v1';
 import { createVelocityMaterial, rememberSceneMotion, renderSceneVelocity } from './gakumas-taa-velocity.js?v=20261027-velocity-reprojection-v1';
+import { GRADE_GLSL } from './gakumas-color-grade.js?v=20261112-single-renderer-v1';
 
-// These volumes are authored for HDR color before tonemapping. This pass runs
-// after the scene shader has already graded into a display buffer, so the
-// raw amounts blow the frame out and have to be brought back down.
+// 3D scenes defer their own resolved volume grade until this HDR composite.
+// Direct rendering and unsupported HDR targets retain material grading.
+// Bloom strengths are visual calibration, not recovered Unity shader constants.
+const BLOOM_HDR_SCALE = 0.35;
 const BLOOM_DISPLAY_SCALE = 0.15;
 const DIFFUSION_DISPLAY_SCALE = 0.35;
 const PARAFFIN_DISPLAY_SCALE = 0.2;
@@ -24,10 +26,15 @@ uniform float gkThreshold;
 uniform vec3 gkBloomColor;
 varying vec2 vUv;
 void main() {
-    vec3 color = texture2D(gkSource, vUv).rgb * gkBloomColor;
-    float luma = dot(color, vec3(0.2126, 0.7152, 0.0722));
-    float weight = smoothstep(gkThreshold, gkThreshold + 0.05, luma);
-    gl_FragColor = vec4(color * weight, 1.0);
+    vec3 color = max(texture2D(gkSource, vUv).rgb, vec3(0.0));
+    float brightness = max(max(color.r, color.g), color.b);
+    // Extract excess energy with a soft knee. A binary luma gate made bright
+    // edges pop and discarded saturated highlights before their channels mixed.
+    float knee = max(gkThreshold * 0.5, 1e-4);
+    float soft = clamp(brightness - gkThreshold + knee, 0.0, 2.0 * knee);
+    soft = soft * soft / (4.0 * knee + 1e-4);
+    float weight = max(brightness - gkThreshold, soft) / max(brightness, 1e-4);
+    gl_FragColor = vec4(color * weight * gkBloomColor, 1.0);
 }
 `;
 
@@ -44,6 +51,39 @@ void main() {
     color += texture2D(gkSource, vUv + gkBlurTexel * 3.0).rgb * 0.0702703;
     color += texture2D(gkSource, vUv - gkBlurTexel * 3.0).rgb * 0.0702703;
     gl_FragColor = vec4(color, 1.0);
+}
+`;
+
+const DOWNSAMPLE_FRAGMENT = `
+uniform sampler2D gkSource;
+uniform vec2 gkTexel;
+varying vec2 vUv;
+void main() {
+    vec3 color = texture2D(gkSource, vUv + gkTexel * vec2(-0.5, -0.5)).rgb;
+    color += texture2D(gkSource, vUv + gkTexel * vec2(0.5, -0.5)).rgb;
+    color += texture2D(gkSource, vUv + gkTexel * vec2(-0.5, 0.5)).rgb;
+    color += texture2D(gkSource, vUv + gkTexel * vec2(0.5, 0.5)).rgb;
+    gl_FragColor = vec4(color * 0.25, 1.0);
+}
+`;
+
+const UPSAMPLE_FRAGMENT = `
+uniform sampler2D gkSource;
+uniform sampler2D gkLow;
+uniform vec2 gkTexel;
+uniform float gkScatter;
+varying vec2 vUv;
+void main() {
+    vec3 low = texture2D(gkLow, vUv).rgb * 4.0;
+    low += texture2D(gkLow, vUv + vec2(gkTexel.x, 0.0)).rgb * 2.0;
+    low += texture2D(gkLow, vUv - vec2(gkTexel.x, 0.0)).rgb * 2.0;
+    low += texture2D(gkLow, vUv + vec2(0.0, gkTexel.y)).rgb * 2.0;
+    low += texture2D(gkLow, vUv - vec2(0.0, gkTexel.y)).rgb * 2.0;
+    low += texture2D(gkLow, vUv + gkTexel).rgb;
+    low += texture2D(gkLow, vUv - gkTexel).rgb;
+    low += texture2D(gkLow, vUv + gkTexel * vec2(1.0, -1.0)).rgb;
+    low += texture2D(gkLow, vUv + gkTexel * vec2(-1.0, 1.0)).rgb;
+    gl_FragColor = vec4(mix(texture2D(gkSource, vUv).rgb, low / 16.0, gkScatter), 1.0);
 }
 `;
 
@@ -360,6 +400,9 @@ void main() {
 `;
 
 const COMPOSITE_FRAGMENT = `
+${GRADE_GLSL}
+uniform float gkApplyGrade;
+uniform float gkKeepAlpha;
 uniform sampler2D gkSource;
 uniform sampler2D gkBloomMap;
 uniform sampler2D gkSoftMap;
@@ -390,10 +433,14 @@ vec3 gkFlare(vec2 uv, vec4 flare, vec3 inner, vec3 outer) {
 }
 
 void main() {
-    vec2 shift = (vUv - 0.5) * gkChroma;
+    // URP-style radial aberration: intensity is scaled by distance squared,
+    // keeping the subject clean while leaving a restrained fringe at the edge.
+    vec2 radial = vUv - 0.5;
+    vec2 shift = radial * dot(radial, radial) * gkChroma;
+    vec4 source = texture2D(gkSource, vUv);
     vec3 color = vec3(
         texture2D(gkSource, clamp(vUv + shift, 0.0, 1.0)).r,
-        texture2D(gkSource, vUv).g,
+        source.g,
         texture2D(gkSource, clamp(vUv - shift, 0.0, 1.0)).b
     );
     vec3 soft = texture2D(gkSoftMap, vUv).rgb;
@@ -420,7 +467,12 @@ void main() {
     vec2 delta = abs(vUv - gkVignette.xy) * gkVignette.z;
     float vignette = pow(clamp(1.0 - length(delta), 0.0, 1.0), max(gkVignette.w, 1e-3));
     color = mix(color, mix(gkVignetteColor, color, vignette), gkVignetteWeight);
-    gl_FragColor = linearToOutputTexel(vec4(max(color, vec3(0.0)), 1.0));
+    // Preserve portrait/plate coverage when handing this texture to LookPass.
+    // Grade straight colour, then return to premultiplied canvas coverage.
+    float alpha = gkKeepAlpha > 0.5 ? source.a : 1.0;
+    if (gkApplyGrade > 0.5) color = gkGradeColor(color / max(alpha, 1e-4)) * alpha;
+    else color *= step(1e-4, alpha);
+    gl_FragColor = linearToOutputTexel(vec4(max(color, vec3(0.0)), alpha));
 }
 `;
 
@@ -521,9 +573,28 @@ export function setCaptureMotionBlur(enabled) {
     captureMotionBlur = enabled === true;
 }
 
+export function disposePostTargets(targets) {
+    for (const value of Object.values(targets || {})) {
+        for (const target of [value].flat()) target?.dispose?.();
+    }
+    for (const name of Object.keys(targets || {})) delete targets[name];
+}
+
 export class GakumasPostPass {
-    constructor(renderer, { keepAlpha = false, renderScale = 1.35, renderPixelBudget = 2500000 } = {}) {
+    // `targets` is a plain object several passes on one renderer hand to each
+    // other. Each view (an actor, the background) keeps its own pass, with its
+    // own settings and TAA history, while the large scratch targets a frame is
+    // built in exist once per WebGL context. Whoever made the object releases
+    // it with disposePostTargets().
+    constructor(renderer, { keepAlpha = false, renderScale = 1.35, renderPixelBudget = 2500000, targets = null } = {}) {
         this.renderer = renderer;
+        this.sharedTargets = targets;
+        // Where the finished frame goes: the canvas, or a scratch target when a
+        // stage draws a view only to warm it up.
+        this.presentTarget = null;
+        // Blend the finished frame over what the canvas already holds, the way
+        // stacked transparent canvases composite.
+        this.layered = false;
         this.enabled = false;
         this.modules = { bloom: false, diffusion: false, paraffin: false, chromatic: false, vignette: false, taa: false, fxaa: false };
         // The game resolves TAA from a higher-resolution render target than a
@@ -558,34 +629,46 @@ export class GakumasPostPass {
         this.samples = 0;
         this.hdr = hdrPostSupported(renderer);
         const colorType = this.hdr ? THREE.HalfFloatType : THREE.UnsignedByteType;
-        this.color = makeTarget(1, 1, { depth: true, type: colorType });
+        const pool = targets || {};
+        const take = (name, create) => (pool[name] ||= create());
+        this.color = take('color', () => makeTarget(1, 1, { depth: true, type: colorType }));
         // Three writes linear values into any render target. 8-bit stores them in
         // an sRGB buffer to keep dark steps fine; half float is linear already.
         if ('colorSpace' in this.color.texture) {
             this.color.texture.colorSpace = this.hdr ? THREE.LinearSRGBColorSpace : THREE.SRGBColorSpace;
         }
         this.msaa = null;
-        this.depth = new THREE.DepthTexture(1, 1, THREE.UnsignedInt248Type);
-        this.depth.format = THREE.DepthStencilFormat;
-        this.depth.magFilter = THREE.NearestFilter;
-        this.depth.minFilter = THREE.NearestFilter;
+        this.depth = take('depth', () => {
+            const depth = new THREE.DepthTexture(1, 1, THREE.UnsignedInt248Type);
+            depth.format = THREE.DepthStencilFormat;
+            depth.magFilter = THREE.NearestFilter;
+            depth.minFilter = THREE.NearestFilter;
+            return depth;
+        });
         this.color.depthTexture = this.depth;
         this.history = [makeTarget(1, 1, { type: colorType }), makeTarget(1, 1, { type: colorType })];
+        // A shared stage keeps the completed raw result of each actor here
+        // until all camera-specific layers have been composed.
+        this.layerTarget = makeTarget(1, 1, { type: colorType });
+        if ('colorSpace' in this.layerTarget.texture && this.color.texture.colorSpace) this.layerTarget.texture.colorSpace = this.color.texture.colorSpace;
         this.velocity = createVelocityMaterial();
-        this.velocityTarget = makeTarget(1, 1, { type: THREE.HalfFloatType, nearest: true });
+        this.velocityTarget = take('velocityTarget', () => makeTarget(1, 1, { type: THREE.HalfFloatType, nearest: true }));
         if ('colorSpace' in this.velocityTarget.texture && THREE.NoColorSpace) {
             this.velocityTarget.texture.colorSpace = THREE.NoColorSpace;
         }
         // Bloom, diffusion, depth of field and the capture-space pass all carry
         // scene color, so they follow it. spaceA/B hold ambient occlusion only.
-        this.bloomA = makeTarget(1, 1, { type: colorType });
-        this.bloomB = makeTarget(1, 1, { type: colorType });
-        this.softA = makeTarget(1, 1, { type: colorType });
-        this.softB = makeTarget(1, 1, { type: colorType });
-        this.dofTarget = makeTarget(1, 1, { type: colorType });
-        this.spaceA = makeTarget(1, 1);
-        this.spaceB = makeTarget(1, 1);
-        this.spaceFull = makeTarget(1, 1, { type: colorType });
+        this.bloomA = take('bloomA', () => makeTarget(1, 1, { type: colorType }));
+        this.bloomB = take('bloomB', () => makeTarget(1, 1, { type: colorType }));
+        // Small mip levels replace the old wide, sparsely sampled blur. The
+        // existing half-size pair is reused for the largest level.
+        this.bloomPyramid = take('bloomPyramid', () => Array.from({ length: 7 }, () => makeTarget(1, 1, { type: colorType })));
+        this.softA = take('softA', () => makeTarget(1, 1, { type: colorType }));
+        this.softB = take('softB', () => makeTarget(1, 1, { type: colorType }));
+        this.dofTarget = take('dofTarget', () => makeTarget(1, 1, { type: colorType }));
+        this.spaceA = take('spaceA', () => makeTarget(1, 1));
+        this.spaceB = take('spaceB', () => makeTarget(1, 1));
+        this.spaceFull = take('spaceFull', () => makeTarget(1, 1, { type: colorType }));
         if ('colorSpace' in this.spaceA.texture && THREE.NoColorSpace) {
             this.spaceA.texture.colorSpace = THREE.NoColorSpace;
             this.spaceB.texture.colorSpace = THREE.NoColorSpace;
@@ -607,6 +690,16 @@ export class GakumasPostPass {
         this.blurMaterial = shader(BLUR_FRAGMENT, {
             gkSource: { value: null },
             gkBlurTexel: { value: new THREE.Vector2() },
+        });
+        this.downsampleMaterial = shader(DOWNSAMPLE_FRAGMENT, {
+            gkSource: { value: null },
+            gkTexel: { value: new THREE.Vector2() },
+        });
+        this.upsampleMaterial = shader(UPSAMPLE_FRAGMENT, {
+            gkSource: { value: null },
+            gkLow: { value: null },
+            gkTexel: { value: new THREE.Vector2() },
+            gkScatter: { value: 0.65 },
         });
         this.fxaaMaterial = shader(FXAA_FRAGMENT, {
             gkSource: { value: this.color.texture },
@@ -643,6 +736,19 @@ export class GakumasPostPass {
             gkPrevViewProj: { value: this.previousViewProj },
         });
         this.compositeMaterial = shader(COMPOSITE_FRAGMENT, {
+            gkApplyGrade: { value: 0 },
+            gkDeferGrade: { value: 0 },
+            gkKeepAlpha: { value: keepAlpha ? 1 : 0 },
+            gkExposure: { value: 1 },
+            gkContrast: { value: 1 },
+            gkSaturation: { value: 1 },
+            gkColorFilter: { value: new THREE.Vector3(1, 1, 1) },
+            gkTone: { value: new THREE.Vector4(0.22, 0.4, 1, 1.33) },
+            gkToneEnabled: { value: 0 },
+            gkShadows: { value: new THREE.Vector3(1, 1, 1) },
+            gkMidtones: { value: new THREE.Vector3(1, 1, 1) },
+            gkHighlights: { value: new THREE.Vector3(1, 1, 1) },
+            gkSmhLimits: { value: new THREE.Vector4(0, 0.3, 0.55, 1) },
             gkSource: { value: this.color.texture },
             gkBloomMap: { value: this.bloomA.texture },
             gkSoftMap: { value: this.softA.texture },
@@ -689,7 +795,11 @@ export class GakumasPostPass {
     }
 
     get active() {
-        return this.enabled && (this.modules.taa || MODULES.some(name => this.modules[name]));
+        return this.enabled && (this.modules.taa || this.modules.fxaa || this.usesSceneHDR || MODULES.some(name => this.modules[name]));
+    }
+
+    get usesSceneHDR() {
+        return this.enabled && this.hdr && !!this.settings?.grading;
     }
 
     apply(settings) {
@@ -767,14 +877,28 @@ export class GakumasPostPass {
         const extract = this.extractMaterial.uniforms;
         extract.gkThreshold.value = Number.isFinite(bloom.threshold) ? bloom.threshold : 1;
         extract.gkBloomColor.value.setRGB(...(bloom.color || [1, 1, 1]));
-        uniforms.gkBloomIntensity.value = this.modules.bloom ? (bloom.intensity || 0) * BLOOM_DISPLAY_SCALE : 0;
-        uniforms.gkStarWeight.value = this.modules.bloom ? 0.09 : 0;
+        uniforms.gkBloomIntensity.value = this.modules.bloom ? (bloom.intensity || 0) * (this.usesSceneHDR ? BLOOM_HDR_SCALE : BLOOM_DISPLAY_SCALE) : 0;
+        uniforms.gkStarWeight.value = this.modules.bloom && settings.starStreak?.enabled ? 0.09 : 0;
         uniforms.gkDiffusionBlend.value = this.modules.diffusion ? (diffusion.blend || 0) * DIFFUSION_DISPLAY_SCALE : 0;
         uniforms.gkDiffusionThreshold.value = diffusion.contrastThreshold ?? 0.5;
         uniforms.gkDiffusionPower.value = Math.max(diffusion.contrastPower || 1, 1e-3);
         // Volume intensity is the URP spectral amount. Used raw it splits the
         // frame by tens of pixels, so keep only the edge fringe.
-        uniforms.gkChroma.value = this.modules.chromatic ? (settings.chromatic?.intensity || 0) * 0.15 : 0;
+        uniforms.gkChroma.value = this.modules.chromatic ? (settings.chromatic?.intensity || 0) * 0.05 : 0;
+        const grade = settings.grading;
+        uniforms.gkApplyGrade.value = this.usesSceneHDR ? 1 : 0;
+        if (grade) {
+            uniforms.gkExposure.value = grade.exposure;
+            uniforms.gkContrast.value = grade.contrast;
+            uniforms.gkSaturation.value = grade.saturation;
+            uniforms.gkColorFilter.value.fromArray(grade.colorFilter);
+            uniforms.gkTone.value.set(grade.tone.linearStart, grade.tone.linearLength, grade.tone.contrast, grade.tone.black);
+            uniforms.gkToneEnabled.value = grade.tone.enabled ? 1 : 0;
+            uniforms.gkShadows.value.fromArray(grade.shadows);
+            uniforms.gkMidtones.value.fromArray(grade.midtones);
+            uniforms.gkHighlights.value.fromArray(grade.highlights);
+            uniforms.gkSmhLimits.value.fromArray(grade.smhLimits);
+        }
         this.writeFlare(0, flares[0]);
         this.writeFlare(1, flares[1]);
         uniforms.gkFlareWeight.value = this.modules.paraffin ? 1 : 0;
@@ -783,7 +907,7 @@ export class GakumasPostPass {
         uniforms.gkVignette.value.set(vignette.center?.[0] ?? 0.5, vignette.center?.[1] ?? 0.5, vignette.intensity || 0, Math.max(vignette.smoothness || 0.2, 1e-3));
         uniforms.gkVignetteWeight.value = this.modules.vignette ? 1 : 0;
         this.bloomRadius = this.modules.bloom ? (bloom.diffusion || 0) * 2 : 0;
-        this.softRadius = this.modules.diffusion ? (diffusion.diffusion || 0) * 64 : 0;
+        this.softRadius = this.modules.diffusion ? Math.max(0, diffusion.diffusion || 0) * 6 : 0;
     }
 
     writeFlare(index, flare = {}) {
@@ -804,14 +928,23 @@ export class GakumasPostPass {
         this.activeRenderScale = scale;
         const w = Math.max(1, Math.floor(width * pixelRatio * scale));
         const h = Math.max(1, Math.floor(height * pixelRatio * scale));
-        if (this.color.width === w && this.color.height === h) return;
+        // Another pass may already have sized the shared targets; this pass's
+        // own history still has to follow.
+        const sized = this.color.width === w && this.color.height === h;
+        const historySized = this.history.every(target => target.width === w && target.height === h);
+        if (sized && historySized) return;
         this.color.setSize(w, h);
         this.msaa?.setSize(w, h);
         for (const target of this.history) target.setSize(w, h);
+        this.layerTarget.setSize(w, h);
         this.velocityTarget.setSize(w, h);
         const hw = Math.max(1, Math.floor(w / 2));
         const hh = Math.max(1, Math.floor(h / 2));
         for (const target of [this.bloomA, this.bloomB, this.softA, this.softB, this.spaceA, this.spaceB]) target.setSize(hw, hh);
+        this.bloomPyramid.forEach((target, index) => {
+            const level = index < 4 ? index + 2 : index - 2;
+            target.setSize(Math.max(1, w >> level), Math.max(1, h >> level));
+        });
         this.dofTarget.setSize(w, h);
         this.spaceFull.setSize(w, h);
         this.resetHistory = true;
@@ -925,6 +1058,31 @@ export class GakumasPostPass {
         return pong;
     }
 
+    renderBloom(source) {
+        this.extractMaterial.uniforms.gkSource.value = source;
+        this.blit(this.extractMaterial, this.bloomA);
+        const count = Math.max(1, Math.min(5, Math.round(this.bloomRadius / 2) - 1));
+        const levels = [this.bloomA, ...this.bloomPyramid.slice(0, count - 1)];
+        const down = this.downsampleMaterial.uniforms;
+        for (let index = 1; index < levels.length; index += 1) {
+            const previous = levels[index - 1];
+            down.gkSource.value = previous.texture;
+            down.gkTexel.value.set(1 / previous.width, 1 / previous.height);
+            this.blit(this.downsampleMaterial, levels[index]);
+        }
+        let low = levels[levels.length - 1];
+        const up = this.upsampleMaterial.uniforms;
+        for (let index = levels.length - 2; index >= 0; index -= 1) {
+            const target = index === 0 ? this.bloomB : this.bloomPyramid[3 + index];
+            up.gkSource.value = levels[index].texture;
+            up.gkLow.value = low.texture;
+            up.gkTexel.value.set(1 / low.width, 1 / low.height);
+            this.blit(this.upsampleMaterial, target);
+            low = target;
+        }
+        return low.texture;
+    }
+
     applyCaptureSpace(source, viewCamera) {
         const near = Math.max(viewCamera.near || 0.1, 1e-4);
         const far = Math.max(viewCamera.far || 1000, near + 0.01);
@@ -947,7 +1105,38 @@ export class GakumasPostPass {
         return this.spaceFull.texture;
     }
 
-    render(draw, viewCamera, { present = true, velocityRoot = null } = {}) {
+    // Apply the stage-wide color effects once after the camera-specific actor
+    // layers and background have been composited.
+    renderCaptured(source, target) {
+        // `renderCaptured` is the explicit stage-composition entry point. A
+        // few callers pass an omitted target while they only need the resolved
+        // texture; keep that form useful by writing to this pass's reusable
+        // layer target instead of handing an undefined render target to
+        // WebGLRenderer.
+        target ||= this.layerTarget;
+        this.compositeMaterial.uniforms.gkSource.value = source;
+        this.compositeMaterial.uniforms.gkApplyGrade.value = this.usesSceneHDR ? 1 : 0;
+        if (this.modules.bloom) this.compositeMaterial.uniforms.gkBloomMap.value = this.renderBloom(source);
+        if (this.modules.diffusion && this.softRadius > 0) {
+            const soft = this.blur({ texture: source }, this.softRadius * this.color.height / 1080, this.softA, this.softB);
+            this.compositeMaterial.uniforms.gkSoftMap.value = soft.texture;
+        }
+        this.blit(this.compositeMaterial, target);
+        return target.texture;
+    }
+
+    // Render one camera view without presenting it. Shared stages call this
+    // for each actor and hand the returned texture to their LookPass, which
+    // performs source-over onto the already drawn background/layers.
+    renderLayer(draw, viewCamera, { velocityRoot = null, composite = true } = {}) {
+        return this.render(draw, viewCamera, {
+            present: false,
+            composite,
+            velocityRoot,
+        });
+    }
+
+    render(draw, viewCamera, { present = true, composite = true, captureOutput = false, velocityRoot = null } = {}) {
         this.renderer.getSize(this.size);
         this.setSize(this.size.x, this.size.y);
         const useTaa = this.modules.taa && !!viewCamera;
@@ -1000,22 +1189,36 @@ export class GakumasPostPass {
                 this.blit(this.dofMaterial, this.dofTarget);
                 source = this.dofTarget.texture;
             }
-            if (!present) return source;
-            this.extractMaterial.uniforms.gkSource.value = source;
+            // A caller presenting via LookPass still needs the scene effects.
+            // Shared-stage group layers retain the camera-specific TAA/depth
+            // result, then the stage applies bloom/grade once to the combined
+            // image. The target is view-owned so the next actor may reuse the
+            // shared scratch buffers safely.
+            if (!composite && !present) {
+                if (captureOutput) {
+                    this.blit(this.copyMaterial, this.layerTarget);
+                    return this.layerTarget.texture;
+                }
+                return source;
+            }
             this.compositeMaterial.uniforms.gkSource.value = source;
-            if (this.modules.bloom && this.bloomRadius > 0) {
-                this.blit(this.extractMaterial, this.bloomA);
-                const bloom = this.blur(this.bloomA, this.bloomRadius, this.bloomB, this.bloomA);
-                this.compositeMaterial.uniforms.gkBloomMap.value = bloom.texture;
+            this.compositeMaterial.uniforms.gkApplyGrade.value = this.usesSceneHDR ? 1 : 0;
+            if (this.modules.bloom) {
+                this.compositeMaterial.uniforms.gkBloomMap.value = this.renderBloom(source);
             }
             if (this.modules.diffusion && this.softRadius > 0) {
-                const softTarget = resolved || (this.modules.fxaa && !useTaa ? this.history[0] : (viewCamera ? this.spaceFull : this.color));
-                const soft = this.blur(softTarget, this.softRadius, this.softA, this.softB);
+                const soft = this.blur({ texture: source }, this.softRadius * this.color.height / 1080, this.softA, this.softB);
                 this.compositeMaterial.uniforms.gkSoftMap.value = soft.texture;
             }
-            this.renderer.setRenderTarget(null);
+            if (!present) {
+                // Reuse the idle history buffer: no extra full-size HDR target.
+                const target = useTaa ? this.history[1 - this.historyIndex]
+                    : source === this.history[0].texture ? this.history[1] : this.history[0];
+                this.blit(this.compositeMaterial, target);
+                return target.texture;
+            }
             this.renderer.autoClear = false;
-            this.blit(this.compositeMaterial, null);
+            this.presentComposite();
         } finally {
             if (useTaa) this.clearJitter(viewCamera);
             if (viewCamera?.userData) viewCamera.userData.gkTaaStableCamera = previousStableCamera || null;
@@ -1024,14 +1227,47 @@ export class GakumasPostPass {
         }
     }
 
+    presentComposite() {
+        const material = this.compositeMaterial;
+        if (!this.layered) {
+            this.blit(material, this.presentTarget);
+            return;
+        }
+        // Premultiplied source-over. Only for this draw: the same material also
+        // composites into history targets, where it must overwrite.
+        material.transparent = true;
+        material.blending = THREE.CustomBlending;
+        material.blendSrc = THREE.OneFactor;
+        material.blendDst = THREE.OneMinusSrcAlphaFactor;
+        try {
+            this.blit(material, this.presentTarget);
+        } finally {
+            material.transparent = false;
+            material.blending = THREE.NormalBlending;
+        }
+    }
+
+    // Give back this view's history while it is off camera. setSize() notices
+    // and rebuilds it on the next frame.
+    releaseHistory() {
+        for (const target of this.history) target.setSize(1, 1);
+        this.resetHistory = true;
+    }
+
     dispose() {
-        for (const target of [this.color, this.msaa, this.history[0], this.history[1], this.bloomA, this.bloomB, this.softA, this.softB, this.dofTarget, this.spaceA, this.spaceB, this.spaceFull]) if (target) target.dispose();
-        this.velocityTarget?.dispose();
+        for (const target of this.history) target.dispose();
+        this.layerTarget?.dispose();
+        if (!this.sharedTargets) {
+            for (const target of [this.color, this.msaa, this.bloomA, this.bloomB, ...this.bloomPyramid, this.softA, this.softB, this.dofTarget, this.spaceA, this.spaceB, this.spaceFull]) if (target) target.dispose();
+            this.velocityTarget?.dispose();
+            this.depth.dispose();
+        }
         this.velocity?.dispose();
-        this.depth.dispose();
         this.copyMaterial.dispose();
         this.extractMaterial.dispose();
         this.blurMaterial.dispose();
+        this.downsampleMaterial.dispose();
+        this.upsampleMaterial.dispose();
         this.dofMaterial.dispose();
         this.fxaaMaterial.dispose();
         this.aoMaterial.dispose();
