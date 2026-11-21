@@ -1,3 +1,4 @@
+import { listBeatJobs, loadBeatJob, normalizeBeatJobName, saveBeatJob } from './beat-local-jobs.js';
 import { actorPoseFromObject, cameraPoseFromObject } from './scene-free-look.js?v=20261102-actor-pose-v1';
 import { BeatPlayerApp } from './beat-player.js?v=20261115-lamp-taa-v3';
 import { BEAT_BACKGROUND_NAMES } from './beat-backgrounds.js?v=20261017-browser-cache-v1';
@@ -29,6 +30,10 @@ const labelFor = (value) => {
     return withId(CUE_LABELS[key], key);
 };
 const clone = (value) => JSON.parse(JSON.stringify(value));
+const EDITOR_SOURCE_KEY = 'hatsuBeatEditorSource';
+const EDITOR_NAME_KEY = 'hatsuBeatEditorName';
+const EDITOR_RESULT_KEY = 'hatsuBeatEditorResult';
+const EDITOR_RESULT_NAME_KEY = 'hatsuBeatEditorResultName';
 const PREVIEW_SETTINGS_KEY = 'hatsuBeatEditorPreviewSettings';
 const DEFAULT_PREVIEW_SETTINGS = Object.freeze({ stageWidth: 900, dialogueWidth: 760 });
 let customBackgroundRecords = [];
@@ -44,7 +49,9 @@ const elementMap = {
 };
 
 const state = {
-    document: parseBeatEditorSource(sessionStorage.getItem('hatsuBeatEditorSource') || ''),
+    document: parseBeatEditorSource(sessionStorage.getItem(EDITOR_SOURCE_KEY) || ''),
+    scriptName: sessionStorage.getItem(EDITOR_NAME_KEY) || '',
+    jobActionPending: false,
     selectedIndex: 0,
     undo: [],
     redo: [],
@@ -57,6 +64,7 @@ if (!state.document.beats.length) state.document = { ...state.document, beats: [
 let previewTimer = 0;
 let previewSilent = true;
 let previewNeedsResources = true;
+let savedJobsVersion = 0;
 
 function clampPreviewWidth(value, fallback, min, max) {
     const number = Number(value);
@@ -117,7 +125,7 @@ const options = {
 };
 
 function pushHistory() {
-    state.undo.push(clone(state.document));
+    state.undo.push(editorHistorySnapshot());
     if (state.undo.length > 40) state.undo.shift();
     state.redo = [];
 }
@@ -415,6 +423,7 @@ function renderList() {
 
 function renderAll() {
     renderList(); renderProperties(); setDirty(state.dirty);
+    renderJobControls();
     const report = validateEditorDocument(state.document);
     const validation = qs('beatEditorValidation');
     if (validation) {
@@ -493,22 +502,168 @@ function addBeat() { pushHistory(); const index = state.document.beats.length; s
 function deleteBeat() { if (state.document.beats.length <= 1) return; pushHistory(); const beats = state.document.beats.filter((_, index) => index !== state.selectedIndex); state.document = { ...state.document, beats }; state.selectedIndex = Math.min(state.selectedIndex, beats.length - 1); setDirty(true); renderAll(); schedulePreviewRefresh({ silent: false, immediate: true, requiresResources: true }); }
 function duplicateBeat() { const beat = state.document.beats[state.selectedIndex]; if (!beat) return; pushHistory(); const beats = [...state.document.beats]; beats.splice(state.selectedIndex + 1, 0, cloneEditorBeat(beat, state.selectedIndex + 1)); state.document = { ...state.document, beats }; state.selectedIndex += 1; setDirty(true); renderAll(); schedulePreviewRefresh({ silent: false, immediate: true, requiresResources: true }); }
 function shiftBeat(delta) { const target = state.selectedIndex + delta; if (target < 0 || target >= state.document.beats.length) return; pushHistory(); state.document = moveBeat(state.document, state.selectedIndex, target); state.selectedIndex = target; setDirty(true); renderAll(); schedulePreviewRefresh({ silent: true, immediate: true, requiresResources: true }); }
-function undo() { const previous = state.undo.pop(); if (!previous) return; state.redo.push(clone(state.document)); state.document = previous; state.selectedIndex = Math.min(state.selectedIndex, state.document.beats.length - 1); setDirty(true); renderAll(); schedulePreviewRefresh({ silent: false, immediate: true, requiresResources: true }); }
-function redo() { const next = state.redo.pop(); if (!next) return; state.undo.push(clone(state.document)); state.document = next; state.selectedIndex = Math.min(state.selectedIndex, state.document.beats.length - 1); setDirty(true); renderAll(); schedulePreviewRefresh({ silent: false, immediate: true, requiresResources: true }); }
-
-function importSource(source) {
-    const parsed = parseBeatEditorSource(source, editorParseOptions());
-    if (!parsed.beats.length) { qs('beatEditorValidation').textContent = '没有找到可导入的 <beat> 段落。'; qs('beatEditorValidation').dataset.level = 'warn'; return; }
-    pushHistory(); state.document = parsed; state.selectedIndex = 0; setDirty(true); renderAll(); schedulePreviewRefresh({ silent: false, immediate: true, requiresResources: true });
+function editorHistorySnapshot() {
+    return { document: clone(state.document), scriptName: state.scriptName };
 }
 
-async function copyExport() { const script = serializeAndStore(); try { await navigator.clipboard.writeText(script); setStatus('脚本已复制到剪贴板。'); } catch { setStatus('脚本已生成，请从导入框复制。'); } }
-function returnToSandbox() { const script = serializeAndStore(); sessionStorage.setItem('hatsuBeatEditorResult', script); const target = sessionStorage.getItem('hatsuBeatEditorReturn') || './gakumas-player.html'; window.location.href = target; }
-function exportScript() {
+function restoreEditorHistory(snapshot) {
+    state.document = snapshot.document;
+    setEditorScriptName(snapshot.scriptName);
+    state.selectedIndex = Math.min(state.selectedIndex, state.document.beats.length - 1);
+    setDirty(true);
+    renderAll();
+    schedulePreviewRefresh({ immediate: true, requiresResources: true });
+}
+
+function undo() {
+    const previous = state.undo.pop();
+    if (!previous) return;
+    state.redo.push(editorHistorySnapshot());
+    restoreEditorHistory(previous);
+}
+
+function redo() {
+    const next = state.redo.pop();
+    if (!next) return;
+    state.undo.push(editorHistorySnapshot());
+    restoreEditorHistory(next);
+}
+
+function setEditorScriptName(name) {
+    state.scriptName = name;
+    qs('beatEditorJobName').value = name;
+}
+
+function editorScriptName({ required = false } = {}) {
+    const field = qs('beatEditorJobName');
+    try {
+        return normalizeBeatJobName(field.value);
+    } catch (error) {
+        if (!required) return '';
+        field.focus();
+        throw error;
+    }
+}
+
+function importSource(source, { scriptName = state.scriptName, saved = false } = {}) {
+    const parsed = parseBeatEditorSource(source, editorParseOptions());
+    if (!parsed.beats.length) {
+        qs('beatEditorValidation').textContent = '没有找到可导入的 <beat> 段落。';
+        qs('beatEditorValidation').dataset.level = 'warn';
+        return false;
+    }
+    pushHistory();
+    state.document = parsed;
+    setEditorScriptName(scriptName);
+    state.selectedIndex = 0;
+    setDirty(!saved);
+    renderAll();
+    schedulePreviewRefresh({ immediate: true, requiresResources: true });
+    return true;
+}
+
+function storeEditorSource(script, name) {
+    sessionStorage.setItem(EDITOR_SOURCE_KEY, script);
+    sessionStorage.setItem(EDITOR_NAME_KEY, name);
+}
+
+function storeEditorResult() {
     const script = serializeAndStore();
-    sessionStorage.setItem('hatsuBeatEditorResult', script);
-    void copyExport();
-    setStatus('脚本已导出并暂存，点击“返回怪文书”可直接载入。');
+    sessionStorage.setItem(EDITOR_RESULT_KEY, script);
+    sessionStorage.setItem(EDITOR_RESULT_NAME_KEY, editorScriptName());
+    return script;
+}
+
+function returnToSandbox() {
+    storeEditorResult();
+    window.location.href = sessionStorage.getItem('hatsuBeatEditorReturn') || './gakumas-player.html';
+}
+
+async function exportScript() {
+    const script = storeEditorResult();
+    try {
+        await navigator.clipboard.writeText(script);
+        setStatus('脚本已复制到剪贴板。');
+    } catch {
+        qs('beatEditorImportSource').value = script;
+        setStatus('脚本已生成，请从导入框复制。');
+    }
+}
+
+function renderJobControls() {
+    const busy = state.jobActionPending;
+    const savedJobs = qs('beatEditorSavedJob');
+    qs('beatEditorSaveJob').disabled = busy;
+    savedJobs.disabled = busy || savedJobs.options.length < 2;
+    qs('beatEditorOpenJob').disabled = busy || !savedJobs.value;
+}
+
+async function refreshSavedJobs(preferredName = '') {
+    const version = ++savedJobsVersion;
+    const jobs = await listBeatJobs();
+    if (version !== savedJobsVersion) return;
+    const select = qs('beatEditorSavedJob');
+    const selected = preferredName || select.value || editorScriptName();
+    select.replaceChildren(new Option('选择脚本', ''), ...jobs.map(job => new Option(job.name, job.name)));
+    select.value = jobs.some(job => job.name === selected) ? selected : '';
+    renderJobControls();
+}
+
+async function runJobAction(errorLabel, action, statusId = 'beatEditorJobStatus') {
+    if (state.jobActionPending) return;
+    const status = qs(statusId);
+    const report = (message, level = '') => {
+        status.textContent = message;
+        status.dataset.level = level;
+    };
+    state.jobActionPending = true;
+    renderJobControls();
+    try {
+        await action(report);
+    } catch (error) {
+        report(`${errorLabel}。${error?.message || error}`, 'warn');
+    } finally {
+        state.jobActionPending = false;
+        renderJobControls();
+    }
+}
+
+function saveNamedScript() {
+    return runJobAction('保存脚本失败', async report => {
+        const name = editorScriptName({ required: true });
+        const nameInput = qs('beatEditorJobName').value;
+        const editorDocument = state.document;
+        const script = serializeAndStore();
+        report(`正在保存「${name}」…`);
+        await saveBeatJob(name, script);
+        if (state.document === editorDocument && qs('beatEditorJobName').value === nameInput) {
+            setEditorScriptName(name);
+            setDirty(false);
+            storeEditorSource(script, name);
+        }
+        report(`已保存「${name}」。`, 'ok');
+        void refreshSavedJobs(name).catch(() => {});
+    });
+}
+
+function openSavedScript() {
+    const name = qs('beatEditorSavedJob').value;
+    if (!name) return;
+    return runJobAction('打开脚本失败', async report => {
+        const editorDocument = state.document;
+        const nameInput = qs('beatEditorJobName');
+        const currentName = nameInput.value;
+        report(`正在打开「${name}」…`);
+        const source = await loadBeatJob(name);
+        if (state.document !== editorDocument || nameInput.value !== currentName) {
+            report(`当前脚本在读取期间有新修改，请重新打开「${name}」。`, 'warn');
+            return;
+        }
+        if (!importSource(source, { scriptName: name, saved: true })) throw new Error('脚本中没有 Beat 段落。');
+        qs('beatEditorImportSource').value = source;
+        storeEditorSource(source, name);
+        report(`已打开「${name}」。`, 'ok');
+    });
 }
 
 const CAMERA_POSE_FIELDS = [['beatEditorCamX', 'x'], ['beatEditorCamY', 'y'], ['beatEditorCamZ', 'z'], ['beatEditorCamYaw', 'yaw'], ['beatEditorCamPitch', 'pitch']];
@@ -627,6 +782,7 @@ const app = new BeatPlayerApp(document, { elements: elementMap, bindEvents: fals
 window.beatEditorApp = app;
 setupFields();
 applyPreviewSettings();
+setEditorScriptName(state.scriptName);
 if (state.document.source) qs('beatEditorImportSource').value = state.document.source;
 document.querySelectorAll('[data-field]').forEach(field => {
     if (field.dataset.selection) {
@@ -638,7 +794,12 @@ document.querySelectorAll('[data-field]').forEach(field => {
 });
 qs('beatEditorNewBtn').addEventListener('click', addBeat); qs('beatEditorDeleteBtn').addEventListener('click', deleteBeat); qs('beatEditorDuplicateBtn').addEventListener('click', duplicateBeat); qs('beatEditorUpBtn').addEventListener('click', () => shiftBeat(-1)); qs('beatEditorDownBtn').addEventListener('click', () => shiftBeat(1)); qs('beatEditorUndoBtn').addEventListener('click', undo); qs('beatEditorRedoBtn').addEventListener('click', redo);
 qs('beatEditorImportBtn').addEventListener('click', () => importSource(qs('beatEditorImportSource').value));
-qs('beatEditorFile').addEventListener('change', async event => { const file = event.target.files?.[0]; if (file) importSource(await file.text()); event.target.value = ''; });
+qs('beatEditorFile').addEventListener('change', async event => {
+    const input = event.currentTarget;
+    const file = input.files?.[0];
+    if (file) importSource(await file.text(), { scriptName: file.name.replace(/\.(?:txt|xml|html?|md)$/i, '') });
+    input.value = '';
+});
 qs('beatEditorMotionBucket')?.addEventListener('change', renderMotionFiles);
 qs('beatEditorMotionFile')?.addEventListener('change', event => { if (event.currentTarget.value) applyMotionFile(event.currentTarget.value); });
 qs('beatEditorMotionName')?.addEventListener('change', event => { const value = event.currentTarget.value.trim(); if (value) applyMotionFile(value); });
@@ -1070,6 +1231,23 @@ qs('beatEditorActorGizmoMove')?.addEventListener('click', () => setActorGizmoMod
 qs('beatEditorActorGizmoRotate')?.addEventListener('click', () => setActorGizmoMode('rotate'));
 qs('beatEditorPreviewReset').addEventListener('click', () => { state.previewSettings = { ...DEFAULT_PREVIEW_SETTINGS }; savePreviewSettings(); applyPreviewSettings(); });
 qs('beatEditorExportBtn').addEventListener('click', exportScript); qs('beatEditorBackBtn').addEventListener('click', returnToSandbox);
+qs('beatEditorJobName').addEventListener('change', event => {
+    const name = event.currentTarget.value;
+    if (name === state.scriptName) return;
+    pushHistory();
+    state.scriptName = name;
+    setDirty(true);
+});
+qs('beatEditorJobName').addEventListener('keydown', event => {
+    if (event.key !== 'Enter' || event.isComposing) return;
+    event.preventDefault();
+    event.currentTarget.blur();
+    void saveNamedScript();
+});
+qs('beatEditorSaveJob').addEventListener('click', saveNamedScript);
+qs('beatEditorSavedJob').addEventListener('change', renderJobControls);
+qs('beatEditorOpenJob').addEventListener('click', openSavedScript);
+void refreshSavedJobs().catch(() => {});
 void loadMotionCatalog();
 qs('beatEditorPlay').addEventListener('click', () => { qs('beatEditorAuto').checked = true; void app.togglePlay(); }); qs('beatEditorPrevious').addEventListener('click', () => { state.selectedIndex = Math.max(0, state.selectedIndex - 1); renderAll(); void app.goTo(state.selectedIndex, { autoplay: false }); }); qs('beatEditorNext').addEventListener('click', () => { state.selectedIndex = Math.min(state.document.beats.length - 1, state.selectedIndex + 1); renderAll(); void app.goTo(state.selectedIndex, { autoplay: false }); }); qs('beatEditorStop').addEventListener('click', () => app.stop()); qs('beatEditorAdvance').addEventListener('click', () => { state.selectedIndex = Math.min(state.document.beats.length - 1, state.selectedIndex + 1); renderAll(); void app.goTo(state.selectedIndex, { autoplay: false }); });
 window.addEventListener('beforeunload', () => app.dispose?.(), { once: true });

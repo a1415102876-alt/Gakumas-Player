@@ -12,6 +12,7 @@ function copy(source, target) {
   for (const entry of fs.readdirSync(source, { withFileTypes: true })) {
     if (skip.has(entry.name)) continue;
     const from = path.join(source, entry.name);
+    if (from === path.join(root, 'assets', 'jobs')) continue;
     const to = path.join(target, entry.name);
     if (entry.isDirectory()) {
       fs.mkdirSync(to);
