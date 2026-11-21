@@ -1,9 +1,10 @@
-import { formatActorMove, formatActorPose, formatCameraMove, formatCameraPose, formatDepthOfField, formatFocalLength, parseActorMove, parseActorPose, parseBeatScript, parseCameraMove, parseCameraPose, parseCameraWalk, parseDepthOfField, parseFocalLength } from './beat-protocol.js?v=20261113-hkne-onsen-v1';
+import { formatActorMove, formatActorPose, formatCameraMove, formatCameraPose, formatDepthOfField, formatFocalLength, parseActorMove, parseActorPose, parseBeatScript, parseCameraMove, parseCameraPose, parseCameraWalk, parseDepthOfField, parseFocalLength } from './beat-protocol.js?v=beat-audio-v1';
+import { BEAT_SFX_SEPARATOR, normalizeBeatBgm, normalizeBeatSoundEffects } from './beat-audio.js';
 
 const STANDARD_ATTRIBUTES = Object.freeze(new Set([
   'id', 'speaker', 'cue', 'face', 'overlay', 'effect', 'look', 'position',
   'background', 'shot', 'wait', 'transition', 'camera', 'focal', 'dof', 'camera-pose', 'camera-move', 'camera-walk', 'actor-pose', 'actor-move', 'camera-motion', 'camera-ease',
-  'camera-duration', 'costume', 'hide-dialogue', 'hide-actors',
+  'camera-duration', 'costume', 'hide-dialogue', 'hide-actors', 'bgm', 'sfx',
 ]));
 
 const FIELD_TO_ATTRIBUTE = Object.freeze({
@@ -16,6 +17,8 @@ const FIELD_TO_ATTRIBUTE = Object.freeze({
   look: 'look',
   position: 'position',
   background: 'background',
+  bgm: 'bgm',
+  sfx: 'sfx',
   shot: 'shot',
   wait: 'wait',
   transition: 'transition',
@@ -84,8 +87,9 @@ function decodeMarkup(value) {
   return text(value)
     .replace(/&lt;/gi, '<')
     .replace(/&gt;/gi, '>')
-    .replace(/&amp;/gi, '&')
-    .replace(/&quot;/gi, '"');
+    .replace(/&quot;/gi, '"')
+    .replace(/&apos;/gi, "'")
+    .replace(/&amp;/gi, '&');
 }
 
 function removeLocalizedBlocks(body) {
@@ -147,6 +151,8 @@ function sanitizeBeat(beat, index = 0) {
     look: trimText(source.look) || 'auto',
     position: trimText(source.position),
     background: trimText(source.background),
+    bgm: normalizeBeatBgm(source.bgm),
+    sfx: normalizeBeatSoundEffects(source.sfx),
     shot: trimText(source.shot) || 'medium',
     wait: trimText(source.wait) || 'text',
     transition: ['clock', 'none'].includes(trimText(source.transition)) ? trimText(source.transition) : '',
@@ -205,7 +211,10 @@ function rawAttributePatch(normalized, rawAttributes) {
   const result = { ...(rawAttributes || {}) };
   for (const [field, attribute] of Object.entries(FIELD_TO_ATTRIBUTE)) {
     if (!Object.hasOwn(normalized, field)) continue;
-    if (FLAG_FIELDS.has(field)) {
+    if (field === 'sfx') {
+      if (normalized.sfx.length) result[attribute] = normalized.sfx.join(BEAT_SFX_SEPARATOR);
+      else delete result[attribute];
+    } else if (FLAG_FIELDS.has(field)) {
       if (normalized[field] === true) result[attribute] = '1';
       else delete result[attribute];
     } else if (ARRAY_FIELDS.has(field)) {
@@ -305,6 +314,8 @@ export function parseBeatEditorSource(source, options = {}) {
     const beat = sanitizeBeat({
       ...normalized,
       ...localized,
+      bgm: normalizeBeatBgm(rawAttributes.bgm === undefined ? undefined : decodeMarkup(rawAttributes.bgm), { explicit: true }),
+      sfx: normalizeBeatSoundEffects(decodeMarkup(rawAttributes.sfx)),
       rawAttributes,
       rawBodyExtras: localized.rawBodyExtras,
       rawLead: index === 0 ? '' : '',

@@ -5,6 +5,7 @@ import { normalizeFaceCue, normalizeGestureCue } from './dialogue-intent.js?v=20
 import { resolveBeatBackgroundAsset } from './beat-background-assets.js?v=20261029-bg-filename-v1';
 import { resolveBeatCostume } from './beat-costumes.js?v=20261113-hkne-onsen-v1';
 import { BEAT_CAMERA_PRESETS, BEAT_SHOTS, beatActorId } from './beat-player-core.js?v=20261110-hkne-3d-v1';
+import { BEAT_SFX_SEPARATOR, normalizeBeatAudioName, normalizeBeatBgm, normalizeBeatSoundEffects } from './beat-audio.js';
 
 const DEFAULT_CUES = BEAT_CUE_IDS;
 const DEFAULT_SHOTS = BEAT_SHOTS;
@@ -93,6 +94,11 @@ function parseAttributes(source) {
     const costumeKeyword = source.match(/(?:^|\s)costume:([A-Za-z0-9_-]+)(?=\s|$)/i);
     if (!attributes.costume && costumeKeyword) attributes.costume = costumeKeyword[1];
     return attributes;
+}
+
+function decodeAttribute(value) {
+    return value?.replace(/&quot;/gi, '"').replace(/&apos;/gi, "'")
+        .replace(/&lt;/gi, '<').replace(/&gt;/gi, '>').replace(/&amp;/gi, '&');
 }
 
 function normalizeText(text) {
@@ -386,6 +392,16 @@ export function parseBeatScript(source, options = {}) {
 
         const beat = { id: beatId, speaker, cue, look, shot, text, wait, backgroundExplicit: Boolean(attributes.background) };
         if (transition) beat.transition = transition;
+        const bgm = decodeAttribute(attributes.bgm);
+        const bgmName = normalizeBeatBgm(bgm, { explicit: true });
+        if (bgmName) beat.bgm = bgmName;
+        else if (bgm) addError(errors, 'invalid-bgm', 'BGM 需要一个受支持的音频文件名。', openIndex, beatId);
+        const sfx = (decodeAttribute(attributes.sfx) || '').split(BEAT_SFX_SEPARATOR).map(name => name.trim()).filter(Boolean);
+        const sfxNames = normalizeBeatSoundEffects(sfx);
+        if (sfxNames.length) beat.sfx = sfxNames;
+        if (sfx.some(name => !normalizeBeatAudioName(name))) {
+            addError(errors, 'invalid-sfx', '部分音效的文件名无效，已忽略。', openIndex, beatId);
+        }
         if (localized.ttsText && isFishVoicedSpeaker(speaker)) beat.ttsText = localized.ttsText;
         if (face) beat.face = face;
         if (portrait) beat.portrait = portrait;

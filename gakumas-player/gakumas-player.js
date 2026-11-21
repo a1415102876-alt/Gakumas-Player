@@ -1,4 +1,5 @@
-import { BeatPlayerApp } from '../beat-player.js?v=20261115-lamp-taa-v3';
+import { BeatPlayerApp } from '../beat-player.js?v=beat-audio-v1';
+import { writeBeatAudioVolumes } from '../beat-audio.js';
 import { setLivePictureOptions } from '../live-portrait.js?v=20261115-lamp-taa-v3';
 import { createLocalChatBridge, normalizeChatReply, playerChatScene } from '../beat-chat.js?v=20261113-hkne-onsen-v1';
 import { createChatMemoryPanel } from './chat-memory-panel.js?v=20261107-chat-memory-v1';
@@ -13,6 +14,7 @@ import { clearCustomBackground, loadCustomBackgroundImage, prepareCustomBackgrou
 import { appendBeatScript, GP_MODE, gpModeCopy, gpModeUsesAi, normalizeGpMode, readGpDraft, summarizeBeatScript, writeGpDraft } from './gakumas-player-model.js?v=20261108-chat-clock-v1';
 
 const field = id => document.getElementById(id);
+const volumeInputs = document.querySelectorAll('[data-beat-volume]');
 const EDITOR_RESULT_KEY = 'hatsuBeatEditorResult';
 const CANCELLED_MESSAGE = '已取消闲聊生成';
 
@@ -583,7 +585,17 @@ function applyDialogueFontSize(size) {
   if (value) value.textContent = `${size} px`;
 }
 
+function showVolumeValue(input) {
+  const value = `${input.value}%`;
+  field(`${input.id}Value`).value = value;
+  input.setAttribute('aria-valuetext', value);
+}
+
 function openSettings() {
+  for (const input of volumeInputs) {
+    input.value = String(Math.round(app.beatAudio.volumes[input.dataset.beatVolume] * 100));
+    showVolumeValue(input);
+  }
   const stored = readStoredFreeChatSettings();
   field('gpApiBase').value = stored.baseUrl || '';
   field('gpApiModel').value = stored.model || '';
@@ -605,6 +617,7 @@ function openSettings() {
 }
 
 function saveSettings() {
+  writeBeatAudioVolumes(app.beatAudio.volumes);
   const next = mergeStoredChatSettings(readStoredFreeChatSettings(), {
     baseUrl: field('gpApiBase').value,
     model: field('gpApiModel').value,
@@ -741,6 +754,13 @@ field('gpAutoBtn')?.addEventListener('click', (event) => {
 field('gpSettingsBtn')?.addEventListener('click', openSettings);
 field('gpPlayerSettingsBtn')?.addEventListener('click', openSettings);
 field('gpSettingsSaveBtn')?.addEventListener('click', saveSettings);
+for (const input of volumeInputs) {
+  input.addEventListener('input', () => {
+    app.beatAudio.setVolumes({ [input.dataset.beatVolume]: input.valueAsNumber / 100 });
+    showVolumeValue(input);
+  });
+  input.addEventListener('change', () => writeBeatAudioVolumes(app.beatAudio.volumes));
+}
 document.querySelectorAll('input[name="gpAa"]').forEach((input) => {
   input.addEventListener('change', () => {
     if (input.checked) savePicture(input.value);

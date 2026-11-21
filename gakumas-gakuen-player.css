@@ -85,6 +85,9 @@
   width: 100%; min-height: 46px; padding: 0 16px; border: 2px solid var(--gk-mint-soft); border-radius: 14px; background: #fff; color: var(--gk-ink); font: 600 14px/1 var(--gk-font); outline: none; transition: border-color .2s, box-shadow .2s;
 }
 .gp-settings input:focus, .gp-memory-idol select:focus { border-color: var(--gk-coral); box-shadow: 0 0 0 4px rgba(242, 138, 0, .18); }
+.gp-volume { display: grid; grid-template-columns: 1fr auto; gap: 3px 12px; align-items: center; }
+.gp-volume output { color: var(--gk-ink-2); font-size: 13px; font-weight: 800; font-variant-numeric: tabular-nums; }
+.gp-volume input[type="range"] { grid-column: 1 / -1; width: 100%; min-height: 28px; margin: 0; accent-color: var(--gk-coral-deep); cursor: pointer; }
 .gp-switch { display: flex !important; align-items: center; gap: 12px; cursor: pointer; font-size: 14px !important; color: var(--gk-ink) !important; }
 .gp-switch input { position: absolute; opacity: 0; width: 1px; height: 1px; }
 .gp-switch span { position: relative; padding-left: 58px; line-height: 30px; }
