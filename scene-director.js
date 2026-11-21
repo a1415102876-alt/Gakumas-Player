@@ -183,16 +183,22 @@ export class SceneDirector {
             if (!this.useShotFrame) entry.view.setOffset(stagePositionOffset(position));
             entry.position = position;
             let firstFrameReady = false;
-            const prepareDialogueCue = target && (!entry.present || deferPresentation)
-                && current?.type === 'dialogue' && currentSpeaker === idolId && entryCue;
-            if (prepareDialogueCue && entry.player.playSpeakerCue) {
+            const startsCue = currentSpeaker === idolId && entryCue;
+            const heldCue = currentSpeaker === idolId && current?.heldBeatCue;
+            const restoresCue = heldCue && (!entry.present || entry.currentBeatCue !== heldCue);
+            const cue = startsCue || (restoresCue && heldCue);
+            if (target && current?.type === 'dialogue' && cue && (!entry.present || deferPresentation || restoresCue)
+                && entry.player.playSpeakerCue) {
                 if (!await entry.ready || !isCurrent()) return;
                 // Beat owns the reveal after it applies the camera. Select the
                 // cue once, and pose offscreen actors before their canvas shows.
                 const firstFrame = !entry.present || !entry.view.visible;
-                firstFrameReady = await entry.player.playSpeakerCue(entryCue, { slideType: 'dialogue', isCurrent, firstFrame });
+                firstFrameReady = await entry.player.playSpeakerCue(cue, { slideType: 'dialogue', isCurrent, firstFrame });
                 if (!isCurrent()) return;
-                if (firstFrameReady) onEntryCuePrepared(entryCue, idolId);
+                if (firstFrameReady) {
+                    entry.currentBeatCue = cue;
+                    if (startsCue) onEntryCuePrepared(entryCue, idolId);
+                }
             }
             if (target && !entry.present) {
                 if (!await entry.ready || !isCurrent()) return;
@@ -207,7 +213,9 @@ export class SceneDirector {
                 } else {
                     if (!firstFrameReady && entry.player.prepareStageFirstFrame) {
                         const idleIndex = await entry.player.ensureFamily?.('idle', { play: false });
+                        if (!isCurrent()) return;
                         if (idleIndex >= 0) entry.player.prepareStageFirstFrame(idleIndex);
+                        entry.currentBeatCue = '';
                     }
                     entry.present = true;
                     if (!deferPresentation) {
@@ -271,8 +279,10 @@ export class SceneDirector {
         const entry = this.entries.get(speakerId);
         if (!entry?.present) return false;
         const generation = this.generation;
-        return entry.player.playSpeakerCue(speaker, { slideType,
-            isCurrent: () => generation === this.generation && entry.present && !this.controller.signal.aborted });
+        const isCurrent = () => generation === this.generation && entry.present && !this.controller.signal.aborted;
+        const played = await entry.player.playSpeakerCue(speaker, { slideType, isCurrent });
+        if (played && slideType === 'dialogue' && isCurrent()) entry.currentBeatCue = speaker;
+        return played;
     }
 
     async setFacialEffects(speaker, effects = [], fallbackId = '') {

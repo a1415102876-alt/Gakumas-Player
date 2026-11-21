@@ -1,6 +1,6 @@
 import { resolveNpcPortrait } from './beat-npc-portraits.js?v=20261110-hkne-3d-v1';
 import { sceneIdolId, SCENE_IDOLS, STAR_EYE_IDOLS } from './scene-protocol.js?v=20261111-hkne-motions-v1';
-import { BEAT_CUE_IDS, BEAT_BODY_CUE_SPECS, BEAT_EFFECT_ALIASES, BEAT_EFFECT_IDS, BEAT_FACE_ALIASES, BEAT_FACE_IDS, BEAT_OVERLAY_CUE_IDS, isBeatMotionFile, resolveBeatCueAlias } from './beat-cues.js?v=20261103-paired-face-v1';
+import { BEAT_CUE_ALIASES, BEAT_CUE_IDS, BEAT_BODY_CUE_SPECS, BEAT_EFFECT_ALIASES, BEAT_EFFECT_IDS, BEAT_FACE_ALIASES, BEAT_FACE_IDS, BEAT_KEEP_CUE, BEAT_OVERLAY_CUE_IDS, isBeatMotionFile, resolveBeatCueAlias } from './beat-cues.js?v=beat-action-keep-v1';
 import { normalizeFaceCue, normalizeGestureCue } from './dialogue-intent.js?v=20261026-cue-words-v1';
 import { resolveBeatBackgroundAsset } from './beat-background-assets.js?v=20261029-bg-filename-v1';
 import { resolveBeatCostume } from './beat-costumes.js?v=20261113-hkne-onsen-v1';
@@ -17,6 +17,7 @@ const DEFAULT_EFFECTS = BEAT_EFFECT_IDS;
 const CUSTOM_BACKGROUND_NAME = /^custom[1-9]\d*$/iu;
 const BUILTIN_OTHER_SPEAKERS = new Set(['producer', '制作人', 'narrator', '旁白']);
 const CUE_WORD_ALIASES = Object.freeze({
+    [BEAT_CUE_ALIASES[BEAT_KEEP_CUE]]: BEAT_KEEP_CUE,
     疑问: 'ask',
     疑惑: 'ask',
     困扰: 'talk-concerned',
@@ -63,6 +64,10 @@ function canonToken(value, words) {
     const raw = String(value || '').trim();
     if (!raw) return '';
     return words[raw] || raw.toLowerCase();
+}
+
+export function normalizeBeatShot(value) {
+    return canonToken(value, SHOT_WORDS);
 }
 
 function resolveCueWord(value) {
@@ -321,6 +326,9 @@ export function parseBeatScript(source, options = {}) {
             // A 2D NPC face must never change the last visible idol's morphs.
             validOverlays = [];
             validEffects = [];
+        } else if (cue === BEAT_KEEP_CUE && actorId) {
+            face = '';
+            validOverlays = [];
         } else if (!motionFile && !faceMotion) {
             if (bodySpec) face ||= bodySpec.defaultFace;
             else {
@@ -356,7 +364,8 @@ export function parseBeatScript(source, options = {}) {
             addError(errors, 'unknown-position', `未知站位：${position}，已交给播放器自动分配。`, openIndex, beatId);
             position = '';
         }
-        if (attributes.background) {
+        const hasBackground = Boolean(attributes.background && attributes.background.toLowerCase() !== 'none');
+        if (hasBackground) {
             const requestedBackground = String(attributes.background).trim();
             const resolvedBackground = isCustomBackgroundName(requestedBackground)
                 ? { name: requestedBackground.toLowerCase(), kind: 'custom', matched: customBackgrounds.has(requestedBackground.toLowerCase()) || !customBackgroundsReady }
@@ -384,7 +393,7 @@ export function parseBeatScript(source, options = {}) {
             addError(errors, 'unknown-transition', `未知转场：${requestedTransition}，已忽略。`, openIndex, beatId);
         }
 
-        const beat = { id: beatId, speaker, cue, look, shot, text, wait, backgroundExplicit: Boolean(attributes.background) };
+        const beat = { id: beatId, speaker, cue, look, shot, text, wait, backgroundExplicit: hasBackground };
         if (transition) beat.transition = transition;
         if (localized.ttsText && isFishVoicedSpeaker(speaker)) beat.ttsText = localized.ttsText;
         if (face) beat.face = face;
@@ -662,6 +671,7 @@ export function buildStageSlides(beats, nameMap = {}) {
     const entered = new Set();
     const positions = ['center', 'right', 'left'];
     const positionByActor = new Map();
+    const lastCueByActor = new Map();
     const targetId = value => {
         const raw = String(value || '').trim().toLowerCase();
         if (['camera', 'none', 'auto'].includes(raw)) return raw;
@@ -701,6 +711,10 @@ export function buildStageSlides(beats, nameMap = {}) {
         beatIndexes.push(slides.length);
         const dialogueSlide = { type: 'dialogue', speaker: speakerName, text: beat.text || '' };
         if (beat.ttsText) dialogueSlide.ttsText = beat.ttsText;
+        if (idolId) {
+            if (beat.cue === BEAT_KEEP_CUE) dialogueSlide.heldBeatCue = lastCueByActor.get(idolId) || '';
+            else lastCueByActor.set(idolId, `${speakerName}(${resolveBeatCue(beat.cue, beat.face)})`);
+        }
         slides.push(dialogueSlide);
     }
     return { slides, beatIndexes };

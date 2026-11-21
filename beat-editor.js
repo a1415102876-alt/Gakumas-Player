@@ -1,11 +1,12 @@
 import { actorPoseFromObject, cameraPoseFromObject } from './scene-free-look.js?v=20261102-actor-pose-v1';
-import { BeatPlayerApp } from './beat-player.js?v=20261115-lamp-taa-v3';
+import { BeatPlayerApp } from './beat-player.js?v=beat-action-keep-v1';
+import { beatBackgroundLabel } from './beat-background-labels.js';
 import { BEAT_BACKGROUND_NAMES } from './beat-backgrounds.js?v=20261017-browser-cache-v1';
 import { BEAT_SCENE_ASSETS } from './beat-scene-assets.js?v=20261027-scene-library-v1';
-import { BEAT_CUES, BEAT_EFFECTS, BEAT_FACES, BEAT_OVERLAYS, BEAT_POSITIONS, BEAT_SHOTS, BEAT_CAMERA_PRESETS, BEAT_SPEAKER_NAMES, beatActorId } from './beat-player-core.js?v=20261111-hkne-motions-v1';
-import { BEAT_BODY_CUE_SPECS, BEAT_CUE_ALIASES, beatMotionFileKey, isBeatMotionFile, isBeatPairedCue } from './beat-cues.js?v=20261103-paired-face-v1';
+import { BEAT_CUES, BEAT_EFFECTS, BEAT_FACES, BEAT_OVERLAYS, BEAT_POSITIONS, BEAT_SHOTS, BEAT_CAMERA_PRESETS, BEAT_SPEAKER_NAMES, beatActorId } from './beat-player-core.js?v=beat-action-keep-v1';
+import { BEAT_BODY_CUE_SPECS, BEAT_CUE_ALIASES, BEAT_KEEP_CUE, beatMotionFileKey, isBeatMotionFile, isBeatPairedCue } from './beat-cues.js?v=beat-action-keep-v1';
 import { MOTION_BUCKETS } from './core.js?v=20261011-stage-cue-rules-v4';
-import { createEditorBeat, cloneEditorBeat, moveBeat, parseBeatEditorSource, serializeBeatEditorScript, updateBeat, validateEditorDocument } from './beat-editor-model.js?v=20261113-hkne-onsen-v1';
+import { createEditorBeat, cloneEditorBeat, moveBeat, parseBeatEditorSource, serializeBeatEditorScript, updateBeat, validateEditorDocument } from './beat-editor-model.js?v=beat-action-keep-v1';
 import { createActorPoseGizmo } from './beat-actor-gizmo.js?v=20261103-actor-gizmo-v1';
 import { deleteCustomBackgroundItem, listCustomBackgrounds, prepareCustomBackgroundFile, saveCustomBackgroundItem } from './custom-background.js?v=20261112-custom-background-v3';
 
@@ -133,11 +134,11 @@ function setStatus(message, level = '') {
     const footer = qs('beatEditorStatus'); if (footer) footer.textContent = message;
 }
 
-function populateSelect(select, values, includeBlank = false) {
+function populateSelect(select, values, includeBlank = false, optionLabel = labelFor) {
     if (!select) return;
     select.replaceChildren();
     if (includeBlank) select.append(new Option('（无）', ''));
-    values.forEach(value => select.append(new Option(labelFor(value), value)));
+    values.forEach(value => select.append(new Option(optionLabel(value), value)));
 }
 
 function refreshBackgroundOptions() {
@@ -150,7 +151,8 @@ function refreshBackgroundOptions() {
         ...customBackgroundRecords.map(record => record.id),
         ...state.document.beats.map(beat => beat.background).filter(value => CUSTOM_BACKGROUND_ID.test(String(value || ''))),
     ]);
-    populateSelect(select, options.background, true);
+    populateSelect(select, options.background, true, beatBackgroundLabel);
+    select.options[0].label = '（沿用上一段场景）';
     if (selected) select.value = selected;
 }
 
@@ -214,19 +216,24 @@ async function uploadCustomBackground() {
     }
 }
 
+function motionFileOption(item) {
+    const suffix = item.character && item.character !== 'cmmn' ? ` · ${item.character}` : '';
+    const option = new Option(`${item.title}${suffix} ${item.label}`, item.label);
+    option.dataset.key = beatMotionFileKey(item.label);
+    return option;
+}
+
 function renderMotionFiles() {
     const select = qs('beatEditorMotionFile');
     if (!select) return;
     const bucket = qs('beatEditorMotionBucket')?.value || 'all';
+    const query = (qs('beatEditorMotionSearch')?.value || '').trim().toLowerCase();
     const current = beatMotionFileKey(qs('beatEditorMotionName')?.value || state.document.beats[state.selectedIndex]?.cue);
-    const items = motionCatalog.filter(item => bucket === 'all' || item.bucket === bucket);
-    select.replaceChildren(new Option(motionCatalog.length ? '（从列表选择原文件）' : '动作列表载入中', ''));
-    items.forEach(item => {
-        const suffix = item.character && item.character !== 'cmmn' ? ` · ${item.character}` : '';
-        const option = new Option(`${item.title}${suffix} ${item.label}`, item.label);
-        option.dataset.key = beatMotionFileKey(item.label);
-        select.append(option);
-    });
+    const items = motionCatalog.filter(item => (bucket === 'all' || item.bucket === bucket)
+        && (!query || item.label.toLowerCase().includes(query) || item.title?.toLowerCase().includes(query)));
+    const placeholder = !motionCatalog.length ? '动作列表载入中'
+        : items.length ? '（从列表选择原文件）' : '（没有匹配的动作）';
+    select.replaceChildren(new Option(placeholder, ''), ...items.map(motionFileOption));
     const match = [...select.options].find(option => option.dataset.key && option.dataset.key === current);
     select.value = match ? match.value : '';
 }
@@ -249,13 +256,7 @@ function renderFaceFiles() {
     const select = qs('beatEditorFaceFile');
     if (!select) return;
     const items = motionCatalog.filter(item => item.bucket === 'faceOnly');
-    select.replaceChildren(new Option(items.length ? '（不另选表情文件）' : '表情列表载入中', ''));
-    items.forEach(item => {
-        const suffix = item.character && item.character !== 'cmmn' ? ` · ${item.character}` : '';
-        const option = new Option(`${item.title}${suffix} ${item.label}`, item.label);
-        option.dataset.key = beatMotionFileKey(item.label);
-        select.append(option);
-    });
+    select.replaceChildren(new Option(items.length ? '（不另选表情文件）' : '表情列表载入中', ''), ...items.map(motionFileOption));
     syncFaceFile(state.document.beats[state.selectedIndex]?.face);
 }
 
@@ -326,7 +327,7 @@ function setupFields() {
     populateSelect(qs('beatEditorSpeakerField'), options.speaker);
     populateSelect(qs('beatEditorCue'), options.cue);
     populateSelect(qs('beatEditorFace'), options.face, true);
-    populateSelect(qs('beatEditorBackground'), options.background, true);
+    refreshBackgroundOptions();
     populateSelect(qs('beatEditorPosition'), options.position, true);
     populateSelect(qs('beatEditorLook'), options.look, true);
     populateSelect(qs('beatEditorShot'), options.shot);
@@ -352,7 +353,7 @@ function populateToggleGroup(group, values) {
 function toggleFieldOption(event) {
     const field = event.currentTarget;
     const button = event.target.closest('button');
-    if (!button || button.parentElement !== field) return;
+    if (!button || button.disabled || button.parentElement !== field) return;
     const values = fieldValue(field);
     const next = values.includes(button.value)
         ? values.filter(value => value !== button.value)
@@ -377,12 +378,29 @@ function setField(field, value) {
     else field.value = value == null ? '' : String(value);
 }
 
+function renderBackgroundField(value) {
+    const select = qs('beatEditorBackground');
+    const imported = select.querySelector('option[data-imported]');
+    if (imported && imported.value !== value) imported.remove();
+    if (value && !options.background.includes(value) && imported?.value !== value) {
+        const option = new Option(beatBackgroundLabel(value), value);
+        option.dataset.imported = '';
+        select.append(option);
+    }
+    select.value = value;
+}
+
 function renderProperties() {
     const beat = state.document.beats[state.selectedIndex];
     const name = qs('beatEditorSelection'); if (name) name.textContent = beat ? `#${state.selectedIndex + 1}` : '—';
     if (!beat) return;
-    const map = { beatEditorId: beat.id, beatEditorSpeakerField: beat.speaker, beatEditorCue: beat.cue, beatEditorFace: isBeatMotionFile(beat.face) ? '' : beat.face, beatEditorBackground: beat.background, beatEditorPosition: beat.position, beatEditorLook: beat.look, beatEditorShot: beat.shot, beatEditorCostume: beat.costume, beatEditorCamera: beat.camera, beatEditorOverlays: beat.overlay, beatEditorEffects: beat.effects, beatEditorWait: beat.wait, beatEditorTransition: beat.transition, beatEditorTextField: beat.text, beatEditorTts: beat.ttsText };
+    const map = { beatEditorId: beat.id, beatEditorSpeakerField: beat.speaker, beatEditorCue: beat.cue, beatEditorFace: isBeatMotionFile(beat.face) ? '' : beat.face, beatEditorPosition: beat.position, beatEditorLook: beat.look, beatEditorShot: beat.shot, beatEditorCostume: beat.costume, beatEditorCamera: beat.camera, beatEditorOverlays: beat.overlay, beatEditorEffects: beat.effects, beatEditorWait: beat.wait, beatEditorTransition: beat.transition, beatEditorTextField: beat.text, beatEditorTts: beat.ttsText };
     Object.entries(map).forEach(([id, value]) => setField(qs(id), value));
+    renderBackgroundField(beat.background);
+    const holdsAction = beat.cue === BEAT_KEEP_CUE && Boolean(beatActorId(beat.speaker));
+    qs('beatEditorFace').disabled = holdsAction;
+    qs('beatEditorFaceFile').disabled = holdsAction;
+    qs('beatEditorOverlays').querySelectorAll('button').forEach(button => { button.disabled = holdsAction; });
     syncMotionPicker(beat.cue);
     syncFaceFile(beat.face);
     syncCameraPoseFields();
@@ -459,6 +477,9 @@ function mutate(patch) {
 function currentPatchFromEvent(event) {
     const field = event.currentTarget; const key = field.dataset.field; let value = fieldValue(field);
     if (key === 'cameraDuration') value = Number(value) || 0;
+    if (key === 'cue' && value === BEAT_KEEP_CUE && beatActorId(state.document.beats[state.selectedIndex]?.speaker)) {
+        return { cue: value, face: '', overlay: [] };
+    }
     return { [key]: value };
 }
 
@@ -489,7 +510,20 @@ async function refreshPreview({ silent = false, needsResources = true } = {}) {
     } catch (error) { if (token === state.previewToken) setStatus(`预览失败：${error?.message || error}`, 'warn'); }
 }
 
-function addBeat() { pushHistory(); const index = state.document.beats.length; state.document = { ...state.document, beats: [...state.document.beats, createEditorBeat({ id: `b${String(index + 1).padStart(2, '0')}` })] }; state.selectedIndex = index; setDirty(true); renderAll(); schedulePreviewRefresh({ silent: false, immediate: true, requiresResources: true }); }
+function addBeat() {
+    pushHistory();
+    const beats = state.document.beats;
+    const index = beats.length;
+    const next = createEditorBeat({
+        id: `b${String(index + 1).padStart(2, '0')}`,
+        shot: beats.at(-1)?.shot || 'medium',
+    });
+    state.document = { ...state.document, beats: [...beats, next] };
+    state.selectedIndex = index;
+    setDirty(true);
+    renderAll();
+    schedulePreviewRefresh({ silent: false, immediate: true, requiresResources: true });
+}
 function deleteBeat() { if (state.document.beats.length <= 1) return; pushHistory(); const beats = state.document.beats.filter((_, index) => index !== state.selectedIndex); state.document = { ...state.document, beats }; state.selectedIndex = Math.min(state.selectedIndex, beats.length - 1); setDirty(true); renderAll(); schedulePreviewRefresh({ silent: false, immediate: true, requiresResources: true }); }
 function duplicateBeat() { const beat = state.document.beats[state.selectedIndex]; if (!beat) return; pushHistory(); const beats = [...state.document.beats]; beats.splice(state.selectedIndex + 1, 0, cloneEditorBeat(beat, state.selectedIndex + 1)); state.document = { ...state.document, beats }; state.selectedIndex += 1; setDirty(true); renderAll(); schedulePreviewRefresh({ silent: false, immediate: true, requiresResources: true }); }
 function shiftBeat(delta) { const target = state.selectedIndex + delta; if (target < 0 || target >= state.document.beats.length) return; pushHistory(); state.document = moveBeat(state.document, state.selectedIndex, target); state.selectedIndex = target; setDirty(true); renderAll(); schedulePreviewRefresh({ silent: true, immediate: true, requiresResources: true }); }
@@ -640,6 +674,9 @@ qs('beatEditorNewBtn').addEventListener('click', addBeat); qs('beatEditorDeleteB
 qs('beatEditorImportBtn').addEventListener('click', () => importSource(qs('beatEditorImportSource').value));
 qs('beatEditorFile').addEventListener('change', async event => { const file = event.target.files?.[0]; if (file) importSource(await file.text()); event.target.value = ''; });
 qs('beatEditorMotionBucket')?.addEventListener('change', renderMotionFiles);
+qs('beatEditorMotionSearch')?.addEventListener('input', () => {
+    if (motionCatalog.length) renderMotionFiles();
+});
 qs('beatEditorMotionFile')?.addEventListener('change', event => { if (event.currentTarget.value) applyMotionFile(event.currentTarget.value); });
 qs('beatEditorMotionName')?.addEventListener('change', event => { const value = event.currentTarget.value.trim(); if (value) applyMotionFile(value); });
 qs('beatEditorFaceFile')?.addEventListener('change', event => mutate({ face: event.currentTarget.value }));
