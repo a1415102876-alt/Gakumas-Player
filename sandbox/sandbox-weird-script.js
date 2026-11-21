@@ -30,11 +30,13 @@ export function formatWeirdLocationList(names = BEAT_BACKGROUND_NAMES, { maxChar
   return lines.join('\n');
 }
 
-function beatOutputRules() {
+function beatOutputRules(hasJapaneseTranslation = false) {
   return [
     'cue 只能写这些中文情绪或动作词，不要写 talk、happy 这类英文 id，也不要自造近义词：说话、待机、生气、害羞、难过、吃惊、高兴、安心、不甘、得意、干劲、哭泣、无奈、兴奋、点头、摇头、思考、询问、应答、鞠躬、指向、讨好、定格、察觉。',
     '除 cue="说话" 以外，这些词自带表情，不要再写 face。face 只在 cue="说话" 时写，只能是：高兴、惊讶、害羞、困扰、自然、难过、生气。',
-    '每个有台词的偶像 Beat 必须同时写两段，顺序固定，不能只写其中一段：<display lang="zh">玩家看到的中文</display><tts lang="ja">给语音朗读的日语</tts>。',
+    hasJapaneseTranslation
+      ? '有对应日文译稿的偶像台词依次写中文 display 和日文 tts。找不到对应译文时仅写中文 display。'
+      : '每个有台词的偶像 Beat 必须同时写两段，顺序固定，不能只写其中一段：<display lang="zh">玩家看到的中文</display><tts lang="ja">给语音朗读的日语</tts>。',
     'display 的 lang 必须是 zh，内容是中文；tts 的 lang 必须是 ja，内容是和这句中文意思对应的日语。不要把中文写进 tts，不要把日语写进 display，不要省略 lang，不要写成 <tts>日语</tts>。',
     '制作人和旁白只写 <display lang="zh">，不要写 tts。没有台词的纯动作 Beat 也只写一句短 display，不要写空的 tts。',
     'speaker 和 look 只能使用这些登记 id，不要用罗马音，也不要自造英文名。',
@@ -46,12 +48,12 @@ function beatOutputRules() {
   ].join('\n');
 }
 
-function beatContract() {
+function beatContract(hasJapaneseTranslation) {
   return [
     '你是 Beat 剧情编排器。只输出可直接交给 BeatPlayerApp 的完整 <beat>...</beat> 标签，不要输出解释、Markdown 围栏、JSON、旧 VN/NIA 标签或其他外壳。',
     '本次没有当前担当，也没有默认担当偶像。不要根据沙盒存档、编年史或常驻设定补一位担当。谁出场、和制作人是什么关系，只按用户文案；文案没有写担当关系时，不要安排担当，也不要补一位偶像来当担当。',
     '每个 Beat 都要有 id、speaker、cue、look、position、background、shot、wait。cue="说话" 时再加 face。',
-    beatOutputRules(),
+    beatOutputRules(hasJapaneseTranslation),
     'speaker 使用文案里实际说话的人，并且必须换成上表里的登记 id。不要创造新的角色 ID。',
     'position 只能是 left、center、right；shot 使用 wide、medium、close、reaction、keep。情绪或动作发生明显转换时拆到下一个 Beat。',
     'wait 有台词时用 text；这句要等语音念完再进下一句时用 voice。',
@@ -83,11 +85,24 @@ export function formatWeirdPromptLocations(names = BEAT_BACKGROUND_NAMES, { maxC
   return lines.join('\n');
 }
 
-export function buildWeirdScriptPrompt({ mode = WEIRD_SCRIPT_MODE.FULL, text = '', locations = BEAT_BACKGROUND_NAMES, beatTarget = DEFAULT_BEAT_TARGET } = {}) {
+function bilingualScriptPrompt(text, japaneseText) {
+  const translation = safeText(japaneseText);
+  if (!translation) return '';
+  return [
+    '已提供与中文文案对应的日文译稿。按场景、说话人和剧情顺序匹配台词，不要求两份文案逐行对应。',
+    'display 用中文文案。每个有对应译文的偶像台词 Beat 的 <tts lang="ja"> 必须逐字复制日文译稿中该句的连续台词原文，保留用词和句子标点。省略说话人标签、旁白和舞台提示。XML 正文中的 &、<、> 用实体转义。',
+    '对需要使用片假名读法的词，在 tts 内把对应原词写成 <ruby>原词<rt>片假名读法</rt></ruby>，原词必须与译稿一致。只标注该词，用法如 <tts lang="ja">すみません、<ruby>賀陽燐羽さん<rt>カヤリンハサン</rt></ruby>はいますか？</tts> 或 <ruby>SyngUp!<rt>シングアップ</rt></ruby>。程序通过原词核对译稿，保存的语音文本使用读法。已经是片假名的词保持原样。',
+    '拆分 Beat 时，分别截取日文原稿里对应的连续片段；没有可匹配的日文台词时，省略这段的 tts。',
+    `【中文文案】\n${safeText(text)}\n【日文译稿】\n${translation}`,
+  ].join('\n\n');
+}
+
+export function buildWeirdScriptPrompt({ mode = WEIRD_SCRIPT_MODE.FULL, text = '', japaneseText = '', locations = BEAT_BACKGROUND_NAMES, beatTarget = DEFAULT_BEAT_TARGET } = {}) {
   const source = safeText(text);
   const locationList = formatWeirdPromptLocations(locations);
   const target = Number.isFinite(Number(beatTarget)) ? Math.max(1, Math.floor(Number(beatTarget))) : DEFAULT_BEAT_TARGET;
-  const contract = beatContract();
+  const bilingualPrompt = mode === WEIRD_SCRIPT_MODE.FULL ? bilingualScriptPrompt(source, japaneseText) : '';
+  const contract = beatContract(Boolean(bilingualPrompt));
   const modeInstruction = mode === WEIRD_SCRIPT_MODE.EXPAND
     ? [
       '这是 AI 扩写模式。按用户点子里写到的人物和关系扩写成完整长篇。世界书只用来核对已经出场的人的性格，不要用它补一位默认担当，也不要泄露世界书原文。',
@@ -95,7 +110,7 @@ export function buildWeirdScriptPrompt({ mode = WEIRD_SCRIPT_MODE.FULL, text = '
     ]
     : [
       '这是全文案转 Beat 模式。用户提供的是要演出的文案；只把它组织成 Beat，不额外添加角色资料或历史对话。',
-      `用户全文案：\n${source}`,
+      bilingualPrompt || `用户全文案：\n${source}`,
     ];
   return [
     '[HATSU_WEIRD_SCRIPT]',
@@ -137,8 +152,9 @@ export function extractClosedBeatScript(source) {
   };
 }
 
-export function buildWeirdContinuationPrompt({ completedScript = '', completedCount = 0, lastBackground = '', style = false } = {}) {
+export function buildWeirdContinuationPrompt({ completedScript = '', completedCount = 0, lastBackground = '', style = false, text = '', japaneseText = '' } = {}) {
   const closed = safeText(completedScript);
+  const bilingualPrompt = style ? '' : bilingualScriptPrompt(text, japaneseText);
   const count = Number.isFinite(Number(completedCount)) ? Math.max(0, Math.floor(Number(completedCount))) : 0;
   const background = safeText(lastBackground) || '沿用上一个完整 Beat 的 background';
   return [
@@ -146,10 +162,36 @@ export function buildWeirdContinuationPrompt({ completedScript = '', completedCo
     '本次没有当前担当，也没有默认担当偶像。续写时不要把任何未在已完成 Beat 里担任担当的人补成担当。',
     `前面已经保留 ${count} 个完整 Beat，最后地点为：${background}。`,
     '只输出后续新的、完整闭合的 <beat>...</beat>；不要重复已完成内容，不要输出解释或 Markdown。',
-    beatOutputRules(),
+    beatOutputRules(Boolean(bilingualPrompt)),
     '保持前文人物关系、情绪和地点连续；如果故事已经自然结束，就输出剩余收束 Beat，不要硬凑长度。',
+    bilingualPrompt ? '根据已完成的 Beat 定位在两份文案中的进度。已完成语音可能使用了片假名读法，定位时对照同一句的意思和前后文。只接续还未整理的原文。' : '',
     style ? GAKUMAS_EXPAND_STYLE : '',
     '已完成内容的末尾仅用于承接：',
     closed.slice(-5000),
+    bilingualPrompt,
   ].filter(Boolean).join('\n\n');
+}
+
+export function prepareGeneratedJapaneseScript(script, japaneseText) {
+  const normalizeWhitespace = value => value.replace(/\s+/gu, ' ').trim();
+  const source = normalizeWhitespace(safeText(japaneseText));
+  const decode = value => value.replace(/&(amp|lt|gt|quot|apos|#39);/gi, (_, name) => (
+    { amp: '&', lt: '<', gt: '>', quot: '"', apos: "'", '#39': "'" }[name.toLowerCase()]
+  ));
+  const ruby = /<ruby>([^<>]+)<rt>([ァ-ヺー・]+)<\/rt><\/ruby>/gi;
+  return script.replace(/(<beat\b([^>]*)>)([\s\S]*?)(<\/beat>)/gi, (_, open, attrs, body, close) => {
+    const tts = body.replace(/(<tts\b[^>]*>)([\s\S]*?)(<\/tts>)/gi, (_, start, text, end) => {
+      const original = text.replace(ruby, '$1');
+      const line = normalizeWhitespace(decode(original));
+      const speaker = attrs.match(/\sspeaker\s*=\s*(["'])(.*?)\1/i)?.[2] || '未知角色';
+      if (/<\/?(?:ruby|rt)\b/i.test(original)) {
+        throw new Error(`AI 生成的日语注音格式有误（${speaker}）。请重新生成。`);
+      }
+      if (source && line && !source.includes(line)) {
+        throw new Error(`AI 生成的日语台词在译稿中找不到（${speaker}：${line.slice(0, 40)}）。请检查两份文案是否对应，再重新生成。`);
+      }
+      return start + text.replace(ruby, '$2') + end;
+    });
+    return open + tts + close;
+  });
 }

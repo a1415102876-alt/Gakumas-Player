@@ -7,7 +7,7 @@
   <title>Gakuen Idolmaster Player</title>
   <link rel="icon" href="./assets/star.png">
   <link rel="stylesheet" href="./beat-player.css?v=20261106-hide-2d-floor-v1">
-  <link rel="stylesheet" href="./gakumas-gakuen.css?v=20261107-gakuen-v2">
+  <link rel="stylesheet" href="./gakumas-gakuen.css?v=full-script-import-v1">
   <link rel="stylesheet" href="./gakumas-gakuen-player.css?v=20261114-timeline-v2">
   <link rel="stylesheet" href="./gakumas-opening.css?v=20261107-gakuen-v2">
   <link rel="stylesheet" href="./gakumas-player/notices.css?v=1">
@@ -138,8 +138,21 @@
                 <div><small id="gpInputEnglish">FULL TEXT</small><h3 id="gpInputTitle">全文案</h3></div>
                 <span id="gpInputCount" class="gp-counter">0 字</span>
               </header>
-              <p id="gpInputSummary" class="gp-card-note">贴入写好的完整文案，AI 只负责整理成 Beat 格式。</p>
-              <textarea id="gpInput" class="gp-textarea" rows="10" maxlength="200000" aria-labelledby="gpInputTitle"></textarea>
+              <p id="gpInputSummary" class="gp-card-note">粘贴或导入中文文案。提供日文译稿时，AI 会配对两份文案，语音直接使用译稿里的台词。</p>
+              <div id="gpChineseImport" class="gp-script-source">
+                <label id="gpChineseLabel" for="gpInput">中文文案</label>
+                <button id="gpImportChinese" class="gp-tool" type="button">导入中文 .txt</button>
+                <input id="gpChineseFile" type="file" accept=".txt" hidden>
+              </div>
+              <textarea id="gpInput" class="gp-textarea" rows="10" maxlength="200000" aria-labelledby="gpChineseLabel"></textarea>
+              <div id="gpJapaneseSource" class="gp-japanese-source">
+                <div class="gp-script-source">
+                  <label for="gpJapaneseText">日文译稿（可选）</label>
+                  <button id="gpImportJapanese" class="gp-tool" type="button">导入日文 .txt</button>
+                  <input id="gpJapaneseFile" type="file" accept=".txt" hidden>
+                </div>
+                <textarea id="gpJapaneseText" class="gp-textarea" rows="5" maxlength="200000" placeholder="粘贴对应的日文译稿。留空时由 AI 生成日文台词。" lang="ja"></textarea>
+              </div>
               <footer class="gp-card-foot">
                 <p id="gpComposeStatus" class="gp-status" role="status"></p>
                 <button id="gpGenerateBtn" class="gp-capsule gp-capsule-main" type="button"><span>整理成 Beat 脚本</span><svg aria-hidden="true"><use href="#gpArrow"/></svg></button>
@@ -381,6 +394,6 @@
   <script src="./fish-tts.js?v=20261111-hkne-voice-v1"></script>
   <script type="module" src="./gakumas-player/notices.js?v=1"></script>
   <script type="module" src="./gakumas-player/gakumas-gakuen.js?v=20261107-gakuen-v1"></script>
-  <script type="module" src="./gakumas-player/gakumas-player.js?v=20261115-lamp-taa-v3"></script>
+  <script type="module" src="./gakumas-player/gakumas-player.js?v=full-script-import-v1"></script>
 </body>
 </html>
