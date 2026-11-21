@@ -1,4 +1,5 @@
-import { parseBeatScript } from './beat-protocol.js?v=20261113-hkne-onsen-v1';
+import { parseBeatScript } from './beat-protocol.js?v=producer-voice-v1';
+import { irodoriCaptionPrompt, normalizeIrodoriCaption } from './irodori-tts.js?v=producer-voice-v1';
 import { activateTavernWorldbook, importTavernWorldbook } from './worldbook-scan.js';
 
 const DEFAULT_BACKGROUND = '家·教室（午）';
@@ -20,7 +21,7 @@ const DEFAULT_TIMEOUT = 120000;
 const BUILTIN_SPEAKERS = new Set(['producer', '制作人', 'narrator', '旁白']);
 
 function escapeAttribute(value) {
-    return String(value ?? '').replace(/&/g, '&amp;').replace(/"/g, '&quot;');
+    return escapeText(value).replace(/"/g, '&quot;');
 }
 
 function removeAttribute(source, name) {
@@ -61,9 +62,10 @@ function jsonBeatsToScript(source) {
         if (!body) return '';
         const attrs = BEAT_JSON_FIELDS
             .filter((name) => row[name] != null && String(row[name]).trim())
-            .map((name) => `${name}="${escapeAttribute(row[name])}"`)
-            .join(' ');
-        return `<beat ${attrs}>${body}</beat>`;
+            .map((name) => `${name}="${escapeAttribute(row[name])}"`);
+        const caption = normalizeIrodoriCaption(row['irodori-caption'] ?? row.irodoriCaption);
+        if (caption) attrs.push(`irodori-caption="${escapeAttribute(caption)}"`);
+        return `<beat ${attrs.join(' ')}>${body}</beat>`;
     }).filter(Boolean).join('\n');
 }
 
@@ -112,11 +114,13 @@ export function splitSuggestedActions(source) {
     return { source: without, options: options.length >= 4 ? options.slice(0, 4) : [] };
 }
 
-export function buildChatPrompt({ idolName, userText, background = DEFAULT_BACKGROUND, context = '', present = true, company = false, staging = false, suggestActions = false } = {}) {
+export function buildChatPrompt({ idolName, userText, background = DEFAULT_BACKGROUND, context = '', present = true, company = false, staging = false, suggestActions = false, irodoriCharacters = [] } = {}) {
     const idol = String(idolName || '').trim();
     const text = String(userText || '').trim();
     const status = String(context || '').trim();
     const scene = String(background || DEFAULT_BACKGROUND).trim() || DEFAULT_BACKGROUND;
+    const producerCharacters = irodoriCharacters.filter(character => character.id === 'producer');
+    const producerSpeech = '制作人开口时也写对应的日语 <tts lang="ja">。旁白和纯动作只写 <display lang="zh">。';
     if (!text) throw new Error('消息不能为空');
     if (present === false && !company) {
         return finishChatPrompt([
@@ -126,9 +130,11 @@ export function buildChatPrompt({ idolName, userText, background = DEFAULT_BACKG
             '只输出 2 到 4 个 <beat>...</beat>，不要输出解释、Markdown 代码围栏或 NIA 结构。',
             'speaker 只能是「制作人」或「旁白」。制作人写他正在做的事和一句短话，旁白写环境和结果。',
             staging ? '可以写 position、shot、camera，用来表现这次行动；camera 与 shot 使用同一组景别。' : 'position 用 center，shot 用 medium。',
-            '制作人和旁白不要写 tts。不要写夸奖标记。没有与偶像的互动，relationship_update 写 0。',
-            `样例：<beat speaker="制作人" cue="idle" face="neutral" look="camera" position="center" background="${scene}" shot="medium"><display lang="zh">我先把这里收拾一下。</display></beat>`,
+            producerSpeech,
+            '不要写夸奖标记。没有与偶像的互动，relationship_update 写 0。',
+            `样例：<beat speaker="制作人" cue="idle" face="neutral" look="camera" position="center" background="${scene}" shot="medium"><display lang="zh">我先把这里收拾一下。</display><tts lang="ja">先にここを片づけておこう。</tts></beat>`,
             `<beat speaker="旁白" cue="idle" face="neutral" look="camera" position="center" background="${scene}" shot="medium"><display lang="zh">屋里安静下来。</display></beat>`,
+            irodoriCaptionPrompt(producerCharacters),
             status,
             `玩家的行动：${text}`,
         ], suggestActions);
@@ -143,7 +149,10 @@ export function buildChatPrompt({ idolName, userText, background = DEFAULT_BACKG
                 : '只输出 2 到 4 个 <beat>...</beat>，不要输出解释、Markdown 代码围栏或 NIA 结构。',
             '名单里的偶像用她自己的名字做 speaker，写出她本人的台词。制作人用 producer，旁白用 narrator。不要用旁白转述偶像说的话。偶像对制作人说话或面向制作人交流时必须写 look="camera"，不要写 look="producer"。',
             staging ? beatStageHint() : 'position 用 left、center 或 right。shot 用 medium。',
-            '每个偶像的 Beat 都要同时写中文和日语：<display lang="zh">玩家看到的中文</display><tts lang="ja">给 Fish 朗读的日语</tts>。制作人和旁白不要写 tts。没有与担当的互动，relationship_update 写 0。不要写夸奖标记。',
+            '每个偶像的 Beat 都要同时写中文和日语：<display lang="zh">玩家看到的中文</display><tts lang="ja">用于语音的日语</tts>。',
+            producerSpeech,
+            '没有与担当的互动，relationship_update 写 0。不要写夸奖标记。',
+            irodoriCaptionPrompt(irodoriCharacters.filter(character => character.name !== idol)),
             status,
             `玩家说：${text}`,
         ], suggestActions);
@@ -169,11 +178,13 @@ export function buildChatPrompt({ idolName, userText, background = DEFAULT_BACKG
             : '每个 Beat 都使用 cue、face、look、position、background 和 shot 等现有字段；background 固定为当前场景，shot 固定为 medium，position 固定为 center。偶像对制作人说话或面向制作人交流时必须写 look="camera"，不要写 look="producer"。',
         '回复应自然承接玩家的话，保持角色口吻。',
         staging
-            ? '每个偶像的 Beat 都要同时写中文和日语：<display lang="zh">玩家看到的中文</display><tts lang="ja">给 Fish 朗读的日语</tts>。两句意思对应。制作人、旁白和没有模型台词的人不要写 tts。'
-            : `每个 ${idol} 的 Beat 都要同时写中文和日语：<display lang="zh">玩家看到的中文</display><tts lang="ja">给 Fish 朗读的日语</tts>。两句意思对应。制作人和旁白不要写 tts。`,
+            ? '每个偶像的 Beat 都要同时写中文和日语：<display lang="zh">玩家看到的中文</display><tts lang="ja">用于语音的日语</tts>。两句意思对应。'
+            : `每个 ${idol} 的 Beat 都要同时写中文和日语：<display lang="zh">玩家看到的中文</display><tts lang="ja">用于语音的日语</tts>。两句意思对应。`,
+        producerSpeech,
         staging
             ? `样例：<beat speaker="${idol}" cue="说话" face="高兴" look="camera" position="center" background="${background}" shot="medium" camera="close"><display lang="zh">还好呀。</display><tts lang="ja">大丈夫だよ。</tts></beat>\n<beat speaker="有村麻央" cue="说话" face="高兴" look="${idol}" position="left" background="${background}" shot="wide" camera="wide"><display lang="zh">我也在。</display><tts lang="ja">私もいるよ。</tts></beat>`
             : `样例：<beat speaker="${idol}" cue="说话" face="高兴" look="camera" position="center" background="${background}" shot="medium"><display lang="zh">还好呀。</display><tts lang="ja">大丈夫だよ。</tts></beat>`,
+        irodoriCaptionPrompt(staging ? irodoriCharacters : irodoriCharacters.filter(character => character.name === idol || character.id === 'producer')),
         status,
         `玩家说：${text}`,
     ], suggestActions);

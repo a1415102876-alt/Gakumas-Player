@@ -1,23 +1,30 @@
-import { BeatPlayerApp } from '../beat-player.js?v=20261115-lamp-taa-v3';
+import { listBeatJobs, loadBeatJob } from '../beat-local-jobs.js';
+import { BeatPlayerApp } from '../beat-player.js?v=producer-voice-v1';
 import { setLivePictureOptions } from '../live-portrait.js?v=20261115-lamp-taa-v3';
-import { createLocalChatBridge, normalizeChatReply, playerChatScene } from '../beat-chat.js?v=20261113-hkne-onsen-v1';
+import { createLocalChatBridge, normalizeChatReply, playerChatScene } from '../beat-chat.js?v=producer-voice-v1';
 import { createChatMemoryPanel } from './chat-memory-panel.js?v=20261107-chat-memory-v1';
 import { mountResourceMonitor } from '../resource-monitor.js?v=20261108-resource-monitor-v1';
 import { loadTavernWorldbook } from '../worldbook-scan.js?v=20261024-worldbook-v1';
-import { applyFishTtsSettings, fishTtsStatus, resolveFishTtsSettings } from '../free-chat-tts.js?v=20261107-tts-domain-v1';
+import { applyFishTtsSettings, fishTtsStatus, resolveFishTtsSettings } from '../free-chat-tts.js?v=irodori-tts-v1';
+import { createIrodoriSpeech, IRODORI_CHARACTERS, readIrodoriConnection, readIrodoriVoices, saveIrodoriConnection, saveIrodoriVoices } from '../irodori-tts.js?v=irodori-connection-v1';
 import { SANDBOX_CHAT_SETTINGS_KEY, buildSandboxChatSettings, mergeStoredChatSettings, readStoredFreeChatSettings } from '../sandbox/sandbox-chat.js?v=20261106-player-chat-v1';
 import { aaLevel } from '../gakumas-aa.js?v=20261105-aa-level-v1';
 import { SANDBOX_PICTURE_KEY, normalizeSandboxPicture } from '../sandbox/sandbox-picture.js?v=20261105-floor-ssr-v1';
-import { buildWeirdContinuationPrompt, buildWeirdScriptPrompt, extractClosedBeatScript, prepareDirectBeatScript, WEIRD_SCRIPT_MODE } from '../sandbox/sandbox-weird-script.js?v=20261110-hkne-3d-v1';
+import { buildWeirdContinuationPrompt, buildWeirdScriptPrompt, extractClosedBeatScript, prepareDirectBeatScript, WEIRD_SCRIPT_MODE } from '../sandbox/sandbox-weird-script.js?v=producer-voice-v1';
 import { clearCustomBackground, loadCustomBackgroundImage, prepareCustomBackgroundFile, readCustomBackground, saveCustomBackground, setCustomBackgroundEnabled } from '../custom-background.js?v=20261112-custom-background-v3';
 import { appendBeatScript, GP_MODE, gpModeCopy, gpModeUsesAi, normalizeGpMode, readGpDraft, summarizeBeatScript, writeGpDraft } from './gakumas-player-model.js?v=20261108-chat-clock-v1';
 
 const field = id => document.getElementById(id);
 const EDITOR_RESULT_KEY = 'hatsuBeatEditorResult';
+const EDITOR_RESULT_NAME_KEY = 'hatsuBeatEditorResultName';
 const CANCELLED_MESSAGE = '已取消闲聊生成';
+
+const localPlayer = location.protocol === 'http:' && ['127.0.0.1', 'localhost'].includes(location.hostname);
 
 let worldbook = [];
 let worldbookPromise = null;
+let irodoriDraft = {};
+let irodoriCheck = null;
 
 function selectedChatIdolName() {
   const select = field('chatIdolSelect');
@@ -53,6 +60,7 @@ const picture = readPicture();
 setLivePictureOptions(picture);
 applyDialogueFontSize(picture.dialogueFontSize);
 applyFishTtsSettings(resolveFishTtsSettings(), {
+  irodori: localPlayer ? createIrodoriSpeech(readIrodoriVoices(), undefined, readIrodoriConnection()) : null,
   onError: message => showToast(String(message || '角色语音播放失败')),
 });
 
@@ -82,9 +90,11 @@ const view = {
   busy: false,
   controller: null,
   continuable: false,
+  scriptName: '',
   saveTimer: null,
   toastTimer: null,
 };
+let savedJobsController = null;
 
 function showToast(message) {
   const toast = field('gpToast');
@@ -110,14 +120,17 @@ function setStatus(id, message = '', tone = '') {
 
 function persistDraft() {
   clearTimeout(view.saveTimer);
-  view.saveTimer = setTimeout(() => {
-    writeGpDraft({ mode: view.mode, input: field('gpInput')?.value, script: field('gpScript')?.value });
-  }, 240);
+  view.saveTimer = setTimeout(flushDraft, 240);
 }
 
 function flushDraft() {
   clearTimeout(view.saveTimer);
-  writeGpDraft({ mode: view.mode, input: field('gpInput')?.value, script: field('gpScript')?.value });
+  writeGpDraft({
+    mode: view.mode,
+    input: field('gpInput').value,
+    script: field('gpScript').value,
+    scriptName: view.scriptName,
+  });
 }
 
 function syncSteps() {
@@ -137,6 +150,8 @@ function syncSteps() {
 function syncScriptSummary() {
   const script = field('gpScript');
   const summary = summarizeBeatScript(script?.value);
+  field('gpScriptTitle').textContent = view.scriptName || 'Beat 脚本';
+  field('gpSavedJobsBtn').disabled = view.busy;
   const count = field('gpScriptCount');
   if (count) {
     count.textContent = `${summary.count} Beat`;
@@ -265,16 +280,19 @@ async function generate({ continuation = false } = {}) {
   const normalizeOptions = { preserveBackground: true, preserveStaging: true };
   const closedExisting = extractClosedBeatScript(existing);
   const expanding = view.mode === GP_MODE.EXPAND;
+  const irodoriCharacters = app.tts?.getIrodoriCharacters?.();
   const prompt = continuation
     ? buildWeirdContinuationPrompt({
       completedScript: closedExisting.script,
       completedCount: closedExisting.count,
       lastBackground: closedExisting.lastBackground,
       style: expanding,
+      irodoriCharacters,
     })
     : buildWeirdScriptPrompt({
       mode: expanding ? WEIRD_SCRIPT_MODE.EXPAND : WEIRD_SCRIPT_MODE.FULL,
       text,
+      irodoriCharacters,
     });
   const bridgeOptions = {
     timeoutMs: 300000,
@@ -302,6 +320,7 @@ async function generate({ continuation = false } = {}) {
     const closed = extractClosedBeatScript(normalized.script);
     if (!closed.count) throw Object.assign(new Error('没有收到完整的 Beat，请重试。'), { rawText: raw });
     script.value = continuation ? appendBeatScript(closedExisting.script, closed.script) : closed.script;
+    if (!continuation) view.scriptName = '';
     view.continuable = closed.hasOpenBeat;
     setStatus('gpComposeStatus', continuation ? `已续写 ${closed.count} 个 Beat。` : `已生成 ${closed.count} 个 Beat，确认脚本后点击“开始播放”。`, 'ok');
     revealScriptPanel();
@@ -311,6 +330,7 @@ async function generate({ continuation = false } = {}) {
     const closed = raw ? extractClosedBeatScript(raw) : { script: '', count: 0 };
     if (closed.count > 0) {
       script.value = continuation ? appendBeatScript(closedExisting.script, closed.script) : closed.script;
+      if (!continuation) view.scriptName = '';
       view.continuable = true;
       setStatus('gpComposeStatus', `已收到 ${closed.count} 个完整 Beat，输出被截断，可以继续生成。`, 'warn');
       revealScriptPanel();
@@ -338,6 +358,7 @@ function openEditor() {
   if (view.busy) return;
   flushDraft();
   sessionStorage.setItem('hatsuBeatEditorSource', String(field('gpScript')?.value || '').trim());
+  sessionStorage.setItem('hatsuBeatEditorName', view.scriptName);
   sessionStorage.setItem('hatsuBeatEditorReturn', `${location.pathname}${location.search}`);
   location.href = './beat-editor.html?from=gakumas-player';
 }
@@ -346,11 +367,75 @@ function consumeEditorResult() {
   const result = sessionStorage.getItem(EDITOR_RESULT_KEY);
   if (result == null) return false;
   sessionStorage.removeItem(EDITOR_RESULT_KEY);
+  view.scriptName = sessionStorage.getItem(EDITOR_RESULT_NAME_KEY) || '';
+  sessionStorage.removeItem(EDITOR_RESULT_NAME_KEY);
   const script = field('gpScript');
   if (script) script.value = result;
   view.continuable = false;
   showToast('已从可视化编辑器载入脚本。');
   return true;
+}
+
+async function openSavedBeatJobs() {
+  if (!localPlayer || view.busy) return;
+  const dialog = field('gpSavedJobs');
+  if (dialog.open) return;
+  const select = field('gpSavedJob');
+  const load = field('gpLoadJobBtn');
+  savedJobsController?.abort();
+  const controller = new AbortController();
+  savedJobsController = controller;
+  select.replaceChildren();
+  select.disabled = true;
+  load.disabled = true;
+  setStatus('gpSavedJobsStatus', '正在读取脚本列表…', 'busy');
+  dialog.showModal();
+  try {
+    const jobs = await listBeatJobs({ signal: controller.signal });
+    if (controller.signal.aborted || !dialog.open) return;
+    select.replaceChildren(...jobs.map(({ name }) => new Option(name, name)));
+    if (jobs.some(job => job.name === view.scriptName)) select.value = view.scriptName;
+    select.disabled = jobs.length === 0;
+    load.disabled = select.disabled;
+    setStatus('gpSavedJobsStatus', jobs.length ? '' : '还没有保存的脚本。');
+  } catch (error) {
+    if (!controller.signal.aborted) setStatus('gpSavedJobsStatus', error.message, 'error');
+  }
+}
+
+function applySavedBeatJob(name, source) {
+  field('gpScript').value = source;
+  view.scriptName = name;
+  view.continuable = false;
+  if (view.mode === GP_MODE.CHAT) setMode(GP_MODE.EDITOR);
+  syncScriptSummary();
+  flushDraft();
+  revealScriptPanel();
+}
+
+async function loadSelectedBeatJob(event) {
+  event.preventDefault();
+  const dialog = field('gpSavedJobs');
+  const select = field('gpSavedJob');
+  const load = field('gpLoadJobBtn');
+  const controller = savedJobsController;
+  if (!dialog.open || load.disabled || !select.value || !controller) return;
+  const name = select.value;
+  select.disabled = true;
+  load.disabled = true;
+  setStatus('gpSavedJobsStatus', '正在载入脚本…', 'busy');
+  try {
+    const source = await loadBeatJob(name, { signal: controller.signal });
+    if (controller.signal.aborted || !dialog.open) return;
+    dialog.close();
+    applySavedBeatJob(name, source);
+  } catch (error) {
+    if (!controller.signal.aborted) {
+      select.disabled = false;
+      load.disabled = false;
+      setStatus('gpSavedJobsStatus', error.message, 'error');
+    }
+  }
 }
 
 async function copyScript() {
@@ -372,6 +457,7 @@ function clearScript() {
   const script = field('gpScript');
   if (!script?.value.trim()) return;
   script.value = '';
+  view.scriptName = '';
   view.continuable = false;
   syncScriptSummary();
   persistDraft();
@@ -486,7 +572,7 @@ async function play() {
   field('beatSpeaker').textContent = '';
   field('beatText').textContent = '';
   app.elements.script.value = prepared.script;
-  app.compile();
+  app.compile({ scriptName: view.scriptName });
   if (!app.compiled.beats.length) {
     leavePlayer();
     setStatus('gpScriptStatus', '脚本没有可播放的 Beat，请检查格式。', 'error');
@@ -593,6 +679,18 @@ function openSettings() {
   field('gpTtsProxy').value = voice.proxyUrl || '';
   field('gpTtsModel').value = voice.model || '';
   field('gpTtsKey').value = voice.apiKey || '';
+  if (localPlayer) {
+    resetIrodoriCheck();
+    irodoriDraft = readIrodoriVoices();
+    const connection = readIrodoriConnection();
+    field('gpIrodoriPort').value = connection.port ?? '';
+    field('gpIrodoriProtocol').value = connection.protocol || '';
+    const character = field('gpIrodoriCharacter');
+    const selected = character.value || IRODORI_CHARACTERS.find(({ name }) => name === app.selectedChatIdol().name)?.id;
+    character.replaceChildren(...IRODORI_CHARACTERS.map(({ id, name }) => new Option(name, id)));
+    if (selected) character.value = selected;
+    syncIrodoriVoiceField();
+  }
   const picture = readPicture();
   syncAaControls(picture.aa);
   const blur = field('gpMotionBlur');
@@ -604,13 +702,74 @@ function openSettings() {
   if (dialog && !dialog.open) dialog.showModal();
 }
 
+function syncIrodoriVoiceField() {
+  field('gpIrodoriVoice').value = irodoriDraft[field('gpIrodoriCharacter').value] || '';
+}
+
+function resetIrodoriCheck() {
+  irodoriCheck?.abort();
+  irodoriCheck = null;
+  field('gpIrodoriCheckBtn').disabled = false;
+  setStatus('gpIrodoriCheckStatus');
+}
+
+async function checkIrodoriConnection() {
+  const port = field('gpIrodoriPort');
+  if (irodoriCheck || !port.reportValidity()) return;
+  const protocol = field('gpIrodoriProtocol').value;
+  const connection = {
+    ...(port.value ? { port: port.valueAsNumber } : {}),
+    ...(protocol ? { protocol } : {}),
+  };
+  const controller = new AbortController();
+  irodoriCheck = controller;
+  const button = field('gpIrodoriCheckBtn');
+  const status = 'gpIrodoriCheckStatus';
+  button.disabled = true;
+  setStatus(status, '正在检测 Irodori-TTS 连接……', 'busy');
+  try {
+    const response = await fetch('/api/irodori-tts/check', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(connection),
+      signal: AbortSignal.any([controller.signal, AbortSignal.timeout(8000)]),
+      redirect: 'error',
+    });
+    const result = await response.json().catch(() => null);
+    if (controller.signal.aborted) return;
+    if (!response.ok || !result?.protocol) {
+      setStatus(status, result?.error || '播放器的 Irodori-TTS 检测接口不可用，请确认播放器服务已更新。', 'error');
+      return;
+    }
+    const label = result.protocol === 'gradio' ? 'Gradio' : 'OpenAI 兼容 API';
+    setStatus(status, `接口连接正常（端口 ${result.port}，${label}）。`, 'ok');
+  } catch (error) {
+    if (!controller.signal.aborted) {
+      const message = error.name === 'TimeoutError' ? '检测连接超时，请重试。' : '无法连接播放器服务，请确认服务正在运行。';
+      setStatus(status, message, 'error');
+    }
+  } finally {
+    if (irodoriCheck === controller) {
+      irodoriCheck = null;
+      button.disabled = false;
+    }
+  }
+}
+
 function saveSettings() {
+  const port = field('gpIrodoriPort');
+  if (localPlayer && !port.reportValidity()) return;
   const next = mergeStoredChatSettings(readStoredFreeChatSettings(), {
     baseUrl: field('gpApiBase').value,
     model: field('gpApiModel').value,
     apiKey: field('gpApiKey').value,
   }, { allowEmpty: true });
   localStorage.setItem(SANDBOX_CHAT_SETTINGS_KEY, JSON.stringify(next));
+  const previousVoice = resolveFishTtsSettings();
+  const previousIrodori = localPlayer ? readIrodoriVoices() : {};
+  const previousConnection = localPlayer ? readIrodoriConnection() : {};
+  const localVoices = localPlayer ? saveIrodoriVoices(irodoriDraft) : {};
+  const connection = localPlayer ? saveIrodoriConnection({ port: port.value, protocol: field('gpIrodoriProtocol').value }) : {};
   const voice = applyFishTtsSettings({
     enabled: field('gpTtsEnabled').checked,
     proxyUrl: field('gpTtsProxy').value || '',
@@ -618,8 +777,13 @@ function saveSettings() {
     apiKey: field('gpTtsKey').value || '',
   }, {
     persist: true,
+    irodori: localPlayer ? createIrodoriSpeech(localVoices, undefined, connection) : null,
     onError: message => showToast(String(message || '角色语音播放失败')),
   });
+  const changed = Object.keys(previousVoice).some(key => previousVoice[key] !== voice[key])
+    || JSON.stringify(previousIrodori) !== JSON.stringify(localVoices)
+    || JSON.stringify(previousConnection) !== JSON.stringify(connection);
+  if (changed) app.refreshBeatVoices();
   field('gpTtsProxy').value = voice.proxyUrl || '';
   const picture = savePicture();
   const chatText = next.baseUrl && next.model ? 'AI 接口已记下。' : 'AI 接口未填写，扩写时再补也可以。';
@@ -723,6 +887,13 @@ field('gpGenerateBtn')?.addEventListener('click', () => { void generate(); });
 field('gpContinueBtn')?.addEventListener('click', () => { void generate({ continuation: true }); });
 field('gpOpenEditorBtn')?.addEventListener('click', openEditor);
 field('gpScriptEditorBtn')?.addEventListener('click', openEditor);
+field('gpSavedJobsBtn').hidden = !localPlayer;
+field('gpSavedJobsBtn').addEventListener('click', () => { void openSavedBeatJobs(); });
+field('gpSavedJobsForm').addEventListener('submit', event => { void loadSelectedBeatJob(event); });
+field('gpSavedJobsClose').addEventListener('click', () => field('gpSavedJobs').close());
+field('gpSavedJobs').addEventListener('close', event => {
+  if (!event.currentTarget.open) savedJobsController?.abort();
+});
 field('gpCopyBtn')?.addEventListener('click', () => { void copyScript(); });
 field('gpClearBtn')?.addEventListener('click', clearScript);
 field('gpPlayBtn')?.addEventListener('click', () => { void play(); });
@@ -741,6 +912,17 @@ field('gpAutoBtn')?.addEventListener('click', (event) => {
 field('gpSettingsBtn')?.addEventListener('click', openSettings);
 field('gpPlayerSettingsBtn')?.addEventListener('click', openSettings);
 field('gpSettingsSaveBtn')?.addEventListener('click', saveSettings);
+field('gpIrodoriSettings').hidden = !localPlayer;
+field('gpIrodoriCheckBtn').addEventListener('click', checkIrodoriConnection);
+field('gpIrodoriPort').addEventListener('input', resetIrodoriCheck);
+field('gpIrodoriProtocol').addEventListener('change', resetIrodoriCheck);
+field('gpSettings').addEventListener('close', event => {
+  if (!event.currentTarget.open) resetIrodoriCheck();
+});
+field('gpIrodoriCharacter').addEventListener('change', syncIrodoriVoiceField);
+field('gpIrodoriVoice').addEventListener('input', event => {
+  irodoriDraft[field('gpIrodoriCharacter').value] = event.currentTarget.value;
+});
 document.querySelectorAll('input[name="gpAa"]').forEach((input) => {
   input.addEventListener('change', () => {
     if (input.checked) savePicture(input.value);
@@ -791,6 +973,7 @@ window.addEventListener('pagehide', () => {
 const draft = readGpDraft();
 view.mode = draft.mode;
 field('gpInput').value = draft.input;
+view.scriptName = draft.scriptName || '';
 field('gpScript').value = draft.script;
 const loadedFromEditor = consumeEditorResult();
 syncInputCount();

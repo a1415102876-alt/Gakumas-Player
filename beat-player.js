@@ -1,8 +1,9 @@
+import { createExportedBeatVoiceCache } from './beat-local-jobs.js';
 import { createSceneDirector } from './live-portrait.js?v=20261115-lamp-taa-v3';
 import { resolveSharedStageMode } from './stage-mode.js?v=20261112-single-renderer-v1';
 import { performanceRecommendations } from './performance-monitor-core.js?v=20261030-perf-diagnostic-v2';
 import { sceneIdolId } from './scene-protocol.js?v=20261111-hkne-motions-v1';
-import { buildStageSlides, cameraWalkOffset, parseBeatScript, resolveActorPoses, resolveBeatCue } from './beat-protocol.js?v=20261113-hkne-onsen-v1';
+import { buildStageSlides, cameraWalkOffset, parseBeatScript, resolveActorPoses, resolveBeatCue } from './beat-protocol.js?v=producer-voice-v1';
 import { applyActorPose, applyCameraPose } from './scene-free-look.js?v=20261103-camera-lens-v1';
 import { BeatScenePool } from './beat-scene-pool.js?v=20261115-lamp-taa-v3';
 import { isBeatScene } from './beat-background-assets.js?v=20261108-chat-clock-v1';
@@ -14,8 +15,8 @@ import { loadResourceLibrary, ResourceSession } from './asset-runtime.js?v=20261
 import { buildDialogueAssetPlan } from './dialogue-asset-plan.js?v=20261112-custom-background-v2';
 import { createResourceLoading } from './resource-loading.js';
 import { ResourceBarrier } from './resource-barrier.js';
-import { buildChatPrompt, createChatBridge, normalizeChatReply } from './beat-chat.js?v=20261113-hkne-onsen-v1';
-import { estimateTypewriterDuration, isProducerSpeaker, typewriterDelayMs, TYPEWRITER_DEFAULTS } from './dialogue-reveal.js';
+import { buildChatPrompt, createChatBridge, normalizeChatReply } from './beat-chat.js?v=producer-voice-v1';
+import { estimateTypewriterDuration, isProducerSpeaker, typewriterDelayMs, TYPEWRITER_DEFAULTS } from './dialogue-reveal.js?v=producer-voice-v1';
 import { listCustomBackgrounds, loadCustomBackgroundImage } from './custom-background.js?v=20261112-custom-background-v3';
 
 // Resolve against this module. A document-relative ./backgrounds_2d path
@@ -335,11 +336,12 @@ export class BeatPlayerApp {
      * cast, costume or background plan. Re-running compile() for these edits
      * would stop the director and restart the whole multi-actor preload.
      */
-    refreshCompiledPreview() {
+    refreshCompiledPreview({ scriptName = '' } = {}) {
         const parsed = this.parseScript();
         const stage = buildStageSlides(parsed.beats, NAME_MAP);
         const previousIndex = this.state.current;
         this.compiled = { ...parsed, ...stage };
+        this.preloadExportedBeatVoices(scriptName);
         this.preloadPlan = this.buildPreloadPlan(parsed.beats);
         this.backgroundPlan = buildBackgroundPlan(parsed.beats).filter(name => !isCustomBackgroundName(name));
         this.renderDiagnostics();
@@ -353,7 +355,7 @@ export class BeatPlayerApp {
         return true;
     }
 
-    compile({ prepareCompiled, silent = false } = {}) {
+    compile({ prepareCompiled, silent = false, scriptName = '' } = {}) {
         const parsed = this.parseScript();
         const stage = buildStageSlides(parsed.beats, NAME_MAP);
         const preloadPlan = this.buildPreloadPlan(parsed.beats);
@@ -376,6 +378,7 @@ export class BeatPlayerApp {
         }
         this.resourceGeneration += 1;
         this.compiled = { ...parsed, ...stage };
+        this.preloadExportedBeatVoices(scriptName);
         prepareCompiled?.(this.compiled);
         this.preloadPlan = preloadPlan;
         this.backgroundPlan = backgroundPlan;
@@ -668,7 +671,17 @@ export class BeatPlayerApp {
         let prompt;
         try {
             const context = typeof this.chatContext === 'function' ? this.chatContext() : String(this.chatContext || '');
-            prompt = buildChatPrompt({ idolName: option.name, userText: text, background, context, present: idolHere, company, staging: Boolean(this.chatStaging), suggestActions: this.suggestActions === true });
+            prompt = buildChatPrompt({
+                idolName: option.name,
+                userText: text,
+                background,
+                context,
+                present: idolHere,
+                company,
+                staging: Boolean(this.chatStaging),
+                suggestActions: this.suggestActions === true,
+                irodoriCharacters: this.tts?.getIrodoriCharacters?.(),
+            });
         } catch (error) {
             this.setChatStatus(error.message || String(error), 'error');
             return false;
@@ -835,6 +848,7 @@ export class BeatPlayerApp {
             if (generation !== this.state.generation) return false;
             this.director.resume();
             this.preactivateUpcoming(index, generation);
+            this.prepareBeatVoices(index, { localOnly: true });
             const revealDuration = this.startDialogueReveal(beat, generation);
             const voicePlayback = this.playBeatVoice(beat, generation);
             if (wipe?.active()) wipe.finish();
@@ -846,19 +860,43 @@ export class BeatPlayerApp {
         }
     }
 
-    prepareBeatVoices() {
-        if (!this.tts?.prepare || !this.ttsSession) return;
-        this.compiled.beats.forEach((beat, index) => {
-            if (!beat?.ttsText) return;
+    preloadExportedBeatVoices(scriptName) {
+        this.exportedVoiceController?.abort();
+        this.exportedVoiceController = null;
+        this.exportedVoiceCache = null;
+        if (!scriptName || !this.compiled.beats.length) return;
+
+        const controller = new AbortController();
+        this.exportedVoiceController = controller;
+        this.exportedVoiceCache = createExportedBeatVoiceCache(scriptName, this.compiled.beats, { signal: controller.signal });
+        this.exportedVoiceCache.preload.catch(() => {});
+    }
+
+    prepareBeatVoices(start = 0, { localOnly = false } = {}) {
+        if (this.exportedVoiceCache || !this.tts?.prepare || !this.ttsSession) return;
+        const beats = this.compiled.beats;
+        const end = localOnly ? Math.min(beats.length, start + 2) : beats.length;
+        for (let index = start; index < end; index++) {
+            const beat = beats[index];
+            if (!beat?.ttsText) continue;
             const speakerName = NAME_MAP[beat.speaker] || beat.speaker;
+            const local = this.tts.usesIrodori?.(speakerName);
+            if (local ? index >= start + 2 : localOnly) continue;
             this.tts.prepare({
                 id: beat.id || `${index}`,
                 speaker: speakerName,
                 text: beat.ttsText,
+                irodoriCaption: beat.irodoriCaption,
                 session: this.ttsSession,
-                priority: index
+                priority: local ? index - start - 2 : index
             });
-        });
+        }
+    }
+
+    refreshBeatVoices() {
+        this.stopTtsLipSync();
+        this.ttsSession = this.tts?.beginSession?.() || '';
+        this.prepareBeatVoices(Math.max(0, this.state.current));
     }
 
     isTtsLipSyncEnabled() {
@@ -894,24 +932,38 @@ export class BeatPlayerApp {
 
     playBeatVoice(beat, generation) {
         const speakerName = NAME_MAP[beat?.speaker] || beat?.speaker || '';
-        if (!beat?.ttsText || typeof this.tts?.playPrepared !== 'function') {
-            this.stopTtsLipSync();
-            this.tts?.stopPlayback?.();
-            return Promise.resolve(false);
-        }
         this.stopTtsLipSync();
-        return this.tts.playPrepared({
-            id: beat.id || `${this.state.current}`,
+        this.tts?.stopPlayback?.();
+        if (!beat?.ttsText) return Promise.resolve(false);
+        const index = this.state.current;
+        const session = this.ttsSession;
+        const exportedCache = this.exportedVoiceCache;
+        const options = {
+            id: beat.id || `${index}`,
             speaker: speakerName,
             text: beat.ttsText,
-            session: this.ttsSession,
-            isCurrent: () => generation === this.state.generation,
-            onAudio: audio => this.startTtsLipSync(audio, speakerName, generation),
+            irodoriCaption: beat.irodoriCaption,
+            session,
+            isCurrent: () => generation === this.state.generation
+                && session === this.ttsSession
+                && exportedCache === this.exportedVoiceCache,
+            onAudio: audio => {
+                if (isProducerSpeaker(speakerName)) this.stopDialogueRevealAudio();
+                else this.startTtsLipSync(audio, speakerName, generation);
+            },
             onPlaybackEnd: () => {
                 if (generation === this.state.generation && this.ttsLipSyncSpeaker === speakerName) {
                     this.stopTtsLipSync();
                 }
             },
+        };
+        const playRuntime = () => this.tts?.playPrepared?.(options) || Promise.resolve(false);
+        if (!exportedCache || typeof this.tts?.playCached !== 'function') return playRuntime();
+
+        return exportedCache.read(index).catch(() => null).then(async clip => {
+            if (!options.isCurrent() || this.tts.getConfig?.()?.enabled === false) return false;
+            if (clip && await this.tts.playCached(clip, options)) return true;
+            return options.isCurrent() ? playRuntime() : false;
         });
     }
 
@@ -929,7 +981,8 @@ export class BeatPlayerApp {
             this.goTo(this.state.current + 1, { autoplay: true });
         };
         if (beat.wait !== 'none' && voicePlayback && typeof voicePlayback.then === 'function') {
-            const timer = window.setTimeout(advance, Math.max(hold, 20000));
+            const local = beat.ttsText && this.tts?.usesIrodori?.(NAME_MAP[beat.speaker] || beat.speaker);
+            const timer = window.setTimeout(advance, Math.max(hold, local ? 330000 : 20000));
             this.state.timer = timer;
             voicePlayback.then((played) => {
                 if (generation !== this.state.generation || this.state.timer !== timer) return;
@@ -1914,6 +1967,7 @@ export class BeatPlayerApp {
 
     dispose() {
         this.disposed = true;
+        this.preloadExportedBeatVoices('');
         this.customBackgroundGeneration = (this.customBackgroundGeneration || 0) + 1;
         this.stopPoseMove();
         this.stop();

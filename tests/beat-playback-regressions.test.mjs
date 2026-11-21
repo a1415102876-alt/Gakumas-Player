@@ -286,6 +286,6 @@ test('香名江日语台词通过解析、预加载和播放链，使用指定�
         assert.ok(request.body.pronunciation_dictionary[0].items.some(item => item.key === '冰渡香名江' && item.value === 'hi1wa0ta1ri0ka1na1e0'));
     }
     const other = parseBeatScript('<beat speaker="producer"><display>明白。</display><tts lang="ja">はい。</tts></beat>');
-    assert.equal(other.beats[0].ttsText, undefined);
+    assert.equal(other.beats[0].ttsText, 'はい。', 'producer lines retain text for the voice providers');
     tts.cancel();
 });

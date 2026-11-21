@@ -8,7 +8,7 @@
   <link rel="icon" href="./assets/star.png">
   <link rel="stylesheet" href="./beat-player.css?v=20261106-hide-2d-floor-v1">
   <link rel="stylesheet" href="./gakumas-gakuen.css?v=20261107-gakuen-v2">
-  <link rel="stylesheet" href="./gakumas-gakuen-player.css?v=20261114-timeline-v2">
+  <link rel="stylesheet" href="./gakumas-gakuen-player.css?v=producer-voice-v1">
   <link rel="stylesheet" href="./gakumas-opening.css?v=20261107-gakuen-v2">
   <link rel="stylesheet" href="./gakumas-player/notices.css?v=1">
   <script type="importmap">
@@ -171,10 +171,11 @@
 
           <section id="gpScriptPanel" class="gp-card gp-script-card" aria-labelledby="gpScriptTitle">
             <header class="gp-card-head">
-              <div><small>BEAT SCRIPT</small><h3 id="gpScriptTitle">Beat 脚本</h3></div>
+              <div><small>BEAT SCRIPT</small><h3 id="gpScriptTitle" dir="auto">Beat 脚本</h3></div>
               <span id="gpScriptCount" class="gp-tag">0 Beat</span>
             </header>
             <div class="gp-script-tools" role="toolbar" aria-label="脚本操作">
+              <button id="gpSavedJobsBtn" class="gp-tool" type="button" hidden><svg aria-hidden="true"><use href="#gpDoc"/></svg><span>打开已保存脚本</span></button>
               <button id="gpCopyBtn" class="gp-tool" type="button"><svg aria-hidden="true"><use href="#gpCopy"/></svg><span>复制</span></button>
               <button id="gpScriptEditorBtn" class="gp-tool" type="button"><svg aria-hidden="true"><use href="#gpPen"/></svg><span>在编辑器中修改</span></button>
               <button id="gpClearBtn" class="gp-tool" type="button"><svg aria-hidden="true"><use href="#gpTrash"/></svg><span>清空</span></button>
@@ -309,6 +310,20 @@
     </div>
   </dialog>
 
+  <dialog id="gpSavedJobs" class="gp-settings" aria-labelledby="gpSavedJobsTitle">
+    <form id="gpSavedJobsForm" class="gp-settings-form">
+      <header class="gp-card-head">
+        <h3 id="gpSavedJobsTitle">已保存的脚本</h3>
+        <button id="gpSavedJobsClose" class="gp-icon-button" type="button" aria-label="关闭脚本列表"><svg aria-hidden="true"><use href="#gpClose"/></svg></button>
+      </header>
+      <label for="gpSavedJob">脚本<select id="gpSavedJob" required disabled></select></label>
+      <p id="gpSavedJobsStatus" class="gp-status" role="status"></p>
+      <div class="gp-settings-actions">
+        <button id="gpLoadJobBtn" class="gp-capsule gp-capsule-main" type="submit" disabled>载入脚本</button>
+      </div>
+    </form>
+  </dialog>
+
   <dialog id="gpSettings" class="gp-settings" aria-labelledby="gpSettingsTitle">
     <form method="dialog" class="gp-settings-form">
       <header class="gp-card-head"><div><small>SETTINGS</small><h3 id="gpSettingsTitle">设置</h3></div><button class="gp-icon-button" value="cancel" type="submit" aria-label="关闭设置"><svg><use href="#gpClose"/></svg></button></header>
@@ -325,6 +340,20 @@
         <label>语音代理 URL<input id="gpTtsProxy" type="url" placeholder="https://example.com/api/fish-tts" autocomplete="off" spellcheck="false"></label>
         <label>语音模型<input id="gpTtsModel" type="text" placeholder="s2.1-pro-free" autocomplete="off" spellcheck="false"></label>
         <label>Fish API Key<input id="gpTtsKey" type="password" placeholder="只保存在本机" autocomplete="off"></label>
+      </fieldset>
+      <fieldset id="gpIrodoriSettings" hidden>
+        <legend>本地 Irodori-TTS</legend>
+        <label>本机端口<input id="gpIrodoriPort" type="number" min="1" max="65535" placeholder="服务端默认端口" autocomplete="off"></label>
+        <label>接口类型<select id="gpIrodoriProtocol" aria-describedby="gpIrodoriConnectionNote"><option value="">按端口选择</option><option value="gradio">Gradio</option><option value="openai">OpenAI 兼容 API</option></select></label>
+        <p id="gpIrodoriConnectionNote" class="gp-settings-note">端口和接口类型需与运行中的服务一致。按端口选择时，7860 和 7861 使用 Gradio，其余端口使用 OpenAI 兼容 API。</p>
+        <div class="gp-settings-actions">
+          <button id="gpIrodoriCheckBtn" class="gp-tool" type="button">检测连接</button>
+        </div>
+        <p id="gpIrodoriCheckStatus" class="gp-status" role="status"></p>
+        <label>角色<select id="gpIrodoriCharacter"></select></label>
+        <label>Irodori Voice ID<input id="gpIrodoriVoice" type="text" maxlength="256" aria-describedby="gpIrodoriNote gpIrodoriVoiceUsage" autocomplete="off" spellcheck="false"></label>
+        <p id="gpIrodoriNote" class="gp-settings-note">在 Irodori-TTS 根目录下，将说话人嵌入文件保存为 <code>voices/&lt;音源ID&gt;.speaker.safetensors</code>。使用播放器配套的 OpenAI 兼容服务时，也可将参考录音保存为 <code>voices/&lt;音源ID&gt;.wav</code>。自定义音源 ID 可使用英文字母、数字、下划线和连字符。</p>
+        <p id="gpIrodoriVoiceUsage" class="gp-settings-note">启用角色语音并选择角色，填写文件名中的音源 ID（例如 <code>my_voice</code>），然后保存设置。使用其他 OpenAI 兼容服务时，填写该服务注册的音源 ID。留空或 Irodori 合成失败时，可使用已配置的 Fish Audio。</p>
       </fieldset>
       <fieldset>
         <legend>画面</legend>
@@ -378,9 +407,9 @@
   <textarea id="beatScript" hidden></textarea>
   <input id="beatAutoPlay" type="checkbox" checked hidden>
   <span id="beatShot" hidden></span><span id="beatStatus" hidden></span><ul id="beatDiagnostics" hidden></ul>
-  <script src="./fish-tts.js?v=20261111-hkne-voice-v1"></script>
+  <script src="./fish-tts.js?v=producer-voice-v1"></script>
   <script type="module" src="./gakumas-player/notices.js?v=1"></script>
   <script type="module" src="./gakumas-player/gakumas-gakuen.js?v=20261107-gakuen-v1"></script>
-  <script type="module" src="./gakumas-player/gakumas-player.js?v=20261115-lamp-taa-v3"></script>
+  <script type="module" src="./gakumas-player/gakumas-player.js?v=producer-voice-v1"></script>
 </body>
 </html>

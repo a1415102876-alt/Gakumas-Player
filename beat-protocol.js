@@ -1,4 +1,6 @@
 import { resolveNpcPortrait } from './beat-npc-portraits.js?v=20261110-hkne-3d-v1';
+import { isProducerSpeaker } from './dialogue-reveal.js?v=producer-voice-v1';
+import { normalizeIrodoriCaption } from './irodori-tts.js?v=producer-voice-v1';
 import { sceneIdolId, SCENE_IDOLS, STAR_EYE_IDOLS } from './scene-protocol.js?v=20261111-hkne-motions-v1';
 import { BEAT_CUE_IDS, BEAT_BODY_CUE_SPECS, BEAT_EFFECT_ALIASES, BEAT_EFFECT_IDS, BEAT_FACE_ALIASES, BEAT_FACE_IDS, BEAT_OVERLAY_CUE_IDS, isBeatMotionFile, resolveBeatCueAlias } from './beat-cues.js?v=20261103-paired-face-v1';
 import { normalizeFaceCue, normalizeGestureCue } from './dialogue-intent.js?v=20261026-cue-words-v1';
@@ -95,6 +97,12 @@ function parseAttributes(source) {
     return attributes;
 }
 
+function decodeAttribute(value) {
+    return String(value || '')
+        .replace(/&quot;/gi, '"').replace(/&apos;/gi, "'")
+        .replace(/&lt;/gi, '<').replace(/&gt;/gi, '>').replace(/&amp;/gi, '&');
+}
+
 function normalizeText(text) {
     return String(text || '')
         .replace(/\r\n?/g, '\n')
@@ -111,7 +119,7 @@ function stripLocalizedMarkup(value) {
         .replace(/<\/?tts\b[^>]*>/gi, '');
 }
 
-function parseLocalizedBeatText(rawText, speaker) {
+function parseLocalizedBeatText(rawText) {
     const source = String(rawText || '')
         .replace(/&lt;/gi, '<')
         .replace(/&gt;/gi, '>')
@@ -122,8 +130,7 @@ function parseLocalizedBeatText(rawText, speaker) {
     const ttsMatch = source.match(/<tts\b[^>]*\blang=["']ja["'][^>]*>([\s\S]*?)<\/tts>/i)
         || source.match(/<tts\b[^>]*>([\s\S]*?)<\/tts>/i);
     const display = normalizeText(stripLocalizedMarkup(displayMatch ? displayMatch[1] : source));
-    const voiced = isFishVoicedSpeaker(speaker);
-    const ttsText = voiced && ttsMatch
+    const ttsText = ttsMatch
         ? String(ttsMatch[1] || '')
             .replace(/<[^>]*>/g, '')
             .replace(/\[([^\]]*)\]/g, (match, value) => {
@@ -204,6 +211,7 @@ export function parseBeatScript(source, options = {}) {
     // background inheritance is preserved; the player recompiles after the
     // repository is ready and performs the strict existence check then.
     const customBackgroundsReady = options.customBackgroundsReady !== false;
+    const sourceIndexes = options.includeSourceIndexes === true ? [] : null;
     const beats = [];
     const errors = [];
     const choiceEvent = parseChoiceEvent(input, errors);
@@ -244,15 +252,16 @@ export function parseBeatScript(source, options = {}) {
 
         const attributes = parseAttributes(opening[1]);
         const rawText = storySource.slice(contentStart, closeIndex);
-        const localized = parseLocalizedBeatText(rawText, attributes.speaker || 'narrator');
+        const localized = parseLocalizedBeatText(rawText);
         const text = localized.text;
         const beatNumber = beats.length + 1;
         const beatId = attributes.id || `b${String(beatNumber).padStart(2, '0')}`;
         const speaker = attributes.speaker || 'narrator';
+        const producer = isProducerSpeaker(speaker);
         const portrait = resolveNpcPortrait(speaker, attributes.face);
 
         if (!attributes.speaker) addError(errors, 'missing-speaker', 'Beat 缺少 speaker，按旁白处理。', openIndex, beatId);
-        if (actors && !portrait && !BUILTIN_OTHER_SPEAKERS.has(speaker) && !actors.has(speaker) && options.allowOtherSpeakers !== true) {
+        if (actors && !portrait && !producer && !BUILTIN_OTHER_SPEAKERS.has(speaker) && !actors.has(speaker) && options.allowOtherSpeakers !== true) {
             addError(errors, 'unknown-speaker', `未知角色：${speaker}。`, openIndex, beatId);
         }
         if (!text) {
@@ -386,7 +395,11 @@ export function parseBeatScript(source, options = {}) {
 
         const beat = { id: beatId, speaker, cue, look, shot, text, wait, backgroundExplicit: Boolean(attributes.background) };
         if (transition) beat.transition = transition;
-        if (localized.ttsText && isFishVoicedSpeaker(speaker)) beat.ttsText = localized.ttsText;
+        if (localized.ttsText && (producer || portrait || actorId || isFishVoicedSpeaker(speaker))) {
+            beat.ttsText = localized.ttsText;
+            const caption = normalizeIrodoriCaption(decodeAttribute(attributes['irodori-caption']));
+            if (caption) beat.irodoriCaption = caption;
+        }
         if (face) beat.face = face;
         if (portrait) beat.portrait = portrait;
         if (validOverlays.length) beat.overlay = validOverlays;
@@ -442,6 +455,7 @@ export function parseBeatScript(source, options = {}) {
             else if (flag == null) addError(errors, `invalid-${attribute}`, `${attribute} 只能写 1（本段隐藏${label}），已忽略。`, openIndex, beatId);
         }
         beats.push(beat);
+        sourceIndexes?.push(openIndex);
         previousLook = look;
         previousShot = shot;
         searchIndex = closeIndex + '</beat>'.length;
@@ -451,7 +465,7 @@ export function parseBeatScript(source, options = {}) {
         addError(errors, 'no-beats', '没有找到可播放的 beat。', 0);
     }
 
-    return { beats, choices: choiceEvent.choices, errors };
+    return { beats, choices: choiceEvent.choices, errors, ...(sourceIndexes && { sourceIndexes }) };
 }
 
 export const BEAT_DEFAULTS = Object.freeze({
@@ -701,6 +715,7 @@ export function buildStageSlides(beats, nameMap = {}) {
         beatIndexes.push(slides.length);
         const dialogueSlide = { type: 'dialogue', speaker: speakerName, text: beat.text || '' };
         if (beat.ttsText) dialogueSlide.ttsText = beat.ttsText;
+        if (beat.irodoriCaption) dialogueSlide.irodoriCaption = beat.irodoriCaption;
         slides.push(dialogueSlide);
     }
     return { slides, beatIndexes };

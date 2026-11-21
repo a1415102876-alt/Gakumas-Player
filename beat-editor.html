@@ -35,6 +35,15 @@
       </div>
     </header>
 
+    <div class="editor-job-bar">
+      <label class="editor-job-name" for="beatEditorJobName">脚本名称
+        <input id="beatEditorJobName" type="text" placeholder="输入脚本名称" autocomplete="off" spellcheck="false">
+      </label>
+      <button id="beatEditorSaveJob" class="button primary" type="button">保存脚本</button>
+      <button id="beatEditorExportVoices" class="button secondary" type="button">导出全部语音</button>
+      <p id="beatEditorJobStatus" class="editor-job-status" role="status"></p>
+    </div>
+
     <section class="beat-editor-layout">
       <aside class="beat-editor-list-panel" aria-label="Beat 序列">
         <div class="editor-section-heading"><div><span class="panel-kicker">SEQUENCE</span><h2>Beat 序列</h2></div><span id="beatEditorDirty" class="editor-state-pill">未修改</span></div>
@@ -51,6 +60,11 @@
           <div class="editor-inline-actions">
             <button id="beatEditorImportBtn" class="button secondary" type="button">导入并解析</button>
             <label class="file-button button secondary" for="beatEditorFile">打开文件<input id="beatEditorFile" type="file" accept=".txt,.xml,.html,.md,text/plain,text/html"></label>
+          </div>
+          <label class="editor-saved-job" for="beatEditorSavedJob">已保存的脚本</label>
+          <div class="editor-saved-job-row">
+            <select id="beatEditorSavedJob" disabled><option value="">选择脚本</option></select>
+            <button id="beatEditorOpenJob" class="icon-button" type="button" disabled>打开</button>
           </div>
         </div>
       </aside>
@@ -111,19 +125,45 @@
             <div class="editor-choice-field"><span id="beatEditorEffectsLabel">特效</span><div id="beatEditorEffects" class="editor-choice-buttons" data-field="effects" data-selection="multiple" role="group" aria-labelledby="beatEditorEffectsLabel" aria-describedby="beatEditorEffectsHint"></div></div>
             <p id="beatEditorEffectsHint" class="field-hint editor-free-hint">点击选择，再次点击取消。叠加动作每次选一种，特效可以多选。</p>
             <label>播放等待<select id="beatEditorWait" data-field="wait"></select></label><label>进入转场<select id="beatEditorTransition" data-field="transition"><option value="">默认</option><option value="clock">时钟圆形</option><option value="none">不加转场（直接切换）</option></select></label><p class="editor-free-hint">从上一段进入这一段时生效。默认：换背景时播放色条，不换背景则直接切换。时钟圆形：用时钟圆形代替色条。不加转场：即使换了背景也直接切到这一段。</p><label class="choice-row editor-free-look"><input id="beatEditorHideDialogue" type="checkbox"><span>本段隐藏对话框</span></label><label class="choice-row editor-free-look"><input id="beatEditorHideActors" type="checkbox"><span>本段不显示角色</span></label><p class="field-hint editor-free-hint">只对这一段生效，下一段自动恢复。隐藏对话框时台词和语音照常播放，点舞台进入下一段。不显示角色时只留背景，角色的动作和语音照常进行。</p></fieldset>
-          <fieldset><legend>文本</legend><label>中文台词<textarea id="beatEditorTextField" data-field="text" rows="5"></textarea></label><label>日文 TTS<textarea id="beatEditorTts" data-field="ttsText" rows="4"></textarea></label></fieldset>
+          <fieldset>
+            <legend>文本</legend>
+            <label>中文台词<textarea id="beatEditorTextField" data-field="text" rows="5"></textarea></label>
+            <label>日文 TTS<textarea id="beatEditorTts" data-field="ttsText" rows="4"></textarea></label>
+            <label>Irodori 日语语气描述<input id="beatEditorIrodoriCaption" data-field="irodoriCaption" type="text" maxlength="160"></label>
+            <button id="beatEditorExportVoice" class="button secondary editor-export-voice" type="button" disabled>导出本句语音</button>
+            <p id="beatEditorVoiceStatus" class="editor-job-status editor-free-hint" role="status"></p>
+            <div id="beatEditorSavedVoicePreview" class="editor-saved-voice" hidden>
+              <p id="beatEditorSavedVoiceLabel" class="editor-job-status" role="status"></p>
+              <audio id="beatEditorSavedVoice" aria-label="试听本句已导出的语音" controls preload="metadata" hidden></audio>
+            </div>
+          </fieldset>
         </form>
         <p id="beatEditorValidation" class="editor-validation" role="status"></p>
       </aside>
     </section>
   </main>
+  <dialog id="beatEditorVoiceComparison" class="editor-voice-comparison" aria-labelledby="beatEditorComparisonTitle" aria-describedby="beatEditorComparisonLine">
+    <form method="dialog">
+      <h2 id="beatEditorComparisonTitle">选择保留的语音</h2>
+      <p id="beatEditorComparisonLine"></p>
+      <div class="editor-voice-samples">
+        <div><span>原有语音</span><audio id="beatEditorOldVoice" aria-label="试听原有语音" controls preload="metadata"></audio></div>
+        <div><span>新生成语音</span><audio id="beatEditorNewVoice" aria-label="试听新生成语音" controls preload="metadata"></audio></div>
+      </div>
+      <div class="editor-inline-actions">
+        <button class="button secondary" value="cancel" autofocus>取消</button>
+        <button class="button secondary" value="keep">保留原语音</button>
+        <button class="button primary" value="replace">保存新语音</button>
+      </div>
+    </form>
+  </dialog>
   <textarea id="beatScript" hidden aria-hidden="true"></textarea>
   <div class="editor-player-contract" aria-hidden="true">
     <span id="beatProgress"></span><span id="beatSpeaker"></span><span id="beatText"></span><span id="beatShot"></span><span id="beatStatus"></span>
     <button id="playBeatBtn" type="button"></button><button id="previousBeatBtn" type="button"></button><button id="nextBeatBtn" type="button"></button><button id="stopBeatBtn" type="button"></button><input id="beatAutoPlay" type="checkbox">
     <img id="beatSpeakerPortrait" alt=""><div id="beatDialogueCard"></div><div id="beatChoices"></div><div id="beatChoiceList"></div><div id="beatDiagnostics"></div>
   </div>
-  <script src="./fish-tts.js?v=20261111-hkne-voice-v1"></script>
-  <script type="module" src="./beat-editor.js?v=20261115-lamp-taa-v3"></script>
+  <script src="./fish-tts.js?v=producer-voice-v1"></script>
+  <script type="module" src="./beat-editor.js?v=producer-voice-v1"></script>
 </body>
 </html>

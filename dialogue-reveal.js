@@ -9,7 +9,7 @@ export const TYPEWRITER_DEFAULTS = Object.freeze({
 
 export function isProducerSpeaker(speaker) {
     const token = String(speaker || '').trim().toLowerCase();
-    return ['producer', '制作人', '{user}', 'user'].includes(token);
+    return ['producer', '制作人', '製作人', 'プロデューサー', '{user}', 'user'].includes(token);
 }
 
 export function typewriterDelayMs(character, options = {}) {

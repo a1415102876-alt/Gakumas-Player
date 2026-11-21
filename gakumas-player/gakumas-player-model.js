@@ -52,10 +52,12 @@ export function gpModeUsesAi(mode) {
 
 export function normalizeGpDraft(raw) {
   const source = raw && typeof raw === 'object' ? raw : {};
+  const scriptName = typeof source.scriptName === 'string' ? source.scriptName.trim() : '';
   return {
     mode: normalizeGpMode(source.mode),
     input: String(source.input || '').slice(0, GP_MAX_INPUT),
     script: String(source.script || '').slice(0, GP_MAX_INPUT * 2),
+    ...(scriptName && { scriptName }),
   };
 }
 

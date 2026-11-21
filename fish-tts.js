@@ -16,9 +16,9 @@
   const MAO_REFERENCE_ID = "4199b1062c28461ca822d130138e99d1";
   const RINHA_REFERENCE_ID = "7eee5c0eca834d529902e9bfcd810d7f";
   const ASARI_REFERENCE_ID = "d58dc7b87a554a72a03c6cfd64b53816";
+  const PRODUCER_REFERENCE_ID = "297a6fd278df47c3b9da9bfdf55ac89a"; // Fish Audio's Satoru (Japanese male).
   const KANAE_REFERENCE_ID = "df77ae3e7b3b45798c0641f6a2fe928f";
   const DEFAULT_WORKER_ORIGIN = "https://tts.sawadaz.xyz";
-  const LEGACY_PROXY_URL = "https://hatsuboshitest.a1415102876.workers.dev/api/fish-tts";
   const DEFAULT_MODEL = "s2.1-pro-free";
   const PRONUNCIATION_VERSION = "20261112-hkne-hiwatari-kanae-v1";
   // User-supplied kana readings; generated offline with tools/generate-fish-pronunciation.py.
@@ -174,6 +174,12 @@
     ["亚纱里", ASARI_REFERENCE_ID],
     ["亚纱里老师", ASARI_REFERENCE_ID],
     ["亜紗里", ASARI_REFERENCE_ID],
+    ["producer", PRODUCER_REFERENCE_ID],
+    ["制作人", PRODUCER_REFERENCE_ID],
+    ["製作人", PRODUCER_REFERENCE_ID],
+    ["プロデューサー", PRODUCER_REFERENCE_ID],
+    ["{user}", PRODUCER_REFERENCE_ID],
+    ["user", PRODUCER_REFERENCE_ID],
     ["hkne", KANAE_REFERENCE_ID],
     ["kanae", KANAE_REFERENCE_ID],
     ["hiwatari kanae", KANAE_REFERENCE_ID],
@@ -191,6 +197,7 @@
     referenceId: DEFAULT_REFERENCE_ID,
     model: DEFAULT_MODEL,
     apiKey: "",
+    irodori: null,
     session: 0,
     queue: [],
     running: false,
@@ -211,6 +218,9 @@
     try {
       const pageUrl = new URL(global.location?.href || "", global.location?.origin || undefined);
       const hostname = String(pageUrl.hostname || "").toLowerCase();
+      if (pageUrl.protocol === "http:" && ["127.0.0.1", "localhost"].includes(hostname)) {
+        return new URL("/api/fish-tts", pageUrl.origin).href;
+      }
       if (/\.workers\.dev$/i.test(hostname) || /hatsuboshi\.vercel\.app$/i.test(hostname)) {
         return new URL("/api/fish-tts", pageUrl.origin).href;
       }
@@ -226,7 +236,7 @@
 
   function normalizeProxyUrl(value) {
     const candidate = String(value || "").replace(/\s+/g, "");
-    if (!candidate || /^\/api\/fish-tts\/?$/i.test(candidate) || candidate.replace(/\/+$/, "") === LEGACY_PROXY_URL) return `${DEFAULT_WORKER_ORIGIN}/api/fish-tts`;
+    if (!candidate || /^\/api\/fish-tts\/?$/i.test(candidate)) return getDefaultProxyUrl();
     return candidate;
   }
 
@@ -376,6 +386,7 @@
     if (Object.hasOwn(options, "referenceId")) state.referenceId = String(options.referenceId || DEFAULT_REFERENCE_ID).trim() || DEFAULT_REFERENCE_ID;
     if (Object.hasOwn(options, "model")) state.model = String(options.model || DEFAULT_MODEL).trim() || DEFAULT_MODEL;
     if (Object.hasOwn(options, "apiKey")) state.apiKey = String(options.apiKey || "").trim();
+    if (Object.hasOwn(options, "irodori")) state.irodori = options.irodori;
     if (Object.hasOwn(options, "onError")) state.onError = typeof options.onError === "function" ? options.onError : null;
     if (Object.hasOwn(options, "onStatus")) state.onStatus = typeof options.onStatus === "function" ? options.onStatus : null;
     if (!state.enabled) cancel("disabled");
@@ -400,14 +411,24 @@
     return state.session;
   }
 
-  async function fetchAudio(item, controller) {
-    if (!state.apiKey) {
+  async function fetchAudio(item, controller, settings = state) {
+    if (!item.localRequest && !settings.apiKey) {
       throw new Error("Fish Audio API Key 未配置");
     }
     const active = controller || new AbortController();
     const ownedController = !controller;
     if (ownedController) state.fetchControllers.add(active);
     try {
+      if (item.localRequest) {
+        try {
+          const audio = await item.localRequest.synthesize(active.signal);
+          if (!audio.size) throw new Error("Irodori-TTS 返回了空音频");
+          return audio;
+        } catch (error) {
+          if (active.signal.aborted || !settings.apiKey || !item.referenceId) throw error;
+          if (settings === state) emitStatus("fish_fallback", item);
+        }
+      }
       const headers = {
         "Content-Type": "application/json",
         Accept: "audio/mpeg, audio/wav, application/octet-stream, application/json"
@@ -415,21 +436,21 @@
       // Keep the key in memory only and send it over HTTPS to the configured
       // proxy. The bundled Worker can use this header, so no deployment secret
       // is required while the system-console field is being used.
-      if (state.apiKey) {
-        headers.Authorization = `Bearer ${state.apiKey}`;
+      if (settings.apiKey) {
+        headers.Authorization = `Bearer ${settings.apiKey}`;
       }
       const payload = {
         text: item.text,
-        reference_id: item.referenceId || state.referenceId,
+        reference_id: item.referenceId || settings.referenceId,
         format: "mp3",
-        model: state.model
+        model: settings.model
       };
       const items = PRONUNCIATION_RULES
         .filter((rule) => item.text.toLocaleLowerCase().includes(rule.key.toLocaleLowerCase()))
         .sort((left, right) => right.key.length - left.key.length)
         .map(({ key, value }) => ({ key, value, case_sensitive: false }));
       if (items.length) payload.pronunciation_dictionary = [{ items }];
-      const response = await global.fetch(state.proxyUrl, {
+      const response = await global.fetch(settings.proxyUrl, {
         method: "POST",
         headers,
         signal: active.signal,
@@ -463,6 +484,17 @@
     }
   }
 
+  async function synthesize(options, { signal, settings } = {}) {
+    const config = settings || state;
+    const item = speechLine(options, config.irodori);
+    if (!item.text) throw new Error("这句没有可导出的日文 TTS 台词。");
+    if (!item.localRequest && !item.referenceId) throw new Error("未为该角色配置语音。");
+    const controller = signal ? { signal } : new AbortController();
+    const blob = await fetchAudio(item, controller, config);
+    if (!blob.size) throw new Error("语音服务返回了空音频。");
+    return blob;
+  }
+
   function playBlob(blob, item, hooks = {}) {
     const url = global.URL.createObjectURL(blob);
     state.objectUrls.add(url);
@@ -484,7 +516,7 @@
       };
       audio._fishStop = () => finish(new Error("stopped"));
       audio.onended = () => finish();
-      audio.onerror = () => finish(new Error("Fish Audio 音频播放失败"));
+      audio.onerror = () => finish(new Error("角色语音播放失败"));
       try { hooks.onAudio?.(audio, { item, url }); } catch (callbackError) { /* best effort */ }
       audio.play().catch(finish);
     }).finally(() => {
@@ -537,7 +569,7 @@
       entry.controller = controller;
       state.fetchControllers.add(controller);
       fetchAudio(entry, controller).then((blob) => {
-        if (entry.session !== String(state.session)) {
+        if (controller.signal.aborted || entry.session !== String(state.session)) {
           entry.resolve(null);
           return null;
         }
@@ -545,14 +577,15 @@
         entry.resolve({ id: entry.id, text: entry.text, blob });
         return blob;
       }).catch((error) => {
-        const aborted = error?.name === "AbortError" || String(error?.message || "").toLowerCase().includes("aborted");
+        const aborted = controller.signal.aborted || error?.name === "AbortError" || String(error?.message || "").toLowerCase().includes("aborted");
+        if (state.prepared.get(entry.key) === entry) state.prepared.delete(entry.key);
         if (!aborted && entry.session === String(state.session)) emitError(error, entry);
         entry.resolve(null);
         return null;
       }).finally(() => {
         state.fetchControllers.delete(controller);
         state.prepareActive = Math.max(0, state.prepareActive - 1);
-        if (entry.session === String(state.session)) pumpPrepare();
+        pumpPrepare();
       });
     }
   }
@@ -565,25 +598,45 @@
     }
   }
 
-  function prepare(options = {}) {
+  function speechLine(options, irodori) {
     const speaker = String(options.speaker || "");
     const text = sanitizeFishTags(options.text || options.ttsText || "");
-    const referenceId = referenceIdForSpeaker(speaker);
+    const localRequest = text ? irodori?.createRequest({ speaker, text, irodoriCaption: options.irodoriCaption }) : null;
+    return { speaker, text, referenceId: referenceIdForSpeaker(speaker), localRequest };
+  }
+
+  function preparedLine(options) {
+    if (!state.enabled) return null;
     const session = String(options.session || state.session);
-    if (!state.enabled || !state.apiKey || !referenceId || !text) return Promise.resolve(null);
-    if (session !== String(state.session)) return Promise.resolve(null);
-    const key = lineKey(session, options.id, text, referenceId);
+    if (session !== String(state.session)) return null;
+    const item = speechLine(options, state.irodori);
+    const { text, localRequest, referenceId } = item;
+    if (!text) return null;
+    if (!localRequest && (!state.apiKey || !referenceId)) return null;
+    const key = localRequest
+      ? lineKey(session, options.id, localRequest.key, "irodori")
+      : lineKey(session, options.id, text, referenceId);
+    return { ...item, key, session };
+  }
+
+  function usesIrodori(speaker) {
+    return Boolean(state.enabled && state.irodori?.voiceForSpeaker(speaker));
+  }
+
+  function getIrodoriCharacters() {
+    return state.enabled ? state.irodori?.characters || [] : [];
+  }
+
+  function prepare(options = {}, line = preparedLine(options)) {
+    if (!line) return Promise.resolve(null);
+    const { key } = line;
     const existing = state.prepared.get(key);
     if (existing) return existing.promise;
     let resolvePromise = null;
     const promise = new Promise((resolve) => { resolvePromise = resolve; });
     const entry = {
-      key,
+      ...line,
       id: String(options.id || ""),
-      speaker,
-      text,
-      referenceId,
-      session,
       priority: Number(options.priority ?? 0),
       promise,
       resolve: resolvePromise,
@@ -597,10 +650,11 @@
   }
 
   async function playPrepared(options = {}) {
-    const session = String(options.session || state.session);
-    const text = sanitizeFishTags(options.text || options.ttsText || "");
-    prioritizePrepared(lineKey(session, options.id, text, referenceIdForSpeaker(options.speaker)));
-    const prepared = await prepare(options);
+    const line = preparedLine(options);
+    if (!line) return false;
+    const { key, session } = line;
+    prioritizePrepared(key);
+    const prepared = await prepare(options, line);
     if (!prepared?.blob) return false;
     if (session !== String(state.session)) return false;
     if (typeof options.isCurrent === "function" && !options.isCurrent()) return false;
@@ -620,16 +674,24 @@
     }
   }
 
+  async function playCached(blob, options = {}) {
+    if (!blob?.size || options.isCurrent?.() === false) return false;
+    stopPlayback();
+    try {
+      return await playBlob(blob, options, options);
+    } catch {
+      return false;
+    }
+  }
+
   function enqueue(options = {}) {
-    const speaker = String(options.speaker || "");
-    const text = sanitizeFishTags(options.text || options.ttsText || "");
-    const referenceId = referenceIdForSpeaker(speaker);
-    if (!state.enabled || !referenceId || !text) return Promise.resolve(false);
-    const key = lineKey(state.session, options.id, text, referenceId);
+    const line = preparedLine(options);
+    if (!line) return Promise.resolve(false);
+    const { key } = line;
     if (state.seen.has(key)) return Promise.resolve(false);
     state.seen.add(key);
     return new Promise((resolve) => {
-      state.queue.push({ ...options, speaker, text, referenceId, session: state.session, resolve });
+      state.queue.push({ ...options, ...line, session: state.session, resolve });
       pump();
     });
   }
@@ -668,8 +730,12 @@
     getDefaultProxyUrl,
     getConfig,
     beginSession,
+    usesIrodori,
+    getIrodoriCharacters,
+    synthesize,
     prepare,
     playPrepared,
+    playCached,
     stopPlayback,
     enqueue,
     cancel,
