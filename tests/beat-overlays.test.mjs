@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { runInNewContext } from 'node:vm';
 import * as THREE from '../vendor/three/build/three.module.js';
+import { BEAT_KEEP_CUE } from '../beat-cues.js';
 import { parseBeatScript, buildStageSlides, resolveBeatCue } from '../beat-protocol.js';
 import { BEAT_SPEAKER_NAMES, beatActorId } from '../beat-player-core.js';
 import { parseBeatEditorSource, serializeBeatEditorScript } from '../beat-editor-model.js';
@@ -31,7 +32,7 @@ const OverlayRuntime = runInNewContext(`(class {
 })`, { THREE });
 const PreloadPlanner = runInNewContext(`(class {
     ${method(read('../beat-player.js'), 'buildPreloadPlan', 'async prepareResources')}
-})`, { NAME_MAP: BEAT_SPEAKER_NAMES, beatActorId, resolveBeatCue });
+})`, { BEAT_KEEP_CUE, NAME_MAP: BEAT_SPEAKER_NAMES, beatActorId, resolveBeatCue });
 
 test('成套、独立和指定 VMD 动作均保留头部叠加', () => {
     for (const cue of ['greet', 'think', 'idle', 'talk', motionFile]) {

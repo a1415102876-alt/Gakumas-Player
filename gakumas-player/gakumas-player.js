@@ -1,6 +1,6 @@
 import { listBeatJobs, loadBeatJob } from '../beat-local-jobs.js';
-import { BeatPlayerApp } from '../beat-player.js?v=20261115-lamp-taa-v3';
-import { setLivePictureOptions } from '../live-portrait.js?v=20261115-lamp-taa-v3';
+import { BeatPlayerApp } from '../beat-player.js?v=beat-action-keep-v1';
+import { setLivePictureOptions } from '../live-portrait.js?v=beat-action-keep-v1';
 import { createLocalChatBridge, normalizeChatReply, playerChatScene } from '../beat-chat.js?v=20261113-hkne-onsen-v1';
 import { createChatMemoryPanel } from './chat-memory-panel.js?v=20261107-chat-memory-v1';
 import { mountResourceMonitor } from '../resource-monitor.js?v=20261108-resource-monitor-v1';
@@ -9,7 +9,7 @@ import { applyFishTtsSettings, fishTtsStatus, resolveFishTtsSettings } from '../
 import { SANDBOX_CHAT_SETTINGS_KEY, buildSandboxChatSettings, mergeStoredChatSettings, readStoredFreeChatSettings } from '../sandbox/sandbox-chat.js?v=20261106-player-chat-v1';
 import { aaLevel } from '../gakumas-aa.js?v=20261105-aa-level-v1';
 import { SANDBOX_PICTURE_KEY, normalizeSandboxPicture } from '../sandbox/sandbox-picture.js?v=20261105-floor-ssr-v1';
-import { buildWeirdContinuationPrompt, buildWeirdScriptPrompt, extractClosedBeatScript, prepareDirectBeatScript, prepareGeneratedJapaneseScript, WEIRD_SCRIPT_MODE } from '../sandbox/sandbox-weird-script.js?v=full-script-import-v1';
+import { buildWeirdContinuationPrompt, buildWeirdScriptPrompt, compactGeneratedBeatStaging, extractClosedBeatScript, prepareDirectBeatScript, prepareGeneratedJapaneseScript, WEIRD_SCRIPT_MODE } from '../sandbox/sandbox-weird-script.js?v=pr-merge-20261122';
 import { clearCustomBackground, loadCustomBackgroundImage, prepareCustomBackgroundFile, readCustomBackground, saveCustomBackground, setCustomBackgroundEnabled } from '../custom-background.js?v=20261112-custom-background-v3';
 import { appendBeatScript, GP_MODE, gpModeCopy, gpModeUsesAi, normalizeGpMode, readFullScriptFile, readGpDraft, summarizeBeatScript, writeGpDraft } from './gakumas-player-model.js?v=full-script-import-v1';
 
@@ -354,7 +354,8 @@ async function generate({ continuation = false } = {}) {
     const closed = extractClosedBeatScript(normalized.script);
     if (!closed.count) throw Object.assign(new Error('没有收到完整的 Beat，请重试。'), { rawText: raw });
     const prepared = prepareGeneratedJapaneseScript(closed.script, japaneseText);
-    script.value = continuation ? appendBeatScript(closedExisting.script, prepared) : prepared;
+    const generated = compactGeneratedBeatStaging(prepared, continuation ? closedExisting : undefined);
+    script.value = continuation ? appendBeatScript(closedExisting.script, generated) : generated;
     if (!continuation) view.scriptName = '';
     view.continuable = closed.hasOpenBeat;
     setStatus('gpComposeStatus', continuation ? `已续写 ${closed.count} 个 Beat。` : `已生成 ${closed.count} 个 Beat，确认脚本后点击“开始播放”。`, 'ok');
@@ -371,7 +372,8 @@ async function generate({ continuation = false } = {}) {
         setStatus('gpComposeStatus', validationError.message, 'error');
         return;
       }
-      script.value = continuation ? appendBeatScript(closedExisting.script, prepared) : prepared;
+      const generated = compactGeneratedBeatStaging(prepared, continuation ? closedExisting : undefined);
+      script.value = continuation ? appendBeatScript(closedExisting.script, generated) : generated;
       if (!continuation) view.scriptName = '';
       view.continuable = true;
       setStatus('gpComposeStatus', `已收到 ${closed.count} 个完整 Beat，输出被截断，可以继续生成。`, 'warn');

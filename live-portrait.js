@@ -40,7 +40,7 @@ import { parsePortraitCue, selectPortraitPerformance, portraitPerformanceCandida
 import { StageAttentionController } from './stage-attention.js?v=20261103-adopt-base-v1';
 import { bindVisemeMorphs } from './dialogue-intent.js?v=20261011-emotion-cue-labels-v2';
 import { applyTalkMouthProfile, selectTalkMouthProfile, talkArticulationFromPhase } from './tts-lip-sync.js?v=20261107-surprise-mouth-v1';
-import { SceneDirector } from './scene-director.js?v=20261113-hkne-onsen-v1';
+import { SceneDirector } from './scene-director.js?v=beat-action-keep-v1';
 import { portraitCrowdBudget } from './portrait-crowd-budget.js?v=20261024-crowd-budget-v1';
 import { configureGlbAnimationTarget, detectLivePortraitFormat } from './live-portrait-model.js';
 import { bindGlbMorphTracks } from './glb-morph-tracks.js?v=20260929-face-primitives-v1';

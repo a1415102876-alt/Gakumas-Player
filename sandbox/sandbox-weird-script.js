@@ -1,4 +1,6 @@
 import { BEAT_BACKGROUND_NAMES } from '../beat-backgrounds.js';
+import { BEAT_SHOTS } from '../beat-player-core.js?v=beat-action-keep-v1';
+import { normalizeBeatShot } from '../beat-protocol.js?v=beat-action-keep-v1';
 import '../beat-background-routing.js';
 import { GAKUMAS_EXPAND_STYLE } from './gakumas-expand-style.js';
 
@@ -6,6 +8,8 @@ export const WEIRD_SCRIPT_MODE = Object.freeze({ FULL: 'full', EXPAND: 'expand',
 
 const DEFAULT_MAX_LOCATION_CHARS = 12000;
 const DEFAULT_BEAT_TARGET = 100;
+const CLOSED_BEAT = /<beat\b((?:[^"'<>]|"[^"]*"|'[^']*')*)>([\s\S]*?)<\/beat>/gi;
+const BEAT_ATTRIBUTE = /\s+([a-zA-Z][\w-]*)\s*=\s*(["'])(.*?)\2/gs;
 
 function safeText(value) {
   return String(value || '').trim();
@@ -137,19 +141,57 @@ export function prepareDirectBeatScript(source) {
 
 export function extractClosedBeatScript(source) {
   const raw = safeText(source);
-  const matches = raw.match(/<beat\b[^>]*>[\s\S]*?<\/beat>/gi) || [];
-  const valid = matches.filter(match => /<display\b[^>]*>[\s\S]*?<\/display>/i.test(match) && /<display\b[^>]*>\s*[^<\s][\s\S]*?<\/display>/i.test(match));
+  const matches = [...raw.matchAll(CLOSED_BEAT)];
+  const valid = [];
+  let lastBackground = '';
+  let lastShot = '';
+  for (const [match, rawAttrs, body] of matches) {
+    if (!/<display\b[^>]*>\s*[^<\s][\s\S]*?<\/display>/i.test(body)) continue;
+    valid.push(match);
+    const { background, shot } = beatStagingAttributes(rawAttrs);
+    if (background && background.toLowerCase() !== 'none') lastBackground = background;
+    if (shot) lastShot = normalizeBeatShot(shot);
+  }
   const opened = (raw.match(/<beat\b/gi) || []).length;
-  const hasOpenBeat = opened > matches.length || /<beat\b[^>]*>[\s\S]*$/i.test(raw.slice(raw.lastIndexOf('</beat>') + 7));
-  const last = valid.at(-1) || '';
-  const background = last.match(/\bbackground=["']([^"']+)["']/i)?.[1] || '';
+  const last = matches.at(-1);
+  const tail = raw.slice(last ? last.index + last[0].length : 0).trim();
   return {
     script: valid.join('\n'),
     count: valid.length,
-    hasOpenBeat,
-    tail: raw.slice(Math.max(0, raw.lastIndexOf('</beat>') + 7)).trim(),
-    lastBackground: background,
+    hasOpenBeat: opened > matches.length,
+    tail,
+    lastBackground,
+    lastShot,
   };
+}
+
+function beatStagingAttributes(rawAttrs) {
+  return Object.fromEntries([...rawAttrs.matchAll(BEAT_ATTRIBUTE)].map(([, name, , value]) => [name, value.trim()]));
+}
+
+export function compactGeneratedBeatStaging(script, { lastBackground = '', lastShot = '' } = {}) {
+  const backgroundKey = value => globalThis.HatsuBeatBackgroundRouting.expandBackground(value);
+  let previousBackground = backgroundKey(lastBackground);
+  let previousShot = normalizeBeatShot(lastShot);
+  return script.replace(CLOSED_BEAT, (beat, rawAttrs, body) => {
+    const { background, shot, camera } = beatStagingAttributes(rawAttrs);
+    const inheritsBackground = background?.toLowerCase() === 'none';
+    const backgroundId = inheritsBackground ? '' : backgroundKey(background);
+    const repeatedBackground = Boolean(backgroundId && backgroundId === previousBackground);
+    const shotId = normalizeBeatShot(shot);
+    const repeatedShot = camera === undefined && shotId !== 'keep'
+      && BEAT_SHOTS.includes(shotId) && shotId === previousShot;
+    if (backgroundId) previousBackground = backgroundId;
+    if (shotId) previousShot = shotId;
+    if (!repeatedShot && !repeatedBackground && !inheritsBackground) return beat;
+
+    const attrs = rawAttrs.replace(BEAT_ATTRIBUTE, (attribute, name) => {
+      if (name === 'background' && (repeatedBackground || inheritsBackground)) return '';
+      if (name === 'shot' && repeatedShot) return '';
+      return attribute;
+    });
+    return `<beat${attrs}>${body}</beat>`;
+  });
 }
 
 export function buildWeirdContinuationPrompt({ completedScript = '', completedCount = 0, lastBackground = '', style = false, text = '', japaneseText = '' } = {}) {

@@ -1,4 +1,4 @@
-import { formatActorMove, formatActorPose, formatCameraMove, formatCameraPose, formatDepthOfField, formatFocalLength, parseActorMove, parseActorPose, parseBeatScript, parseCameraMove, parseCameraPose, parseCameraWalk, parseDepthOfField, parseFocalLength } from './beat-protocol.js?v=20261113-hkne-onsen-v1';
+import { formatActorMove, formatActorPose, formatCameraMove, formatCameraPose, formatDepthOfField, formatFocalLength, parseActorMove, parseActorPose, parseBeatScript, parseCameraMove, parseCameraPose, parseCameraWalk, parseDepthOfField, parseFocalLength } from './beat-protocol.js?v=beat-action-keep-v1';
 
 const STANDARD_ATTRIBUTES = Object.freeze(new Set([
   'id', 'speaker', 'cue', 'face', 'overlay', 'effect', 'look', 'position',
@@ -301,10 +301,13 @@ export function parseBeatEditorSource(source, options = {}) {
     // reports the missing asset, while the editor can preserve the reference
     // for a later upload/import instead of silently replacing it.
     const customBackground = trimText(rawAttributes.background);
-    if (CUSTOM_BACKGROUND_ATTRIBUTE.test(customBackground)) normalized.background = customBackground.toLowerCase();
+    const background = !customBackground || customBackground.toLowerCase() === 'none' ? ''
+      : CUSTOM_BACKGROUND_ATTRIBUTE.test(customBackground) ? customBackground.toLowerCase()
+        : normalized.backgroundExplicit ? normalized.background : customBackground;
     const beat = sanitizeBeat({
       ...normalized,
       ...localized,
+      background,
       rawAttributes,
       rawBodyExtras: localized.rawBodyExtras,
       rawLead: index === 0 ? '' : '',

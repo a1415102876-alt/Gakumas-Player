@@ -1,12 +1,13 @@
-import { createSceneDirector } from './live-portrait.js?v=20261115-lamp-taa-v3';
+import { createSceneDirector } from './live-portrait.js?v=beat-action-keep-v1';
 import { resolveSharedStageMode } from './stage-mode.js?v=20261112-single-renderer-v1';
 import { performanceRecommendations } from './performance-monitor-core.js?v=20261030-perf-diagnostic-v2';
 import { sceneIdolId } from './scene-protocol.js?v=20261111-hkne-motions-v1';
-import { buildStageSlides, cameraWalkOffset, parseBeatScript, resolveActorPoses, resolveBeatCue } from './beat-protocol.js?v=20261113-hkne-onsen-v1';
+import { buildStageSlides, cameraWalkOffset, parseBeatScript, resolveActorPoses, resolveBeatCue } from './beat-protocol.js?v=beat-action-keep-v1';
 import { applyActorPose, applyCameraPose } from './scene-free-look.js?v=20261103-camera-lens-v1';
 import { BeatScenePool } from './beat-scene-pool.js?v=20261115-lamp-taa-v3';
 import { isBeatScene } from './beat-background-assets.js?v=20261108-chat-clock-v1';
 import { beatSpeakerStyle } from './beat-speaker-theme.js?v=20261007-speaker-colors-v1';
+import { BEAT_KEEP_CUE } from './beat-cues.js?v=beat-action-keep-v1';
 import { BEAT_ACTOR_NAMES, BEAT_CUES, BEAT_EFFECTS, BEAT_FACES, BEAT_OVERLAYS, BEAT_POSITIONS, BEAT_SHOTS, BEAT_SPEAKER_NAMES, backgroundDepthBlur, backgroundPanAmount, backgroundPanPosition, beatActorId, beatBackgroundChanged, buildBackgroundPlan, estimateBeatHold, getShotPreset, plateCoverToBackground, preparedStageCovers, resolveBeatCameraPreset, resolveBeatShot, stagePlateCover, stagePositionOffset, zoomPlateCover } from './beat-player-core.js?v=20261112-custom-bg-transition-v1';
 import { BEAT_BACKGROUND_NAMES, backgroundAssetUrl, preloadBackgrounds } from './beat-backgrounds.js?v=20261017-browser-cache-v1';
 import { TtsLipSyncAnalyzer } from './tts-lip-sync.js?v=20261107-surprise-mouth-v1';
@@ -781,7 +782,7 @@ export class BeatPlayerApp {
         const beat = this.compiled.beats[index];
         const slideIndex = this.compiled.beatIndexes[index];
         const speakerName = NAME_MAP[beat.speaker] || beat.speaker;
-        const entryCue = speakerName && sceneIdolId(speakerName)
+        const entryCue = speakerName && sceneIdolId(speakerName) && beat.cue !== BEAT_KEEP_CUE
             ? `${speakerName}(${resolveBeatCue(beat.cue, beat.face)})`
             : '';
         const previousBackground = previousIndex >= 0 && previousIndex !== index
@@ -820,14 +821,14 @@ export class BeatPlayerApp {
             const sceneReady = this.applyShot(beat);
             if (ready && beat.effects?.length) {
                 await this.director.setFacialEffects(speakerName, beat.effects, this.focusedActor);
-            } else if (ready && speakerName && sceneIdolId(speakerName)) {
+            } else if (ready && entryCue) {
                 await this.director.setFacialEffects(speakerName, [], this.focusedActor);
             }
             if (ready && speakerName && sceneIdolId(speakerName)) {
                 // sync already selected and posed this Beat's body/face pair. A
                 // second selection would choose another variant and move its root
                 // from the first entry motion's start to the second one's start.
-                if (!cuePrepared) await this.director.speak(entryCue, 'dialogue');
+                if (entryCue && !cuePrepared) await this.director.speak(entryCue, 'dialogue');
                 for (const overlay of beat.overlay || []) {
                     await this.director.speak(`${speakerName}(${resolveBeatCue(overlay)})`, 'overlay');
                 }
@@ -1339,7 +1340,7 @@ export class BeatPlayerApp {
             const speakerName = NAME_MAP[beat.speaker] || beat.speaker || '';
             const cue = `${speakerName}(${resolveBeatCue(beat.cue, beat.face)})`;
             cuesById[idolId] ||= [];
-            if (!cuesById[idolId].includes(cue)) cuesById[idolId].push(cue);
+            if (beat.cue !== BEAT_KEEP_CUE && !cuesById[idolId].includes(cue)) cuesById[idolId].push(cue);
             for (const overlay of beat.overlay || []) {
                 const overlayCue = `${speakerName}(${resolveBeatCue(overlay)})`;
                 if (!cuesById[idolId].includes(overlayCue)) cuesById[idolId].push(overlayCue);
@@ -1439,7 +1440,7 @@ export class BeatPlayerApp {
             resources.report('preparing', { task: '首帧渲染' });
             const first = compiled.beats[0];
             const speaker = NAME_MAP[first.speaker] || first.speaker || '';
-            const cue = `${speaker}(${resolveBeatCue(first.cue, first.face)})`;
+            const cue = first.cue === BEAT_KEEP_CUE ? '' : `${speaker}(${resolveBeatCue(first.cue, first.face)})`;
             if (!await director.sync(compiled.slides, compiled.beatIndexes[0], {
                 animate: false, entryCue: cue, costumes: first.costumes, deferPresentation: true,
             })) throw new Error('首帧动作准备失败。');

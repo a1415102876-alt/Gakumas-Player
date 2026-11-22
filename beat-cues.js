@@ -312,7 +312,9 @@ export const BEAT_PAIRED_CUE_SPECS = Object.freeze({
     'turn-back': Object.freeze({ gesture: 'turn', selector: 'turn-back' }),
     'turn-front-left': Object.freeze({ gesture: 'turn', selector: 'turn-front-left' }),
 });
+export const BEAT_KEEP_CUE = 'keep';
 export const BEAT_CUE_IDS = Object.freeze([
+    BEAT_KEEP_CUE,
     "talk",
     "talk-neutral",
     "talk-inspecting",
@@ -407,6 +409,7 @@ export const BEAT_CUE_IDS = Object.freeze([
     "walk"
 ]);
 export const BEAT_CUE_ALIASES = Object.freeze({
+    [BEAT_KEEP_CUE]: '保持不变',
     "idle": "待机",
     "angry": "生气",
     "tereru": "害羞",
