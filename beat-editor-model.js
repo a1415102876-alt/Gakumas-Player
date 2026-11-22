@@ -1,10 +1,11 @@
 import { formatActorMove, formatActorPose, formatCameraMove, formatCameraPose, formatDepthOfField, formatFocalLength, parseActorMove, parseActorPose, parseBeatScript, parseCameraMove, parseCameraPose, parseCameraWalk, parseDepthOfField, parseFocalLength } from './beat-protocol.js?v=pr-merge-20261122';
 import { BEAT_SFX_SEPARATOR, normalizeBeatBgm, normalizeBeatSoundEffects } from './beat-audio.js';
+import { normalizeIrodoriCaption } from './irodori-tts.js?v=producer-voice-v1';
 
 const STANDARD_ATTRIBUTES = Object.freeze(new Set([
   'id', 'speaker', 'cue', 'face', 'overlay', 'effect', 'look', 'position',
   'background', 'shot', 'wait', 'transition', 'camera', 'focal', 'dof', 'camera-pose', 'camera-move', 'camera-walk', 'actor-pose', 'actor-move', 'camera-motion', 'camera-ease',
-  'camera-duration', 'costume', 'hide-dialogue', 'hide-actors', 'bgm', 'sfx',
+  'camera-duration', 'costume', 'irodori-caption', 'hide-dialogue', 'hide-actors', 'bgm', 'sfx',
 ]));
 
 const FIELD_TO_ATTRIBUTE = Object.freeze({
@@ -33,6 +34,7 @@ const FIELD_TO_ATTRIBUTE = Object.freeze({
   cameraEase: 'camera-ease',
   cameraDuration: 'camera-duration',
   costume: 'costume',
+  irodoriCaption: 'irodori-caption',
   hideDialogue: 'hide-dialogue',
   hideActors: 'hide-actors',
 });
@@ -177,6 +179,7 @@ function sanitizeBeat(beat, index = 0) {
     hideActors: readFlag(source, 'hideActors', 'hide-actors'),
     text: trimText(source.text),
     ttsText: trimText(source.ttsText),
+    irodoriCaption: normalizeIrodoriCaption(source.irodoriCaption),
     costumes: cloneValue(source.costumes || {}),
     rawAttributes: { ...(source.rawAttributes || {}) },
     rawBodyExtras: text(source.rawBodyExtras || '').trim(),
@@ -319,6 +322,7 @@ export function parseBeatEditorSource(source, options = {}) {
       background,
       bgm: normalizeBeatBgm(rawAttributes.bgm === undefined ? undefined : decodeMarkup(rawAttributes.bgm), { explicit: true }),
       sfx: normalizeBeatSoundEffects(decodeMarkup(rawAttributes.sfx)),
+      irodoriCaption: decodeMarkup(rawAttributes['irodori-caption']),
       rawAttributes,
       rawBodyExtras: localized.rawBodyExtras,
       rawLead: index === 0 ? '' : '',
@@ -352,6 +356,12 @@ export function serializeBeatEditorScript(document) {
     return `${rawLead}<beat ${attributesText(beat, index)}>${bodyText(beat)}</beat>`;
   }).join('');
   return `${lead}${body}${text(source.suffix || '')}`.trim();
+}
+
+export function editorPlaybackEntries(source, options = {}) {
+  const editorIndexes = new Map(sourceBeatMatches(source).map((match, index) => [match.index, index]));
+  const { beats, sourceIndexes } = parseBeatScript(source, { ...options, allowOtherSpeakers: true, includeSourceIndexes: true });
+  return beats.map((beat, index) => ({ beat, index, editorIndex: editorIndexes.get(sourceIndexes[index]) }));
 }
 
 export function updateBeat(document, index, patch = {}) {

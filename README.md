@@ -7,7 +7,7 @@ Gakumas Player 是一个在浏览器中运行的学园偶像大师剧情播放�
 - Git 和 Node.js 20 或更新版本。仓库没有 npm 运行时依赖，不需要执行 `npm install`。
 - 支持 WebGL 的现代浏览器，并开启硬件加速。3D 场景对显卡和显存有一定要求。
 - 能够访问 `library.json` 中配置的资源地址。模型、动作和部分场景等资源会按需从 Cloudflare R2 下载，首次加载可能需要较长时间和浏览器缓存空间。
-- 使用 AI 整理、扩写或闲聊时，需要自行配置兼容 OpenAI Chat Completions 的 API 地址、模型及所需密钥。接口需要允许浏览器跨域请求。语音是可选功能，需要单独配置 Fish Audio 和语音代理。
+- 使用 AI 整理、扩写或闲聊时，需要自行配置兼容 OpenAI Chat Completions 的 API 地址、模型及所需密钥。接口需要允许浏览器跨域请求。角色语音可使用本机 Irodori-TTS 或 Fish Audio。
 
 ## 安装和启动
 
@@ -49,7 +49,7 @@ PORT=4174 npm start
 1. 打开播放器，在「设置」中按需配置 API 地址、模型和密钥。已有 Beat 脚本可以直接播放，不需要 AI 接口。
 2. 将完整的 Beat 脚本粘贴到「Beat 脚本」框，或者选择「编辑器」制作脚本，再点击「开始播放」。也可以使用「全文案」整理已有文案，或使用「AI 扩写」生成剧情；这两种方式需要配置 AI 接口。
 3. 选择「闲聊」，选定偶像并进入教室，可以使用已配置的 AI 接口对话。制作人档案和聊天记忆保存在当前浏览器；闲聊时，相关内容会发送到所配置的 AI 接口。
-4. 如需语音，在「设置」中填写语音代理 URL、语音模型和 Fish API Key。语音服务及其网络访问需要自行准备。
+4. 如需语音，在「设置」中开启「启用角色语音」，然后配置本机 Irodori-TTS 或填写 Fish API Key。
 
 例如，可以将以下内容粘贴到「Beat 脚本」框进行简单测试：
 
@@ -85,6 +85,39 @@ API 和语音配置保存在浏览器本机，密钥会在使用相应功能时�
 BGM 选择「（无）」时继续当前的音乐。重复选择同一首也会接着播放。选择「停止播放」时，脚本会保存为 `bgm="None"`。脚本使用带扩展名的文件名引用音频，例如 `bgm="放学后.mp3" sfx="开门.wav|脚步.wav"`。把脚本移到其他电脑时，请同时将引用的音频放到对应目录。
 
 播放器的「设置 → 播放音量」可分别调节 BGM 和音效，默认为 70% 和 100%。调整立即生效，保存的设置也用于同一浏览器里的编辑器预览。
+
+## 配置角色语音
+
+1. 使用支持 Irodori 的 Gradio 界面或兼容 OpenAI 语音接口的服务，在本机启动语音模型。播放器默认连接端口 `7862`。接口选择「按端口选择」时，`7860` 与 `7861` 使用 Gradio，其他端口使用 OpenAI 兼容 API。
+2. 运行 `npm start` 打开播放器。在「设置」开启「启用角色语音」，进入「本地 Irodori-TTS」填写端口和接口类型，再点击「检测连接」。检测会检查 Gradio 生成接口或 OpenAI 模型列表。
+3. 在同一设置区选择角色，填入服务中已注册的 Voice ID，保存后播放带日文 `<tts lang="ja">` 的脚本。Gradio 支持 `default`、`none`，以及 `voices/<音源ID>.speaker.safetensors` 的音源 ID。实际可用音源由语音服务决定。
+4. 需要 Fish Audio 时，在播放器中填写自己的 Fish API Key，并按需设置模型。通过本地播放器打开时，Fish 语音代理默认使用实际播放器端口上的同源 `/api/fish-tts`。已有自定义代理仍可使用。未为角色填写 Irodori Voice ID 或本地合成失败时，已配置的 Fish 音色可以接续配音。
+
+播放器服务可通过环境变量 `IRODORI_PORT` 和 `IRODORI_PROTOCOL` 设定默认端口和接口，其中接口类型为 `gradio` 或 `openai`。对于兼容 OpenAI 的服务，可通过 `IRODORI_MODEL_NAME` 指定模型 ID，默认是 `irodori-tts`。服务如需认证，在播放器启动环境中设置 `IRODORI_API_KEY`。
+
+### 逐句语气描述
+
+闲聊、全文案整理、AI 扩写和续写可为已配置 Irodori Voice ID 的角色生成简短的日语语气描述。描述保存在同一句 Beat 的 `irodori-caption` 字段里，可在 Beat 编辑器的「文本」面板中修改。支持此字段的语音服务会将它用于合成。有日文台词的旧 Beat 也能直接使用本机语音配置。
+
+```xml
+<beat speaker="kotone" irodori-caption="照れながら、少し嬉しそうに話す。"><display lang="zh">我就知道你会来。</display><tts lang="ja">来てくれると思ってたよ。</tts></beat>
+```
+
+### 可选的 Caption 服务
+
+随仓库提供的 `tools/irodori-caption-server.py` 可将已有 Irodori 推理运行时和支持 Caption 的 checkpoint 接成 OpenAI 兼容语音接口。使用 Irodori 安装环境的 Python，确认该环境能导入 `irodori_tts`、`fastapi`、`gradio`、`soundfile` 和 `uvicorn`，再运行：
+
+```sh
+python tools/irodori-caption-server.py --install-dir "/path/to/irodori-tts" --checkpoint "/path/to/model.safetensors" --port 7862
+```
+
+模型使用已有运行时解析其依赖资源。Hugging Face 缓存位于自定义目录时可加 `--hf-cache`。将说话人嵌入文件或参考音频放入 Irodori 安装目录的 `voices/`，命名为 `<音源ID>.speaker.safetensors` 或 `<音源ID>.wav`。使用无参考音色时，Voice ID 填 `none`。然后在播放器的 Irodori 设置中选择该端口和「OpenAI 兼容 API」。
+
+### 导出和复用语音
+
+先在播放器设置中配置 Irodori 或 Fish 音色。在 Beat 编辑器填写脚本名称，选择「导出全部语音」，或在选中台词的「文本」面板选择「导出本句语音」。批量导出只处理含日文语音文本的段落。重新导出一条已有录音的台词时，可以试听新旧版本，再选择保留哪一版。
+
+录音保存在本机 `assets/tts-output/<脚本名>/`。在播放器打开同名存档并启用角色语音后，匹配当前说话人、日语台词和语气描述的录音会优先播放。录音缺失或台词设置已变化时，播放器尝试实时合成。在另一台电脑复用录音时，可以将脚本文件和对应的整个录音目录一并复制过去。
 
 ## 资源与常见问题
 

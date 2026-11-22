@@ -3,6 +3,7 @@ import { BEAT_SHOTS } from '../beat-player-core.js?v=beat-action-keep-v1';
 import { normalizeBeatShot } from '../beat-protocol.js?v=beat-action-keep-v1';
 import '../beat-background-routing.js';
 import { GAKUMAS_EXPAND_STYLE } from './gakumas-expand-style.js';
+import { irodoriCaptionPrompt } from '../irodori-tts.js?v=producer-voice-v1';
 
 export const WEIRD_SCRIPT_MODE = Object.freeze({ FULL: 'full', EXPAND: 'expand', DIRECT: 'direct' });
 
@@ -39,10 +40,10 @@ function beatOutputRules(hasJapaneseTranslation = false) {
     'cue 只能写这些中文情绪或动作词，不要写 talk、happy 这类英文 id，也不要自造近义词：说话、待机、生气、害羞、难过、吃惊、高兴、安心、不甘、得意、干劲、哭泣、无奈、兴奋、点头、摇头、思考、询问、应答、鞠躬、指向、讨好、定格、察觉。',
     '除 cue="说话" 以外，这些词自带表情，不要再写 face。face 只在 cue="说话" 时写，只能是：高兴、惊讶、害羞、困扰、自然、难过、生气。',
     hasJapaneseTranslation
-      ? '有对应日文译稿的偶像台词依次写中文 display 和日文 tts。找不到对应译文时仅写中文 display。'
-      : '每个有台词的偶像 Beat 必须同时写两段，顺序固定，不能只写其中一段：<display lang="zh">玩家看到的中文</display><tts lang="ja">给语音朗读的日语</tts>。',
+      ? '有对应日文译稿的偶像或制作人台词依次写中文 display 和日文 tts。找不到对应译文时仅写中文 display。'
+      : '偶像或制作人开口的 Beat 必须同时写两段，顺序固定：<display lang="zh">玩家看到的中文</display><tts lang="ja">给语音朗读的日语</tts>。',
     'display 的 lang 必须是 zh，内容是中文；tts 的 lang 必须是 ja，内容是和这句中文意思对应的日语。不要把中文写进 tts，不要把日语写进 display，不要省略 lang，不要写成 <tts>日语</tts>。',
-    '制作人和旁白只写 <display lang="zh">，不要写 tts。没有台词的纯动作 Beat 也只写一句短 display，不要写空的 tts。',
+    '旁白和没有台词的纯动作 Beat 只写 <display lang="zh">。',
     'speaker 和 look 只能使用这些登记 id，不要用罗马音，也不要自造英文名。',
     'kotone=藤田琴音；mao=有村麻央；rinami=姬崎莉波；hski=花海咲季；hume=花海佑芽；ssmk=紫云清夏；kllj=葛城莉莉娅；jsna=十王星南；hmsz=秦谷美铃；atbm=雨夜燕；ttmr=月村手毬；kcna=仓本千奈；shro=筱泽广；krnh=贺阳燐羽；nasr=亚纱里老师；hkne=冰渡香名江。',
     '制作人用 producer，旁白用 narrator。美铃必须写 hmsz，不要写 misuzu。燐羽必须写 krnh，不要写 rinpa 或 rinha。手毬必须写 ttmr，不要写 temari。',
@@ -101,7 +102,7 @@ function bilingualScriptPrompt(text, japaneseText) {
   ].join('\n\n');
 }
 
-export function buildWeirdScriptPrompt({ mode = WEIRD_SCRIPT_MODE.FULL, text = '', japaneseText = '', locations = BEAT_BACKGROUND_NAMES, beatTarget = DEFAULT_BEAT_TARGET } = {}) {
+export function buildWeirdScriptPrompt({ mode = WEIRD_SCRIPT_MODE.FULL, text = '', japaneseText = '', locations = BEAT_BACKGROUND_NAMES, beatTarget = DEFAULT_BEAT_TARGET, irodoriCharacters = [] } = {}) {
   const source = safeText(text);
   const locationList = formatWeirdPromptLocations(locations);
   const target = Number.isFinite(Number(beatTarget)) ? Math.max(1, Math.floor(Number(beatTarget))) : DEFAULT_BEAT_TARGET;
@@ -119,6 +120,7 @@ export function buildWeirdScriptPrompt({ mode = WEIRD_SCRIPT_MODE.FULL, text = '
   return [
     '[HATSU_WEIRD_SCRIPT]',
     contract,
+    irodoriCaptionPrompt(irodoriCharacters),
     `本次目标长度：至少围绕 ${target} 个 Beat 组织内容；若用户文案较短，以自然完整为先。`,
     ...modeInstruction,
     '允许使用的地点清单：',
@@ -194,7 +196,7 @@ export function compactGeneratedBeatStaging(script, { lastBackground = '', lastS
   });
 }
 
-export function buildWeirdContinuationPrompt({ completedScript = '', completedCount = 0, lastBackground = '', style = false, text = '', japaneseText = '' } = {}) {
+export function buildWeirdContinuationPrompt({ completedScript = '', completedCount = 0, lastBackground = '', style = false, text = '', japaneseText = '', irodoriCharacters = [] } = {}) {
   const closed = safeText(completedScript);
   const bilingualPrompt = style ? '' : bilingualScriptPrompt(text, japaneseText);
   const count = Number.isFinite(Number(completedCount)) ? Math.max(0, Math.floor(Number(completedCount))) : 0;
@@ -205,6 +207,7 @@ export function buildWeirdContinuationPrompt({ completedScript = '', completedCo
     `前面已经保留 ${count} 个完整 Beat，最后地点为：${background}。`,
     '只输出后续新的、完整闭合的 <beat>...</beat>；不要重复已完成内容，不要输出解释或 Markdown。',
     beatOutputRules(Boolean(bilingualPrompt)),
+    irodoriCaptionPrompt(irodoriCharacters),
     '保持前文人物关系、情绪和地点连续；如果故事已经自然结束，就输出剩余收束 Beat，不要硬凑长度。',
     bilingualPrompt ? '根据已完成的 Beat 定位在两份文案中的进度。已完成语音可能使用了片假名读法，定位时对照同一句的意思和前后文。只接续还未整理的原文。' : '',
     style ? GAKUMAS_EXPAND_STYLE : '',

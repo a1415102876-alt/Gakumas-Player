@@ -1,4 +1,4 @@
-import { listBeatJobs, loadBeatJob, normalizeBeatJobName, saveBeatJob } from './beat-local-jobs.js';
+import { beatVoiceFingerprint, canExportBeatVoice, getExportedBeatVoice, listBeatJobs, listExportedBeatVoices, loadBeatJob, normalizeBeatJobName, saveBeatJob, synthesizeBeatVoice, writeExportedBeatVoice } from './beat-local-jobs.js';
 import { actorPoseFromObject, cameraPoseFromObject } from './scene-free-look.js?v=20261102-actor-pose-v1';
 import { BeatPlayerApp } from './beat-player.js?v=pr-merge-20261122';
 import { beatBackgroundLabel } from './beat-background-labels.js';
@@ -8,7 +8,7 @@ import { BEAT_SCENE_ASSETS } from './beat-scene-assets.js?v=20261027-scene-libra
 import { BEAT_CUES, BEAT_EFFECTS, BEAT_FACES, BEAT_OVERLAYS, BEAT_POSITIONS, BEAT_SHOTS, BEAT_CAMERA_PRESETS, BEAT_SPEAKER_NAMES, beatActorId } from './beat-player-core.js?v=beat-action-keep-v1';
 import { BEAT_BODY_CUE_SPECS, BEAT_CUE_ALIASES, BEAT_KEEP_CUE, beatMotionFileKey, isBeatMotionFile, isBeatPairedCue } from './beat-cues.js?v=beat-action-keep-v1';
 import { MOTION_BUCKETS } from './core.js?v=20261011-stage-cue-rules-v4';
-import { createEditorBeat, cloneEditorBeat, moveBeat, parseBeatEditorSource, serializeBeatEditorScript, updateBeat, validateEditorDocument } from './beat-editor-model.js?v=pr-merge-20261122';
+import { createEditorBeat, cloneEditorBeat, editorPlaybackEntries, moveBeat, parseBeatEditorSource, serializeBeatEditorScript, updateBeat, validateEditorDocument } from './beat-editor-model.js?v=pr-merge-20261122';
 import { createActorPoseGizmo } from './beat-actor-gizmo.js?v=20261103-actor-gizmo-v1';
 import { deleteCustomBackgroundItem, listCustomBackgrounds, prepareCustomBackgroundFile, saveCustomBackgroundItem } from './custom-background.js?v=20261112-custom-background-v3';
 
@@ -66,6 +66,9 @@ if (!state.document.beats.length) state.document = { ...state.document, beats: [
 let previewTimer = 0;
 let previewSilent = true;
 let previewNeedsResources = true;
+let savedVoiceCatalog = null;
+let savedVoiceSelection = null;
+let savedVoiceRender = 0;
 let savedJobsVersion = 0;
 let previewPreservesBeatAudio = true;
 let audioCatalog = { bgm: [], sfx: [] };
@@ -443,7 +446,7 @@ function renderProperties() {
     const beat = state.document.beats[state.selectedIndex];
     const name = qs('beatEditorSelection'); if (name) name.textContent = beat ? `#${state.selectedIndex + 1}` : '—';
     if (!beat) return;
-    const map = { beatEditorId: beat.id, beatEditorSpeakerField: beat.speaker, beatEditorCue: beat.cue, beatEditorFace: isBeatMotionFile(beat.face) ? '' : beat.face, beatEditorPosition: beat.position, beatEditorLook: beat.look, beatEditorShot: beat.shot, beatEditorCostume: beat.costume, beatEditorCamera: beat.camera, beatEditorOverlays: beat.overlay, beatEditorEffects: beat.effects, beatEditorWait: beat.wait, beatEditorTransition: beat.transition, beatEditorTextField: beat.text, beatEditorTts: beat.ttsText };
+    const map = { beatEditorId: beat.id, beatEditorSpeakerField: beat.speaker, beatEditorCue: beat.cue, beatEditorFace: isBeatMotionFile(beat.face) ? '' : beat.face, beatEditorPosition: beat.position, beatEditorLook: beat.look, beatEditorShot: beat.shot, beatEditorCostume: beat.costume, beatEditorCamera: beat.camera, beatEditorOverlays: beat.overlay, beatEditorEffects: beat.effects, beatEditorWait: beat.wait, beatEditorTransition: beat.transition, beatEditorTextField: beat.text, beatEditorTts: beat.ttsText, beatEditorIrodoriCaption: beat.irodoriCaption };
     Object.entries(map).forEach(([id, value]) => setField(qs(id), value));
     renderBackgroundField(beat.background);
     const holdsAction = beat.cue === BEAT_KEEP_CUE && Boolean(beatActorId(beat.speaker));
@@ -485,6 +488,7 @@ function renderList() {
 function renderAll() {
     renderList(); renderProperties(); setDirty(state.dirty);
     renderJobControls();
+    void refreshSavedVoicePreview();
     const report = validateEditorDocument(state.document);
     const validation = qs('beatEditorValidation');
     if (validation) {
@@ -525,6 +529,8 @@ function mutate(patch) {
     pushHistory();
     state.document = updateBeat(state.document, state.selectedIndex, patch);
     setDirty(true); renderList(); renderProperties();
+    renderJobControls();
+    void refreshSavedVoicePreview();
     const requiresResources = patchNeedsResources(patch);
     const audioKind = ['bgm', 'sfx'].find(key => Object.hasOwn(patch, key));
     if (audioKind) app.applyBeatAudio(state.document.beats[state.selectedIndex], { kind: audioKind });
@@ -555,8 +561,9 @@ async function refreshPreview({ silent = false, needsResources = true, preserveB
     const canReusePreparedPreview = !needsResources
         && app.compiled?.beats?.length === state.document.beats.length
         && (app.resourceLoadingActive || (app.resources && !app.resources.disposed));
-    if (canReusePreparedPreview) app.refreshCompiledPreview();
-    else app.compile({ silent, preserveBeatAudio });
+    const scriptName = editorScriptName();
+    if (canReusePreparedPreview) app.refreshCompiledPreview({ scriptName });
+    else app.compile({ silent, preserveBeatAudio, scriptName });
     try {
         const ready = await app.preloadPromise;
         if (token !== state.previewToken) return;
@@ -628,6 +635,67 @@ function editorScriptName({ required = false } = {}) {
     }
 }
 
+function selectedPlaybackEntry(source = serializeBeatEditorScript(state.document)) {
+    return editorPlaybackEntries(source, editorParseOptions()).find(item => item.editorIndex === state.selectedIndex);
+}
+
+function setSavedVoicePreview(message, url = '') {
+    const panel = qs('beatEditorSavedVoicePreview');
+    const label = qs('beatEditorSavedVoiceLabel');
+    const audio = qs('beatEditorSavedVoice');
+    if (label.textContent !== message) label.textContent = message;
+    if ((audio.getAttribute('src') || '') !== url) {
+        audio.pause();
+        if (url) audio.src = url;
+        else {
+            audio.removeAttribute('src');
+            audio.load();
+        }
+    }
+    audio.hidden = !url;
+    panel.hidden = !message;
+}
+
+async function refreshSavedVoicePreview({ reload = false } = {}) {
+    const render = ++savedVoiceRender;
+    const name = editorScriptName();
+    const authored = state.document.beats[state.selectedIndex];
+    const entry = name && canExportBeatVoice(authored) ? selectedPlaybackEntry() : null;
+    const selection = entry ? JSON.stringify([name, state.selectedIndex, entry.index]) : null;
+    if (reload || selection !== savedVoiceSelection) {
+        savedVoiceSelection = selection;
+        setSavedVoicePreview('');
+    }
+    if (savedVoiceCatalog && (reload || savedVoiceCatalog.name !== name)) {
+        savedVoiceCatalog.controller.abort();
+        savedVoiceCatalog = null;
+    }
+    if (!entry) return;
+
+    if (!savedVoiceCatalog) {
+        const controller = new AbortController();
+        savedVoiceCatalog = { name, controller, clips: listExportedBeatVoices(name, { signal: controller.signal }) };
+    }
+    try {
+        const clips = await savedVoiceCatalog.clips;
+        if (render !== savedVoiceRender) return;
+        const clip = clips.find(({ index }) => index === entry.index);
+        if (!clip) {
+            setSavedVoicePreview('本句尚未导出语音。');
+            return;
+        }
+        const matches = clip.fingerprint === await beatVoiceFingerprint(entry.beat);
+        if (render === savedVoiceRender) {
+            setSavedVoicePreview(matches ? '已导出的语音' : '已导出的语音（与当前台词设置不同）', clip.url);
+        }
+    } catch {
+        if (render === savedVoiceRender) {
+            savedVoiceCatalog = null;
+            setSavedVoicePreview('读取已导出的语音失败。');
+        }
+    }
+}
+
 function importSource(source, { scriptName = state.scriptName, saved = false } = {}) {
     const parsed = parseBeatEditorSource(source, editorParseOptions());
     if (!parsed.beats.length) {
@@ -677,6 +745,8 @@ function renderJobControls() {
     const busy = state.jobActionPending;
     const savedJobs = qs('beatEditorSavedJob');
     qs('beatEditorSaveJob').disabled = busy;
+    qs('beatEditorExportVoices').disabled = busy;
+    qs('beatEditorExportVoice').disabled = busy || !canExportBeatVoice(state.document.beats[state.selectedIndex]);
     savedJobs.disabled = busy || savedJobs.options.length < 2;
     qs('beatEditorOpenJob').disabled = busy || !savedJobs.value;
 }
@@ -745,8 +815,98 @@ function openSavedScript() {
         if (!importSource(source, { scriptName: name, saved: true })) throw new Error('脚本中没有 Beat 段落。');
         qs('beatEditorImportSource').value = source;
         storeEditorSource(source, name);
+        void refreshSavedVoicePreview({ reload: true });
         report(`已打开「${name}」。`, 'ok');
     });
+}
+
+function reloadEditorVoices(name) {
+    if (editorScriptName() !== name) return;
+    void refreshSavedVoicePreview({ reload: true });
+    schedulePreviewRefresh({ silent: true });
+}
+
+function exportAllVoices() {
+    return runJobAction('导出语音失败', async report => {
+        const name = editorScriptName({ required: true });
+        const entries = editorPlaybackEntries(serializeAndStore(), editorParseOptions()).filter(({ beat }) => canExportBeatVoice(beat));
+        if (!entries.length) throw new Error('没有可导出的日语台词。');
+        const failed = [];
+        let written = 0;
+        for (const [position, { beat, index, editorIndex }] of entries.entries()) {
+            report(`正在为「${name}」导出语音（${position + 1}/${entries.length}）…`);
+            try {
+                const blob = await synthesizeBeatVoice(beat);
+                await writeExportedBeatVoice(name, beat, index, blob);
+                written++;
+            } catch (error) {
+                failed.push(`第 ${(editorIndex ?? index) + 1} 段 ${error?.message || error}`);
+            }
+        }
+        if (written) reloadEditorVoices(name);
+        if (failed.length) {
+            report(`「${name}」已导出 ${written}/${entries.length} 句，${failed.length} 句失败。${failed.slice(0, 3).join('；')}`, 'warn');
+            return;
+        }
+        report(`「${name}」的 ${written} 句语音已导出。`, 'ok');
+    });
+}
+
+async function compareVoices(entry, oldBlob, newBlob) {
+    const dialog = qs('beatEditorVoiceComparison');
+    const samples = [qs('beatEditorOldVoice'), qs('beatEditorNewVoice')];
+    const { beat, editorIndex } = entry;
+    qs('beatEditorComparisonLine').textContent = `第 ${editorIndex + 1} 段 · ${BEAT_SPEAKER_NAMES[beat.speaker] || beat.speaker} · ${beat.ttsText}`;
+    qs('beatEditorSavedVoice').pause();
+    app.stop();
+    try {
+        samples[0].src = URL.createObjectURL(oldBlob);
+        samples[1].src = URL.createObjectURL(newBlob);
+        dialog.returnValue = '';
+        dialog.showModal();
+        await new Promise(resolve => dialog.addEventListener('close', resolve, { once: true }));
+        return dialog.returnValue;
+    } finally {
+        for (const audio of samples) {
+            const url = audio.getAttribute('src');
+            if (!url) continue;
+            audio.pause();
+            audio.removeAttribute('src');
+            audio.load();
+            URL.revokeObjectURL(url);
+        }
+    }
+}
+
+function exportCurrentVoice() {
+    return runJobAction('导出本句失败', async report => {
+        const name = editorScriptName({ required: true });
+        const entry = selectedPlaybackEntry(serializeAndStore());
+        if (!entry || !canExportBeatVoice(entry.beat)) throw new Error('当前段没有可导出的日语台词。');
+        const { beat, index, editorIndex } = entry;
+        const line = `第 ${editorIndex + 1} 段`;
+        report(`正在生成${line}的语音…`);
+        const previous = await getExportedBeatVoice(name, index);
+        const blob = await synthesizeBeatVoice(beat);
+        if (previous) {
+            const choice = await compareVoices(entry, previous.blob, blob);
+            if (choice === 'keep') {
+                if (previous.fingerprint !== await beatVoiceFingerprint(beat)) {
+                    await writeExportedBeatVoice(name, beat, index, previous.blob, { expectedRevision: previous.revision });
+                    reloadEditorVoices(name);
+                }
+                report(`已保留${line}的原有语音。`, 'ok');
+                return;
+            }
+            if (choice !== 'replace') {
+                report(`已取消${line}的语音导出。`);
+                return;
+            }
+        }
+        await writeExportedBeatVoice(name, beat, index, blob, { expectedRevision: previous?.revision ?? '' });
+        reloadEditorVoices(name);
+        report(`${line}的语音已导出到「${name}」。`, 'ok');
+    }, 'beatEditorVoiceStatus');
 }
 
 const CAMERA_POSE_FIELDS = [['beatEditorCamX', 'x'], ['beatEditorCamY', 'y'], ['beatEditorCamZ', 'z'], ['beatEditorCamYaw', 'yaw'], ['beatEditorCamPitch', 'pitch']];
@@ -1323,6 +1483,8 @@ qs('beatEditorJobName').addEventListener('change', event => {
     pushHistory();
     state.scriptName = name;
     setDirty(true);
+    void refreshSavedVoicePreview();
+    schedulePreviewRefresh({ silent: true });
 });
 qs('beatEditorJobName').addEventListener('keydown', event => {
     if (event.key !== 'Enter' || event.isComposing) return;
@@ -1333,6 +1495,8 @@ qs('beatEditorJobName').addEventListener('keydown', event => {
 qs('beatEditorSaveJob').addEventListener('click', saveNamedScript);
 qs('beatEditorSavedJob').addEventListener('change', renderJobControls);
 qs('beatEditorOpenJob').addEventListener('click', openSavedScript);
+qs('beatEditorExportVoices').addEventListener('click', exportAllVoices);
+qs('beatEditorExportVoice').addEventListener('click', exportCurrentVoice);
 void refreshSavedJobs().catch(() => {});
 void loadMotionCatalog();
 qs('beatEditorRefreshAudio').addEventListener('click', () => { void refreshAudioCatalog(); });

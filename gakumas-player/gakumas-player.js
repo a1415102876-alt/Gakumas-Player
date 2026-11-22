@@ -2,11 +2,12 @@ import { listBeatJobs, loadBeatJob } from '../beat-local-jobs.js';
 import { BeatPlayerApp } from '../beat-player.js?v=pr-merge-20261122';
 import { writeBeatAudioVolumes } from '../beat-audio.js';
 import { setLivePictureOptions } from '../live-portrait.js?v=beat-action-keep-v1';
-import { createLocalChatBridge, normalizeChatReply, playerChatScene } from '../beat-chat.js?v=20261113-hkne-onsen-v1';
+import { createLocalChatBridge, normalizeChatReply, playerChatScene } from '../beat-chat.js?v=producer-voice-v1';
 import { createChatMemoryPanel } from './chat-memory-panel.js?v=20261107-chat-memory-v1';
 import { mountResourceMonitor } from '../resource-monitor.js?v=20261108-resource-monitor-v1';
 import { loadTavernWorldbook } from '../worldbook-scan.js?v=20261024-worldbook-v1';
-import { applyFishTtsSettings, fishTtsStatus, resolveFishTtsSettings } from '../free-chat-tts.js?v=20261107-tts-domain-v1';
+import { applyFishTtsSettings, fishTtsStatus, resolveFishTtsSettings } from '../free-chat-tts.js?v=irodori-tts-v1';
+import { createIrodoriSpeech, IRODORI_CHARACTERS, readIrodoriConnection, readIrodoriVoices, saveIrodoriConnection, saveIrodoriVoices } from '../irodori-tts.js?v=irodori-connection-v1';
 import { SANDBOX_CHAT_SETTINGS_KEY, buildSandboxChatSettings, mergeStoredChatSettings, readStoredFreeChatSettings } from '../sandbox/sandbox-chat.js?v=20261106-player-chat-v1';
 import { aaLevel } from '../gakumas-aa.js?v=20261105-aa-level-v1';
 import { SANDBOX_PICTURE_KEY, normalizeSandboxPicture } from '../sandbox/sandbox-picture.js?v=20261105-floor-ssr-v1';
@@ -20,9 +21,12 @@ const EDITOR_RESULT_KEY = 'hatsuBeatEditorResult';
 const EDITOR_RESULT_NAME_KEY = 'hatsuBeatEditorResultName';
 const CANCELLED_MESSAGE = '已取消闲聊生成';
 
-let worldbook = [];
 const localPlayer = location.protocol === 'http:' && ['127.0.0.1', 'localhost'].includes(location.hostname);
+
+let worldbook = [];
 let worldbookPromise = null;
+let irodoriDraft = {};
+let irodoriCheck = null;
 
 function selectedChatIdolName() {
   const select = field('chatIdolSelect');
@@ -58,6 +62,7 @@ const picture = readPicture();
 setLivePictureOptions(picture);
 applyDialogueFontSize(picture.dialogueFontSize);
 applyFishTtsSettings(resolveFishTtsSettings(), {
+  irodori: localPlayer ? createIrodoriSpeech(readIrodoriVoices(), undefined, readIrodoriConnection()) : null,
   onError: message => showToast(String(message || '角色语音播放失败')),
 });
 
@@ -316,6 +321,7 @@ async function generate({ continuation = false } = {}) {
   const closedExisting = extractClosedBeatScript(existing);
   const expanding = view.mode === GP_MODE.EXPAND;
   const japaneseText = expanding ? '' : field('gpJapaneseText').value.trim();
+  const irodoriCharacters = app.tts?.getIrodoriCharacters?.();
   const prompt = continuation
     ? buildWeirdContinuationPrompt({
       completedScript: closedExisting.script,
@@ -324,11 +330,13 @@ async function generate({ continuation = false } = {}) {
       style: expanding,
       text,
       japaneseText,
+      irodoriCharacters,
     })
     : buildWeirdScriptPrompt({
       mode: expanding ? WEIRD_SCRIPT_MODE.EXPAND : WEIRD_SCRIPT_MODE.FULL,
       text,
       japaneseText,
+      irodoriCharacters,
     });
   const bridgeOptions = {
     timeoutMs: 300000,
@@ -618,7 +626,7 @@ async function play() {
   field('beatSpeaker').textContent = '';
   field('beatText').textContent = '';
   app.elements.script.value = prepared.script;
-  app.compile();
+  app.compile({ scriptName: view.scriptName });
   if (!app.compiled.beats.length) {
     leavePlayer();
     setStatus('gpScriptStatus', '脚本没有可播放的 Beat，请检查格式。', 'error');
@@ -735,6 +743,18 @@ function openSettings() {
   field('gpTtsProxy').value = voice.proxyUrl || '';
   field('gpTtsModel').value = voice.model || '';
   field('gpTtsKey').value = voice.apiKey || '';
+  if (localPlayer) {
+    resetIrodoriCheck();
+    irodoriDraft = readIrodoriVoices();
+    const connection = readIrodoriConnection();
+    field('gpIrodoriPort').value = connection.port ?? '';
+    field('gpIrodoriProtocol').value = connection.protocol || '';
+    const character = field('gpIrodoriCharacter');
+    const selected = character.value || IRODORI_CHARACTERS.find(({ name }) => name === app.selectedChatIdol().name)?.id;
+    character.replaceChildren(...IRODORI_CHARACTERS.map(({ id, name }) => new Option(name, id)));
+    if (selected) character.value = selected;
+    syncIrodoriVoiceField();
+  }
   const picture = readPicture();
   syncAaControls(picture.aa);
   const blur = field('gpMotionBlur');
@@ -746,7 +766,63 @@ function openSettings() {
   if (dialog && !dialog.open) dialog.showModal();
 }
 
+function syncIrodoriVoiceField() {
+  field('gpIrodoriVoice').value = irodoriDraft[field('gpIrodoriCharacter').value] || '';
+}
+
+function resetIrodoriCheck() {
+  irodoriCheck?.abort();
+  irodoriCheck = null;
+  field('gpIrodoriCheckBtn').disabled = false;
+  setStatus('gpIrodoriCheckStatus');
+}
+
+async function checkIrodoriConnection() {
+  const port = field('gpIrodoriPort');
+  if (irodoriCheck || !port.reportValidity()) return;
+  const protocol = field('gpIrodoriProtocol').value;
+  const connection = {
+    ...(port.value ? { port: port.valueAsNumber } : {}),
+    ...(protocol ? { protocol } : {}),
+  };
+  const controller = new AbortController();
+  irodoriCheck = controller;
+  const button = field('gpIrodoriCheckBtn');
+  const status = 'gpIrodoriCheckStatus';
+  button.disabled = true;
+  setStatus(status, '正在检测 Irodori-TTS 连接……', 'busy');
+  try {
+    const response = await fetch('/api/irodori-tts/check', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(connection),
+      signal: AbortSignal.any([controller.signal, AbortSignal.timeout(8000)]),
+      redirect: 'error',
+    });
+    const result = await response.json().catch(() => null);
+    if (controller.signal.aborted) return;
+    if (!response.ok || !result?.protocol) {
+      setStatus(status, result?.error || '播放器的 Irodori-TTS 检测接口不可用，请确认播放器服务已更新。', 'error');
+      return;
+    }
+    const label = result.protocol === 'gradio' ? 'Gradio' : 'OpenAI 兼容 API';
+    setStatus(status, `接口连接正常（端口 ${result.port}，${label}）。`, 'ok');
+  } catch (error) {
+    if (!controller.signal.aborted) {
+      const message = error.name === 'TimeoutError' ? '检测连接超时，请重试。' : '无法连接播放器服务，请确认服务正在运行。';
+      setStatus(status, message, 'error');
+    }
+  } finally {
+    if (irodoriCheck === controller) {
+      irodoriCheck = null;
+      button.disabled = false;
+    }
+  }
+}
+
 function saveSettings() {
+  const port = field('gpIrodoriPort');
+  if (localPlayer && !port.reportValidity()) return;
   writeBeatAudioVolumes(app.beatAudio.volumes);
   const next = mergeStoredChatSettings(readStoredFreeChatSettings(), {
     baseUrl: field('gpApiBase').value,
@@ -754,6 +830,11 @@ function saveSettings() {
     apiKey: field('gpApiKey').value,
   }, { allowEmpty: true });
   localStorage.setItem(SANDBOX_CHAT_SETTINGS_KEY, JSON.stringify(next));
+  const previousVoice = resolveFishTtsSettings();
+  const previousIrodori = localPlayer ? readIrodoriVoices() : {};
+  const previousConnection = localPlayer ? readIrodoriConnection() : {};
+  const localVoices = localPlayer ? saveIrodoriVoices(irodoriDraft) : {};
+  const connection = localPlayer ? saveIrodoriConnection({ port: port.value, protocol: field('gpIrodoriProtocol').value }) : {};
   const voice = applyFishTtsSettings({
     enabled: field('gpTtsEnabled').checked,
     proxyUrl: field('gpTtsProxy').value || '',
@@ -761,8 +842,13 @@ function saveSettings() {
     apiKey: field('gpTtsKey').value || '',
   }, {
     persist: true,
+    irodori: localPlayer ? createIrodoriSpeech(localVoices, undefined, connection) : null,
     onError: message => showToast(String(message || '角色语音播放失败')),
   });
+  const changed = Object.keys(previousVoice).some(key => previousVoice[key] !== voice[key])
+    || JSON.stringify(previousIrodori) !== JSON.stringify(localVoices)
+    || JSON.stringify(previousConnection) !== JSON.stringify(connection);
+  if (changed) app.refreshBeatVoices();
   field('gpTtsProxy').value = voice.proxyUrl || '';
   const picture = savePicture();
   const chatText = next.baseUrl && next.model ? 'AI 接口已记下。' : 'AI 接口未填写，扩写时再补也可以。';
@@ -898,6 +984,17 @@ for (const input of volumeInputs) {
   });
   input.addEventListener('change', () => writeBeatAudioVolumes(app.beatAudio.volumes));
 }
+field('gpIrodoriSettings').hidden = !localPlayer;
+field('gpIrodoriCheckBtn').addEventListener('click', checkIrodoriConnection);
+field('gpIrodoriPort').addEventListener('input', resetIrodoriCheck);
+field('gpIrodoriProtocol').addEventListener('change', resetIrodoriCheck);
+field('gpSettings').addEventListener('close', event => {
+  if (!event.currentTarget.open) resetIrodoriCheck();
+});
+field('gpIrodoriCharacter').addEventListener('change', syncIrodoriVoiceField);
+field('gpIrodoriVoice').addEventListener('input', event => {
+  irodoriDraft[field('gpIrodoriCharacter').value] = event.currentTarget.value;
+});
 document.querySelectorAll('input[name="gpAa"]').forEach((input) => {
   input.addEventListener('change', () => {
     if (input.checked) savePicture(input.value);

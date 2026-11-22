@@ -3,3 +3,5 @@ dist/
 
 /assets/jobs/*
 !/assets/jobs/.gitkeep
+/assets/tts-output/*
+!/assets/tts-output/.gitkeep

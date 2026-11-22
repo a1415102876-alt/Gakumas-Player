@@ -8,7 +8,7 @@
   <link rel="icon" href="./assets/star.png">
   <link rel="stylesheet" href="./beat-player.css?v=20261106-hide-2d-floor-v1">
   <link rel="stylesheet" href="./gakumas-gakuen.css?v=full-script-import-v1">
-  <link rel="stylesheet" href="./gakumas-gakuen-player.css?v=beat-audio-v1">
+  <link rel="stylesheet" href="./gakumas-gakuen-player.css?v=pr-merge-20261122">
   <link rel="stylesheet" href="./gakumas-opening.css?v=20261107-gakuen-v2">
   <link rel="stylesheet" href="./gakumas-player/notices.css?v=1">
   <script type="importmap">
@@ -368,6 +368,20 @@
         <label>语音模型<input id="gpTtsModel" type="text" placeholder="s2.1-pro-free" autocomplete="off" spellcheck="false"></label>
         <label>Fish API Key<input id="gpTtsKey" type="password" placeholder="只保存在本机" autocomplete="off"></label>
       </fieldset>
+      <fieldset id="gpIrodoriSettings" hidden>
+        <legend>本地 Irodori-TTS</legend>
+        <label>本机端口<input id="gpIrodoriPort" type="number" min="1" max="65535" placeholder="服务端默认端口" autocomplete="off"></label>
+        <label>接口类型<select id="gpIrodoriProtocol" aria-describedby="gpIrodoriConnectionNote"><option value="">按端口选择</option><option value="gradio">Gradio</option><option value="openai">OpenAI 兼容 API</option></select></label>
+        <p id="gpIrodoriConnectionNote" class="gp-settings-note">端口和接口类型需与运行中的服务一致。按端口选择时，7860 和 7861 使用 Gradio，其余端口使用 OpenAI 兼容 API。</p>
+        <div class="gp-settings-actions">
+          <button id="gpIrodoriCheckBtn" class="gp-tool" type="button">检测连接</button>
+        </div>
+        <p id="gpIrodoriCheckStatus" class="gp-status" role="status"></p>
+        <label>角色<select id="gpIrodoriCharacter"></select></label>
+        <label>Irodori Voice ID<input id="gpIrodoriVoice" type="text" maxlength="256" aria-describedby="gpIrodoriNote gpIrodoriVoiceUsage" autocomplete="off" spellcheck="false"></label>
+        <p id="gpIrodoriNote" class="gp-settings-note">在 Irodori-TTS 根目录下，将说话人嵌入文件保存为 <code>voices/&lt;音源ID&gt;.speaker.safetensors</code>。使用播放器配套的 OpenAI 兼容服务时，也可将参考录音保存为 <code>voices/&lt;音源ID&gt;.wav</code>。自定义音源 ID 可使用英文字母、数字、下划线和连字符。</p>
+        <p id="gpIrodoriVoiceUsage" class="gp-settings-note">启用角色语音并选择角色，填写文件名中的音源 ID（例如 <code>my_voice</code>），然后保存设置。使用其他 OpenAI 兼容服务时，填写该服务注册的音源 ID。留空或 Irodori 合成失败时，可使用已配置的 Fish Audio。</p>
+      </fieldset>
       <fieldset>
         <legend>画面</legend>
         <div class="gp-aa" role="radiogroup" aria-labelledby="gpAaLabel">
@@ -420,7 +434,7 @@
   <textarea id="beatScript" hidden></textarea>
   <input id="beatAutoPlay" type="checkbox" checked hidden>
   <span id="beatShot" hidden></span><span id="beatStatus" hidden></span><ul id="beatDiagnostics" hidden></ul>
-  <script src="./fish-tts.js?v=20261111-hkne-voice-v1"></script>
+  <script src="./fish-tts.js?v=producer-voice-v1"></script>
   <script type="module" src="./gakumas-player/notices.js?v=1"></script>
   <script type="module" src="./gakumas-player/gakumas-gakuen.js?v=20261107-gakuen-v1"></script>
   <script type="module" src="./gakumas-player/gakumas-player.js?v=pr-merge-20261122"></script>
