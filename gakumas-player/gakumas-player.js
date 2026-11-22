@@ -9,9 +9,9 @@ import { applyFishTtsSettings, fishTtsStatus, resolveFishTtsSettings } from '../
 import { SANDBOX_CHAT_SETTINGS_KEY, buildSandboxChatSettings, mergeStoredChatSettings, readStoredFreeChatSettings } from '../sandbox/sandbox-chat.js?v=20261106-player-chat-v1';
 import { aaLevel } from '../gakumas-aa.js?v=20261105-aa-level-v1';
 import { SANDBOX_PICTURE_KEY, normalizeSandboxPicture } from '../sandbox/sandbox-picture.js?v=20261105-floor-ssr-v1';
-import { buildWeirdContinuationPrompt, buildWeirdScriptPrompt, extractClosedBeatScript, prepareDirectBeatScript, WEIRD_SCRIPT_MODE } from '../sandbox/sandbox-weird-script.js?v=20261110-hkne-3d-v1';
+import { buildWeirdContinuationPrompt, buildWeirdScriptPrompt, extractClosedBeatScript, prepareDirectBeatScript, prepareGeneratedJapaneseScript, WEIRD_SCRIPT_MODE } from '../sandbox/sandbox-weird-script.js?v=full-script-import-v1';
 import { clearCustomBackground, loadCustomBackgroundImage, prepareCustomBackgroundFile, readCustomBackground, saveCustomBackground, setCustomBackgroundEnabled } from '../custom-background.js?v=20261112-custom-background-v3';
-import { appendBeatScript, GP_MODE, gpModeCopy, gpModeUsesAi, normalizeGpMode, readGpDraft, summarizeBeatScript, writeGpDraft } from './gakumas-player-model.js?v=20261108-chat-clock-v1';
+import { appendBeatScript, GP_MODE, gpModeCopy, gpModeUsesAi, normalizeGpMode, readFullScriptFile, readGpDraft, summarizeBeatScript, writeGpDraft } from './gakumas-player-model.js?v=full-script-import-v1';
 
 const field = id => document.getElementById(id);
 const EDITOR_RESULT_KEY = 'hatsuBeatEditorResult';
@@ -123,6 +123,7 @@ function flushDraft() {
   writeGpDraft({
     mode: view.mode,
     input: field('gpInput').value,
+    japaneseText: field('gpJapaneseText').value,
     script: field('gpScript').value,
     scriptName: view.scriptName,
   });
@@ -174,6 +175,38 @@ function syncInputCount() {
   if (count) count.textContent = `${String(input?.value || '').length.toLocaleString('zh-CN')} 字`;
 }
 
+function bindScriptImport(buttonId, fileId, targetId, language) {
+  const picker = field(fileId);
+  const target = field(targetId);
+  let revision = 0;
+  target.addEventListener('input', () => {
+    revision++;
+    if (view.mode === GP_MODE.FULL && view.continuable) {
+      view.continuable = false;
+      syncScriptSummary();
+    }
+    syncInputCount();
+    persistDraft();
+  });
+  field(buttonId).addEventListener('click', () => picker.click());
+  picker.addEventListener('change', async () => {
+    const file = picker.files?.[0];
+    picker.value = '';
+    if (!file) return;
+    const request = ++revision;
+    const isCurrent = () => request === revision && view.mode === GP_MODE.FULL && !view.busy;
+    try {
+      const text = await readFullScriptFile(file);
+      if (!isCurrent()) return;
+      target.value = text;
+      target.dispatchEvent(new Event('input'));
+      setStatus('gpComposeStatus', `已导入${language}文案「${file.name}」。`, 'ok');
+    } catch (error) {
+      if (isCurrent()) setStatus('gpComposeStatus', error.message || '文案导入失败。', 'error');
+    }
+  });
+}
+
 function syncMode() {
   const copy = gpModeCopy(view.mode);
   const ai = gpModeUsesAi(view.mode);
@@ -195,12 +228,17 @@ function syncMode() {
   if (editorCard) editorCard.hidden = !editor;
   if (chatCard) chatCard.hidden = !chat;
   if (scriptPanel) scriptPanel.hidden = chat;
+  const full = view.mode === GP_MODE.FULL;
+  field('gpChineseImport').hidden = !full;
+  field('gpJapaneseSource').hidden = !full;
+  for (const id of ['gpImportChinese', 'gpImportJapanese', 'gpJapaneseText']) field(id).disabled = view.busy;
   if (ai) {
     field('gpInputTitle').textContent = view.mode === GP_MODE.EXPAND ? '故事大纲' : '完整文案';
     field('gpInputEnglish').textContent = copy.english;
     field('gpInputSummary').textContent = copy.summary;
     const input = field('gpInput');
     input.placeholder = copy.placeholder;
+    input.setAttribute('aria-labelledby', full ? 'gpChineseLabel' : 'gpInputTitle');
     input.disabled = view.busy;
   }
   const generate = field('gpGenerateBtn');
@@ -256,7 +294,7 @@ async function generate({ continuation = false } = {}) {
   const text = String(input?.value || '').trim();
   const existing = String(script?.value || '').trim();
   if (!continuation && !text) {
-    setStatus('gpComposeStatus', view.mode === GP_MODE.EXPAND ? '先写下故事大纲。' : '先贴入完整文案。', 'warn');
+    setStatus('gpComposeStatus', view.mode === GP_MODE.EXPAND ? '先写下故事大纲。' : '请先粘贴或导入中文文案。', 'warn');
     input?.focus();
     return;
   }
@@ -275,16 +313,20 @@ async function generate({ continuation = false } = {}) {
   const normalizeOptions = { preserveBackground: true, preserveStaging: true };
   const closedExisting = extractClosedBeatScript(existing);
   const expanding = view.mode === GP_MODE.EXPAND;
+  const japaneseText = expanding ? '' : field('gpJapaneseText').value.trim();
   const prompt = continuation
     ? buildWeirdContinuationPrompt({
       completedScript: closedExisting.script,
       completedCount: closedExisting.count,
       lastBackground: closedExisting.lastBackground,
       style: expanding,
+      text,
+      japaneseText,
     })
     : buildWeirdScriptPrompt({
       mode: expanding ? WEIRD_SCRIPT_MODE.EXPAND : WEIRD_SCRIPT_MODE.FULL,
       text,
+      japaneseText,
     });
   const bridgeOptions = {
     timeoutMs: 300000,
@@ -311,7 +353,8 @@ async function generate({ continuation = false } = {}) {
     }
     const closed = extractClosedBeatScript(normalized.script);
     if (!closed.count) throw Object.assign(new Error('没有收到完整的 Beat，请重试。'), { rawText: raw });
-    script.value = continuation ? appendBeatScript(closedExisting.script, closed.script) : closed.script;
+    const prepared = prepareGeneratedJapaneseScript(closed.script, japaneseText);
+    script.value = continuation ? appendBeatScript(closedExisting.script, prepared) : prepared;
     if (!continuation) view.scriptName = '';
     view.continuable = closed.hasOpenBeat;
     setStatus('gpComposeStatus', continuation ? `已续写 ${closed.count} 个 Beat。` : `已生成 ${closed.count} 个 Beat，确认脚本后点击“开始播放”。`, 'ok');
@@ -321,7 +364,14 @@ async function generate({ continuation = false } = {}) {
     const raw = String(error?.rawText || '');
     const closed = raw ? extractClosedBeatScript(raw) : { script: '', count: 0 };
     if (closed.count > 0) {
-      script.value = continuation ? appendBeatScript(closedExisting.script, closed.script) : closed.script;
+      let prepared;
+      try {
+        prepared = prepareGeneratedJapaneseScript(closed.script, japaneseText);
+      } catch (validationError) {
+        setStatus('gpComposeStatus', validationError.message, 'error');
+        return;
+      }
+      script.value = continuation ? appendBeatScript(closedExisting.script, prepared) : prepared;
       if (!continuation) view.scriptName = '';
       view.continuable = true;
       setStatus('gpComposeStatus', `已收到 ${closed.count} 个完整 Beat，输出被截断，可以继续生成。`, 'warn');
@@ -846,10 +896,8 @@ field('gpCustomBgEnabled')?.addEventListener('change', (event) => {
 field('gpCustomBgClearBtn')?.addEventListener('click', () => {
   void runCustomBgTask(async () => { await clearCustomBackground(); return null; }, () => '自定义背景已移除，改回脚本里的场景。');
 });
-field('gpInput')?.addEventListener('input', () => {
-  syncInputCount();
-  persistDraft();
-});
+bindScriptImport('gpImportChinese', 'gpChineseFile', 'gpInput', '中文');
+bindScriptImport('gpImportJapanese', 'gpJapaneseFile', 'gpJapaneseText', '日文');
 field('gpScript')?.addEventListener('input', () => {
   view.continuable = view.continuable && summarizeBeatScript(field('gpScript').value).count > 0;
   syncScriptSummary();
@@ -877,6 +925,7 @@ const draft = readGpDraft();
 view.mode = draft.mode;
 field('gpInput').value = draft.input;
 view.scriptName = draft.scriptName || '';
+field('gpJapaneseText').value = draft.japaneseText;
 field('gpScript').value = draft.script;
 const loadedFromEditor = consumeEditorResult();
 syncInputCount();

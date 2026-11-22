@@ -6,7 +6,7 @@ const MODE_COPY = Object.freeze({
   [GP_MODE.FULL]: Object.freeze({
     title: '全文案',
     english: 'FULL TEXT',
-    summary: '贴入写好的完整文案，AI 只负责整理成 Beat 格式。',
+    summary: '粘贴或导入中文文案。提供日文译稿时，AI 会配对两份文案，语音直接使用译稿里的台词。',
     placeholder: '把完整文案贴在这里。台词、旁白、地点都会按原文整理成 Beat。',
     action: '整理成 Beat 脚本',
     busy: '正在把全文整理成 Beat……',
@@ -56,6 +56,7 @@ export function normalizeGpDraft(raw) {
   return {
     mode: normalizeGpMode(source.mode),
     input: String(source.input || '').slice(0, GP_MAX_INPUT),
+    japaneseText: String(source.japaneseText || '').slice(0, GP_MAX_INPUT),
     script: String(source.script || '').slice(0, GP_MAX_INPUT * 2),
     ...(scriptName && { scriptName }),
   };
@@ -73,6 +74,25 @@ export function writeGpDraft(draft, storage = globalThis.localStorage) {
   const next = normalizeGpDraft(draft);
   try { storage?.setItem(GP_DRAFT_KEY, JSON.stringify(next)); } catch { /* storage full or disabled */ }
   return next;
+}
+
+export async function readFullScriptFile(file) {
+  if (!/\.txt$/i.test(file.name)) throw new Error('请选择 .txt 文本文件。');
+  const tooLong = `文案超过 ${GP_MAX_INPUT.toLocaleString('zh-CN')} 字，请分段导入。`;
+  if (file.size > GP_MAX_INPUT * 4 + 3) throw new Error(tooLong);
+  const bytes = new Uint8Array(await file.arrayBuffer());
+  const encoding = bytes[0] === 0xff && bytes[1] === 0xfe ? 'utf-16le'
+    : bytes[0] === 0xfe && bytes[1] === 0xff ? 'utf-16be' : 'utf-8';
+  let text;
+  try {
+    text = new TextDecoder(encoding, { fatal: true }).decode(bytes).replace(/\r\n?/g, '\n');
+  } catch {
+    throw new Error('无法读取文案，请将 .txt 另存为 UTF-8 后再导入。');
+  }
+  if (text.includes('\0')) throw new Error('无法读取文案，请将 .txt 另存为 UTF-8 后再导入。');
+  if (!text.trim()) throw new Error('这个 .txt 文件没有文案。');
+  if (text.length > GP_MAX_INPUT) throw new Error(tooLong);
+  return text;
 }
 
 export function summarizeBeatScript(source) {

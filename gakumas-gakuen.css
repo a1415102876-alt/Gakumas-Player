@@ -246,6 +246,9 @@
 .gp-textarea::placeholder { color: var(--gk-ink-3); }
 .gp-textarea:focus { border-color: var(--gk-coral); box-shadow: 0 0 0 5px rgba(242, 138, 0, .18); }
 .gp-textarea:disabled, .gp-textarea[readonly] { background-color: #f7f5f1; }
+.gp-script-source { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 6px; font-size: 13px; font-weight: 800; color: var(--gk-ink-2); }
+.gp-japanese-source { margin-top: 12px; }
+.gp-japanese-source .gp-textarea { min-height: 100px; }
 .gp-script-text { min-height: 320px; font: 500 13.5px/1.8 var(--gk-font-mono); background-image: none; background-color: #fffaf0; padding-left: 16px; tab-size: 2; }
 #gpScriptTitle { overflow-wrap: anywhere; }
 .gp-script-tools, .gp-memory-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
