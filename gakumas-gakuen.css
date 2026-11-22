@@ -247,6 +247,7 @@
 .gp-textarea:focus { border-color: var(--gk-coral); box-shadow: 0 0 0 5px rgba(242, 138, 0, .18); }
 .gp-textarea:disabled, .gp-textarea[readonly] { background-color: #f7f5f1; }
 .gp-script-text { min-height: 320px; font: 500 13.5px/1.8 var(--gk-font-mono); background-image: none; background-color: #fffaf0; padding-left: 16px; tab-size: 2; }
+#gpScriptTitle { overflow-wrap: anywhere; }
 .gp-script-tools, .gp-memory-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
 .gp-tool {
   display: inline-flex; align-items: center; gap: 6px; min-height: 40px; padding: 0 14px; border-radius: 14px; background: #fff; border: 2px solid var(--gk-mint-soft);

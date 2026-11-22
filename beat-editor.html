@@ -35,6 +35,14 @@
       </div>
     </header>
 
+    <div class="editor-job-bar">
+      <label class="editor-job-name" for="beatEditorJobName">脚本名称
+        <input id="beatEditorJobName" type="text" placeholder="输入脚本名称" autocomplete="off" spellcheck="false">
+      </label>
+      <button id="beatEditorSaveJob" class="button primary" type="button">保存脚本</button>
+      <p id="beatEditorJobStatus" class="editor-job-status" role="status"></p>
+    </div>
+
     <section class="beat-editor-layout">
       <aside class="beat-editor-list-panel" aria-label="Beat 序列">
         <div class="editor-section-heading"><div><span class="panel-kicker">SEQUENCE</span><h2>Beat 序列</h2></div><span id="beatEditorDirty" class="editor-state-pill">未修改</span></div>
@@ -51,6 +59,11 @@
           <div class="editor-inline-actions">
             <button id="beatEditorImportBtn" class="button secondary" type="button">导入并解析</button>
             <label class="file-button button secondary" for="beatEditorFile">打开文件<input id="beatEditorFile" type="file" accept=".txt,.xml,.html,.md,text/plain,text/html"></label>
+          </div>
+          <label class="editor-saved-job" for="beatEditorSavedJob">已保存的脚本</label>
+          <div class="editor-saved-job-row">
+            <select id="beatEditorSavedJob" disabled><option value="">选择脚本</option></select>
+            <button id="beatEditorOpenJob" class="icon-button" type="button" disabled>打开</button>
           </div>
         </div>
       </aside>

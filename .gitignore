@@ -1,2 +1,5 @@
 backgrounds_2d/
 dist/
+
+/assets/jobs/*
+!/assets/jobs/.gitkeep

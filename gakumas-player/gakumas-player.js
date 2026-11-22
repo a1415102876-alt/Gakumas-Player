@@ -1,3 +1,4 @@
+import { listBeatJobs, loadBeatJob } from '../beat-local-jobs.js';
 import { BeatPlayerApp } from '../beat-player.js?v=20261115-lamp-taa-v3';
 import { setLivePictureOptions } from '../live-portrait.js?v=20261115-lamp-taa-v3';
 import { createLocalChatBridge, normalizeChatReply, playerChatScene } from '../beat-chat.js?v=20261113-hkne-onsen-v1';
@@ -14,9 +15,11 @@ import { appendBeatScript, GP_MODE, gpModeCopy, gpModeUsesAi, normalizeGpMode, r
 
 const field = id => document.getElementById(id);
 const EDITOR_RESULT_KEY = 'hatsuBeatEditorResult';
+const EDITOR_RESULT_NAME_KEY = 'hatsuBeatEditorResultName';
 const CANCELLED_MESSAGE = '已取消闲聊生成';
 
 let worldbook = [];
+const localPlayer = location.protocol === 'http:' && ['127.0.0.1', 'localhost'].includes(location.hostname);
 let worldbookPromise = null;
 
 function selectedChatIdolName() {
@@ -82,9 +85,11 @@ const view = {
   busy: false,
   controller: null,
   continuable: false,
+  scriptName: '',
   saveTimer: null,
   toastTimer: null,
 };
+let savedJobsController = null;
 
 function showToast(message) {
   const toast = field('gpToast');
@@ -110,14 +115,17 @@ function setStatus(id, message = '', tone = '') {
 
 function persistDraft() {
   clearTimeout(view.saveTimer);
-  view.saveTimer = setTimeout(() => {
-    writeGpDraft({ mode: view.mode, input: field('gpInput')?.value, script: field('gpScript')?.value });
-  }, 240);
+  view.saveTimer = setTimeout(flushDraft, 240);
 }
 
 function flushDraft() {
   clearTimeout(view.saveTimer);
-  writeGpDraft({ mode: view.mode, input: field('gpInput')?.value, script: field('gpScript')?.value });
+  writeGpDraft({
+    mode: view.mode,
+    input: field('gpInput').value,
+    script: field('gpScript').value,
+    scriptName: view.scriptName,
+  });
 }
 
 function syncSteps() {
@@ -137,6 +145,8 @@ function syncSteps() {
 function syncScriptSummary() {
   const script = field('gpScript');
   const summary = summarizeBeatScript(script?.value);
+  field('gpScriptTitle').textContent = view.scriptName || 'Beat 脚本';
+  field('gpSavedJobsBtn').disabled = view.busy;
   const count = field('gpScriptCount');
   if (count) {
     count.textContent = `${summary.count} Beat`;
@@ -302,6 +312,7 @@ async function generate({ continuation = false } = {}) {
     const closed = extractClosedBeatScript(normalized.script);
     if (!closed.count) throw Object.assign(new Error('没有收到完整的 Beat，请重试。'), { rawText: raw });
     script.value = continuation ? appendBeatScript(closedExisting.script, closed.script) : closed.script;
+    if (!continuation) view.scriptName = '';
     view.continuable = closed.hasOpenBeat;
     setStatus('gpComposeStatus', continuation ? `已续写 ${closed.count} 个 Beat。` : `已生成 ${closed.count} 个 Beat，确认脚本后点击“开始播放”。`, 'ok');
     revealScriptPanel();
@@ -311,6 +322,7 @@ async function generate({ continuation = false } = {}) {
     const closed = raw ? extractClosedBeatScript(raw) : { script: '', count: 0 };
     if (closed.count > 0) {
       script.value = continuation ? appendBeatScript(closedExisting.script, closed.script) : closed.script;
+      if (!continuation) view.scriptName = '';
       view.continuable = true;
       setStatus('gpComposeStatus', `已收到 ${closed.count} 个完整 Beat，输出被截断，可以继续生成。`, 'warn');
       revealScriptPanel();
@@ -338,6 +350,7 @@ function openEditor() {
   if (view.busy) return;
   flushDraft();
   sessionStorage.setItem('hatsuBeatEditorSource', String(field('gpScript')?.value || '').trim());
+  sessionStorage.setItem('hatsuBeatEditorName', view.scriptName);
   sessionStorage.setItem('hatsuBeatEditorReturn', `${location.pathname}${location.search}`);
   location.href = './beat-editor.html?from=gakumas-player';
 }
@@ -346,11 +359,75 @@ function consumeEditorResult() {
   const result = sessionStorage.getItem(EDITOR_RESULT_KEY);
   if (result == null) return false;
   sessionStorage.removeItem(EDITOR_RESULT_KEY);
+  view.scriptName = sessionStorage.getItem(EDITOR_RESULT_NAME_KEY) || '';
+  sessionStorage.removeItem(EDITOR_RESULT_NAME_KEY);
   const script = field('gpScript');
   if (script) script.value = result;
   view.continuable = false;
   showToast('已从可视化编辑器载入脚本。');
   return true;
+}
+
+async function openSavedBeatJobs() {
+  if (!localPlayer || view.busy) return;
+  const dialog = field('gpSavedJobs');
+  if (dialog.open) return;
+  const select = field('gpSavedJob');
+  const load = field('gpLoadJobBtn');
+  savedJobsController?.abort();
+  const controller = new AbortController();
+  savedJobsController = controller;
+  select.replaceChildren();
+  select.disabled = true;
+  load.disabled = true;
+  setStatus('gpSavedJobsStatus', '正在读取脚本列表…', 'busy');
+  dialog.showModal();
+  try {
+    const jobs = await listBeatJobs({ signal: controller.signal });
+    if (controller.signal.aborted || !dialog.open) return;
+    select.replaceChildren(...jobs.map(({ name }) => new Option(name, name)));
+    if (jobs.some(job => job.name === view.scriptName)) select.value = view.scriptName;
+    select.disabled = jobs.length === 0;
+    load.disabled = select.disabled;
+    setStatus('gpSavedJobsStatus', jobs.length ? '' : '还没有保存的脚本。');
+  } catch (error) {
+    if (!controller.signal.aborted) setStatus('gpSavedJobsStatus', error.message, 'error');
+  }
+}
+
+function applySavedBeatJob(name, source) {
+  field('gpScript').value = source;
+  view.scriptName = name;
+  view.continuable = false;
+  if (view.mode === GP_MODE.CHAT) setMode(GP_MODE.EDITOR);
+  syncScriptSummary();
+  flushDraft();
+  revealScriptPanel();
+}
+
+async function loadSelectedBeatJob(event) {
+  event.preventDefault();
+  const dialog = field('gpSavedJobs');
+  const select = field('gpSavedJob');
+  const load = field('gpLoadJobBtn');
+  const controller = savedJobsController;
+  if (!dialog.open || load.disabled || !select.value || !controller) return;
+  const name = select.value;
+  select.disabled = true;
+  load.disabled = true;
+  setStatus('gpSavedJobsStatus', '正在载入脚本…', 'busy');
+  try {
+    const source = await loadBeatJob(name, { signal: controller.signal });
+    if (controller.signal.aborted || !dialog.open) return;
+    dialog.close();
+    applySavedBeatJob(name, source);
+  } catch (error) {
+    if (!controller.signal.aborted) {
+      select.disabled = false;
+      load.disabled = false;
+      setStatus('gpSavedJobsStatus', error.message, 'error');
+    }
+  }
 }
 
 async function copyScript() {
@@ -372,6 +449,7 @@ function clearScript() {
   const script = field('gpScript');
   if (!script?.value.trim()) return;
   script.value = '';
+  view.scriptName = '';
   view.continuable = false;
   syncScriptSummary();
   persistDraft();
@@ -723,6 +801,13 @@ field('gpGenerateBtn')?.addEventListener('click', () => { void generate(); });
 field('gpContinueBtn')?.addEventListener('click', () => { void generate({ continuation: true }); });
 field('gpOpenEditorBtn')?.addEventListener('click', openEditor);
 field('gpScriptEditorBtn')?.addEventListener('click', openEditor);
+field('gpSavedJobsBtn').hidden = !localPlayer;
+field('gpSavedJobsBtn').addEventListener('click', () => { void openSavedBeatJobs(); });
+field('gpSavedJobsForm').addEventListener('submit', event => { void loadSelectedBeatJob(event); });
+field('gpSavedJobsClose').addEventListener('click', () => field('gpSavedJobs').close());
+field('gpSavedJobs').addEventListener('close', event => {
+  if (!event.currentTarget.open) savedJobsController?.abort();
+});
 field('gpCopyBtn')?.addEventListener('click', () => { void copyScript(); });
 field('gpClearBtn')?.addEventListener('click', clearScript);
 field('gpPlayBtn')?.addEventListener('click', () => { void play(); });
@@ -791,6 +876,7 @@ window.addEventListener('pagehide', () => {
 const draft = readGpDraft();
 view.mode = draft.mode;
 field('gpInput').value = draft.input;
+view.scriptName = draft.scriptName || '';
 field('gpScript').value = draft.script;
 const loadedFromEditor = consumeEditorResult();
 syncInputCount();

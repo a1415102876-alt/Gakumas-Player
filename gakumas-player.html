@@ -171,10 +171,11 @@
 
           <section id="gpScriptPanel" class="gp-card gp-script-card" aria-labelledby="gpScriptTitle">
             <header class="gp-card-head">
-              <div><small>BEAT SCRIPT</small><h3 id="gpScriptTitle">Beat 脚本</h3></div>
+              <div><small>BEAT SCRIPT</small><h3 id="gpScriptTitle" dir="auto">Beat 脚本</h3></div>
               <span id="gpScriptCount" class="gp-tag">0 Beat</span>
             </header>
             <div class="gp-script-tools" role="toolbar" aria-label="脚本操作">
+              <button id="gpSavedJobsBtn" class="gp-tool" type="button" hidden><svg aria-hidden="true"><use href="#gpDoc"/></svg><span>打开已保存脚本</span></button>
               <button id="gpCopyBtn" class="gp-tool" type="button"><svg aria-hidden="true"><use href="#gpCopy"/></svg><span>复制</span></button>
               <button id="gpScriptEditorBtn" class="gp-tool" type="button"><svg aria-hidden="true"><use href="#gpPen"/></svg><span>在编辑器中修改</span></button>
               <button id="gpClearBtn" class="gp-tool" type="button"><svg aria-hidden="true"><use href="#gpTrash"/></svg><span>清空</span></button>
@@ -307,6 +308,20 @@
       <div id="gpNoticesList" class="gp-notices-list"></div>
       <button id="gpNoticesRetry" class="gp-tool gp-notices-retry" type="button" hidden>重新加载</button>
     </div>
+  </dialog>
+
+  <dialog id="gpSavedJobs" class="gp-settings" aria-labelledby="gpSavedJobsTitle">
+    <form id="gpSavedJobsForm" class="gp-settings-form">
+      <header class="gp-card-head">
+        <h3 id="gpSavedJobsTitle">已保存的脚本</h3>
+        <button id="gpSavedJobsClose" class="gp-icon-button" type="button" aria-label="关闭脚本列表"><svg aria-hidden="true"><use href="#gpClose"/></svg></button>
+      </header>
+      <label for="gpSavedJob">脚本<select id="gpSavedJob" required disabled></select></label>
+      <p id="gpSavedJobsStatus" class="gp-status" role="status"></p>
+      <div class="gp-settings-actions">
+        <button id="gpLoadJobBtn" class="gp-capsule gp-capsule-main" type="submit" disabled>载入脚本</button>
+      </div>
+    </form>
   </dialog>
 
   <dialog id="gpSettings" class="gp-settings" aria-labelledby="gpSettingsTitle">
