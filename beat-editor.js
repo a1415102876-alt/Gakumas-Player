@@ -1,13 +1,14 @@
 import { listBeatJobs, loadBeatJob, normalizeBeatJobName, saveBeatJob } from './beat-local-jobs.js';
 import { actorPoseFromObject, cameraPoseFromObject } from './scene-free-look.js?v=20261102-actor-pose-v1';
-import { BeatPlayerApp } from './beat-player.js?v=beat-action-keep-v1';
+import { BeatPlayerApp } from './beat-player.js?v=pr-merge-20261122';
 import { beatBackgroundLabel } from './beat-background-labels.js';
+import { BEAT_BGM_STOP, loadBeatAudioCatalog } from './beat-audio.js';
 import { BEAT_BACKGROUND_NAMES } from './beat-backgrounds.js?v=20261017-browser-cache-v1';
 import { BEAT_SCENE_ASSETS } from './beat-scene-assets.js?v=20261027-scene-library-v1';
 import { BEAT_CUES, BEAT_EFFECTS, BEAT_FACES, BEAT_OVERLAYS, BEAT_POSITIONS, BEAT_SHOTS, BEAT_CAMERA_PRESETS, BEAT_SPEAKER_NAMES, beatActorId } from './beat-player-core.js?v=beat-action-keep-v1';
 import { BEAT_BODY_CUE_SPECS, BEAT_CUE_ALIASES, BEAT_KEEP_CUE, beatMotionFileKey, isBeatMotionFile, isBeatPairedCue } from './beat-cues.js?v=beat-action-keep-v1';
 import { MOTION_BUCKETS } from './core.js?v=20261011-stage-cue-rules-v4';
-import { createEditorBeat, cloneEditorBeat, moveBeat, parseBeatEditorSource, serializeBeatEditorScript, updateBeat, validateEditorDocument } from './beat-editor-model.js?v=beat-action-keep-v1';
+import { createEditorBeat, cloneEditorBeat, moveBeat, parseBeatEditorSource, serializeBeatEditorScript, updateBeat, validateEditorDocument } from './beat-editor-model.js?v=pr-merge-20261122';
 import { createActorPoseGizmo } from './beat-actor-gizmo.js?v=20261103-actor-gizmo-v1';
 import { deleteCustomBackgroundItem, listCustomBackgrounds, prepareCustomBackgroundFile, saveCustomBackgroundItem } from './custom-background.js?v=20261112-custom-background-v3';
 
@@ -66,6 +67,8 @@ let previewTimer = 0;
 let previewSilent = true;
 let previewNeedsResources = true;
 let savedJobsVersion = 0;
+let previewPreservesBeatAudio = true;
+let audioCatalog = { bgm: [], sfx: [] };
 
 function clampPreviewWidth(value, fallback, min, max) {
     const number = Number(value);
@@ -398,6 +401,44 @@ function renderBackgroundField(value) {
     select.value = value;
 }
 
+function renderAudioFields(beat = state.document.beats[state.selectedIndex]) {
+    if (!beat) return;
+    for (const [key, id] of [['bgm', 'beatEditorBgm'], ['sfx', 'beatEditorSfx']]) {
+        const select = qs(id);
+        const available = audioCatalog[key];
+        const selected = select.multiple ? beat[key] : [beat[key]];
+        const missing = selected.filter(name => name && name !== BEAT_BGM_STOP && !available.includes(name));
+        const items = key === 'sfx' ? [] : [['', '（无）'], [BEAT_BGM_STOP, '停止播放']];
+        available.forEach(name => items.push([name, name]));
+        missing.forEach(name => items.push([name, `${name}（本地未找到）`]));
+        const optionsChanged = select.options.length !== items.length || items.some(([value, label], index) => {
+            const option = select.options[index];
+            return option.value !== value || option.text !== label;
+        });
+        if (optionsChanged) select.replaceChildren(...items.map(([value, label]) => new Option(label, value)));
+        setField(select, beat[key]);
+    }
+}
+
+async function refreshAudioCatalog() {
+    const button = qs('beatEditorRefreshAudio');
+    const status = qs('beatEditorAudioStatus');
+    button.disabled = true;
+    status.textContent = '正在读取音频列表…';
+    try {
+        audioCatalog = await loadBeatAudioCatalog();
+        renderAudioFields();
+        const { bgm, sfx } = audioCatalog;
+        status.textContent = bgm.length || sfx.length
+            ? `可选 ${bgm.length} 首 BGM、${sfx.length} 个音效。`
+            : '音频文件夹为空。放入音频后，点击「刷新音频列表」。';
+    } catch {
+        status.textContent = '无法读取本地音频列表。请确认本地播放器服务已启动，再刷新。';
+    } finally {
+        button.disabled = false;
+    }
+}
+
 function renderProperties() {
     const beat = state.document.beats[state.selectedIndex];
     const name = qs('beatEditorSelection'); if (name) name.textContent = beat ? `#${state.selectedIndex + 1}` : '—';
@@ -409,6 +450,7 @@ function renderProperties() {
     qs('beatEditorFace').disabled = holdsAction;
     qs('beatEditorFaceFile').disabled = holdsAction;
     qs('beatEditorOverlays').querySelectorAll('button').forEach(button => { button.disabled = holdsAction; });
+    renderAudioFields(beat);
     syncMotionPicker(beat.cue);
     syncFaceFile(beat.face);
     syncCameraPoseFields();
@@ -433,7 +475,8 @@ function renderList() {
                 void app.goTo(index, { autoplay: false });
                 setStatus(`已预览第 ${index + 1} 段`);
             } else {
-                schedulePreviewRefresh({ silent: true });
+                app.applyBeatAudio(beat);
+                schedulePreviewRefresh({ silent: true, preserveBeatAudio: true });
             }
         }); list.append(button);
     });
@@ -458,17 +501,20 @@ function patchNeedsResources(patch) {
     return Object.keys(patch || {}).some(key => resourceKeys.includes(key));
 }
 
-function schedulePreviewRefresh({ silent = false, immediate = false, requiresResources = false } = {}) {
+function schedulePreviewRefresh({ silent = false, immediate = false, requiresResources = false, preserveBeatAudio = false } = {}) {
     previewNeedsResources ||= Boolean(requiresResources);
     previewSilent = previewSilent && Boolean(silent);
+    previewPreservesBeatAudio &&= preserveBeatAudio;
     clearTimeout(previewTimer);
     const run = () => {
         const nextSilent = previewSilent;
         const nextNeedsResources = previewNeedsResources;
+        const nextPreservesBeatAudio = previewPreservesBeatAudio;
         previewSilent = true;
         previewNeedsResources = false;
+        previewPreservesBeatAudio = true;
         previewTimer = 0;
-        void refreshPreview({ silent: nextSilent, needsResources: nextNeedsResources });
+        void refreshPreview({ silent: nextSilent, needsResources: nextNeedsResources, preserveBeatAudio: nextPreservesBeatAudio });
     };
     if (immediate) run();
     else previewTimer = window.setTimeout(run, 90);
@@ -480,7 +526,9 @@ function mutate(patch) {
     state.document = updateBeat(state.document, state.selectedIndex, patch);
     setDirty(true); renderList(); renderProperties();
     const requiresResources = patchNeedsResources(patch);
-    schedulePreviewRefresh({ silent: !requiresResources, requiresResources });
+    const audioKind = ['bgm', 'sfx'].find(key => Object.hasOwn(patch, key));
+    if (audioKind) app.applyBeatAudio(state.document.beats[state.selectedIndex], { kind: audioKind });
+    schedulePreviewRefresh({ silent: !requiresResources, requiresResources, immediate: Boolean(audioKind), preserveBeatAudio: true });
 }
 
 function currentPatchFromEvent(event) {
@@ -500,19 +548,20 @@ function editorParseOptions() {
     return { allowOtherSpeakers: true, customBackgrounds: customBackgroundRecords.map(record => record.id) };
 }
 
-async function refreshPreview({ silent = false, needsResources = true } = {}) {
-    const token = ++state.previewToken; const script = serializeAndStore();
+async function refreshPreview({ silent = false, needsResources = true, preserveBeatAudio = false } = {}) {
+    const token = ++state.previewToken;
+    serializeAndStore();
     setStatus(silent ? '正在刷新预览…' : '正在解析并预加载资源…');
     const canReusePreparedPreview = !needsResources
         && app.compiled?.beats?.length === state.document.beats.length
         && (app.resourceLoadingActive || (app.resources && !app.resources.disposed));
     if (canReusePreparedPreview) app.refreshCompiledPreview();
-    else app.compile({ silent });
+    else app.compile({ silent, preserveBeatAudio });
     try {
         const ready = await app.preloadPromise;
         if (token !== state.previewToken) return;
         if (!ready) { setStatus('资源加载失败，请检查背景或角色资源。', 'warn'); return; }
-        await app.goTo(Math.min(state.selectedIndex, Math.max(0, app.compiled.beats.length - 1)), { autoplay: false });
+        await app.goTo(Math.min(state.selectedIndex, Math.max(0, app.compiled.beats.length - 1)), { autoplay: false, playAudio: false });
         syncCameraPoseFields();
         refreshActorGizmo();
         setStatus(`已预览第 ${state.selectedIndex + 1} 段`);
@@ -1286,6 +1335,8 @@ qs('beatEditorSavedJob').addEventListener('change', renderJobControls);
 qs('beatEditorOpenJob').addEventListener('click', openSavedScript);
 void refreshSavedJobs().catch(() => {});
 void loadMotionCatalog();
+qs('beatEditorRefreshAudio').addEventListener('click', () => { void refreshAudioCatalog(); });
+void refreshAudioCatalog();
 qs('beatEditorPlay').addEventListener('click', () => { qs('beatEditorAuto').checked = true; void app.togglePlay(); }); qs('beatEditorPrevious').addEventListener('click', () => { state.selectedIndex = Math.max(0, state.selectedIndex - 1); renderAll(); void app.goTo(state.selectedIndex, { autoplay: false }); }); qs('beatEditorNext').addEventListener('click', () => { state.selectedIndex = Math.min(state.document.beats.length - 1, state.selectedIndex + 1); renderAll(); void app.goTo(state.selectedIndex, { autoplay: false }); }); qs('beatEditorStop').addEventListener('click', () => app.stop()); qs('beatEditorAdvance').addEventListener('click', () => { state.selectedIndex = Math.min(state.document.beats.length - 1, state.selectedIndex + 1); renderAll(); void app.goTo(state.selectedIndex, { autoplay: false }); });
 window.addEventListener('beforeunload', () => app.dispose?.(), { once: true });
 renderAll();

@@ -2,7 +2,7 @@ import { createSceneDirector } from './live-portrait.js?v=beat-action-keep-v1';
 import { resolveSharedStageMode } from './stage-mode.js?v=20261112-single-renderer-v1';
 import { performanceRecommendations } from './performance-monitor-core.js?v=20261030-perf-diagnostic-v2';
 import { sceneIdolId } from './scene-protocol.js?v=20261111-hkne-motions-v1';
-import { buildStageSlides, cameraWalkOffset, parseBeatScript, resolveActorPoses, resolveBeatCue } from './beat-protocol.js?v=beat-action-keep-v1';
+import { buildStageSlides, cameraWalkOffset, parseBeatScript, resolveActorPoses, resolveBeatCue } from './beat-protocol.js?v=pr-merge-20261122';
 import { applyActorPose, applyCameraPose } from './scene-free-look.js?v=20261103-camera-lens-v1';
 import { BeatScenePool } from './beat-scene-pool.js?v=20261115-lamp-taa-v3';
 import { isBeatScene } from './beat-background-assets.js?v=20261108-chat-clock-v1';
@@ -11,6 +11,8 @@ import { BEAT_KEEP_CUE } from './beat-cues.js?v=beat-action-keep-v1';
 import { BEAT_ACTOR_NAMES, BEAT_CUES, BEAT_EFFECTS, BEAT_FACES, BEAT_OVERLAYS, BEAT_POSITIONS, BEAT_SHOTS, BEAT_SPEAKER_NAMES, backgroundDepthBlur, backgroundPanAmount, backgroundPanPosition, beatActorId, beatBackgroundChanged, buildBackgroundPlan, estimateBeatHold, getShotPreset, plateCoverToBackground, preparedStageCovers, resolveBeatCameraPreset, resolveBeatShot, stagePlateCover, stagePositionOffset, zoomPlateCover } from './beat-player-core.js?v=20261112-custom-bg-transition-v1';
 import { BEAT_BACKGROUND_NAMES, backgroundAssetUrl, preloadBackgrounds } from './beat-backgrounds.js?v=20261017-browser-cache-v1';
 import { TtsLipSyncAnalyzer } from './tts-lip-sync.js?v=20261107-surprise-mouth-v1';
+import { BeatAudioPlayback } from './beat-audio-playback.js';
+import { readBeatAudioVolumes } from './beat-audio.js';
 import { loadResourceLibrary, ResourceSession } from './asset-runtime.js?v=20261114-manifest-fix-v1';
 import { buildDialogueAssetPlan } from './dialogue-asset-plan.js?v=20261112-custom-background-v2';
 import { createResourceLoading } from './resource-loading.js';
@@ -163,6 +165,7 @@ export class BeatPlayerApp {
         this.ttsSession = '';
         this.ttsLipSync = options.ttsLipSync || new TtsLipSyncAnalyzer();
         this.ttsLipSyncSpeaker = '';
+        this.beatAudio = new BeatAudioPlayback({ volumes: readBeatAudioVolumes(), onError: message => this.setStatus(message) });
         this.dialogueReveal = {
             enabled: Boolean(options.dialogueReveal),
             active: false,
@@ -354,13 +357,13 @@ export class BeatPlayerApp {
         return true;
     }
 
-    compile({ prepareCompiled, silent = false } = {}) {
+    compile({ prepareCompiled, silent = false, preserveBeatAudio = false } = {}) {
         const parsed = this.parseScript();
         const stage = buildStageSlides(parsed.beats, NAME_MAP);
         const preloadPlan = this.buildPreloadPlan(parsed.beats);
         const backgroundPlan = buildBackgroundPlan(parsed.beats).filter(name => !isCustomBackgroundName(name));
         const reuseStage = this.canReusePreparedStage(preloadPlan, backgroundPlan);
-        this.stop();
+        this.stop({ preserveBeatAudio });
         this.state.selectedChoice = -1;
         this.needsResourcePreparation = false;
         this.hideChoicePanel();
@@ -759,15 +762,15 @@ export class BeatPlayerApp {
         await this.goTo(index, { autoplay: true });
     }
 
-    async goTo(index, { autoplay = this.state.playing } = {}) {
+    async goTo(index, { autoplay = this.state.playing, playAudio = true } = {}) {
         if (index >= this.compiled.beats.length) {
+            if (playAudio) this.beatAudio.clearEffects();
             if (this.compiled.choices?.length === 4 && this.state.selectedChoice < 0) {
                 this.presentChoices();
                 return false;
             }
-            // Let the final sentence finish playing when autoplay reaches the
-            // end of the script. Explicit stop/compile actions still cancel it.
-            this.stop({ cancelTts: false });
+            // Keep the BGM looping and let the final voice line finish.
+            this.stop({ cancelTts: false, preserveBeatAudio: true });
             return false;
         }
         if (index < 0) return false;
@@ -840,11 +843,16 @@ export class BeatPlayerApp {
             const voicePlayback = this.playBeatVoice(beat, generation);
             if (wipe?.active()) wipe.finish();
             this.setStatus(ready && sceneReady ? `第 ${index + 1} / ${this.compiled.beats.length} 段` : '部分角色或场景资源未就绪，已保留台词和可用内容。');
+            if (playAudio) this.applyBeatAudio(beat);
             if (autoplay && this.elements.auto.checked) this.scheduleNext(generation, voicePlayback, revealDuration);
             return true;
         } finally {
             if (wipe?.active() && !wipe.revealed) this.cancelSceneWipe();
         }
+    }
+
+    applyBeatAudio(beat, options) {
+        this.beatAudio.apply(beat, options);
     }
 
     prepareBeatVoices() {
@@ -993,12 +1001,13 @@ export class BeatPlayerApp {
         if (this.elements.dialogueCard) this.elements.dialogueCard.hidden = false;
     }
 
-    stop({ cancelTts = true } = {}) {
+    stop({ cancelTts = true, preserveBeatAudio = false } = {}) {
         if (this.resourceLoadingActive) this.cancelResourceLoad();
         this.clearTimer();
         this.stopDialogueReveal();
         this.cancelSceneWipe();
         this.state.playing = false;
+        if (!preserveBeatAudio) this.beatAudio.stop();
         if (cancelTts) this.state.generation++;
         if (this.state.choosing) this.hideChoicePanel();
         if (cancelTts) {

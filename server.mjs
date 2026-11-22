@@ -3,6 +3,7 @@ import http from 'node:http';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createBeatOutputHandler } from './beat-output-server.mjs';
+import { BEAT_AUDIO_CATALOG_PATH, BEAT_AUDIO_FOLDER, BEAT_AUDIO_GROUPS, BEAT_AUDIO_TYPES, normalizeBeatAudioName } from './beat-audio.js';
 
 const root = path.dirname(fileURLToPath(import.meta.url));
 const defaultAssetRoot = path.join(root, 'assets');
@@ -19,8 +20,7 @@ const types = {
   '.webp': 'image/webp',
   '.gif': 'image/gif',
   '.svg': 'image/svg+xml',
-  '.wav': 'audio/wav',
-  '.mp3': 'audio/mpeg',
+  ...BEAT_AUDIO_TYPES,
   '.glb': 'model/gltf-binary',
   '.gltf': 'model/gltf+json',
   '.obj': 'text/plain; charset=utf-8',
@@ -36,9 +36,36 @@ function resolveRequest(urlPath, assetRoot) {
   const target = path.resolve(root, `.${requested}`);
   const relative = path.relative(root, target);
   if (!relative || relative.startsWith('..') || path.isAbsolute(relative)) return '';
-  const [section, folder, ...segments] = relative.split(path.sep);
-  if (section === 'assets' && folder === 'jobs') return path.join(assetRoot, folder, ...segments);
+  const [section, ...segments] = relative.split(path.sep);
+  if (section === 'assets') return path.join(assetRoot, ...segments);
   return target;
+}
+
+async function serveBeatAudioCatalog(request, response, assetRoot) {
+  const headers = { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' };
+  if (request.method !== 'GET') {
+    response.writeHead(405, { ...headers, Allow: 'GET' });
+    response.end(JSON.stringify({ error: 'Use GET for the audio catalog.' }));
+    return;
+  }
+  try {
+    const groups = await Promise.all(BEAT_AUDIO_GROUPS.map(async kind => {
+      const directory = path.join(assetRoot, BEAT_AUDIO_FOLDER, kind);
+      const files = await fs.promises.readdir(directory, { withFileTypes: true }).catch(error => {
+        if (error.code === 'ENOENT') return [];
+        throw error;
+      });
+      const names = files.filter(file => file.isFile() && normalizeBeatAudioName(file.name) === file.name)
+        .map(file => file.name)
+        .sort((a, b) => a.localeCompare(b, 'zh-CN', { numeric: true }));
+      return [kind, names];
+    }));
+    response.writeHead(200, headers);
+    response.end(JSON.stringify(Object.fromEntries(groups)));
+  } catch {
+    response.writeHead(500, headers);
+    response.end(JSON.stringify({ error: 'Could not read the audio folders.' }));
+  }
 }
 
 function jsonError(response, status, message) {
@@ -72,6 +99,7 @@ export function createPlayerServer({ assetRoot = defaultAssetRoot } = {}) {
         return jsonError(response, 403, 'Only same-origin local pages are allowed.');
       }
       const [pathname, query] = (request.url || '/').split('?');
+      if (pathname === `/${BEAT_AUDIO_CATALOG_PATH}`) return await serveBeatAudioCatalog(request, response, assetRoot);
       if (pathname === '/api/beat-jobs') return await serveBeatOutput(request, response, query);
       if (!['GET', 'HEAD'].includes(request.method)) return jsonError(response, 405, 'Use GET or HEAD for static files.');
       const target = resolveRequest(request.url, assetRoot);
